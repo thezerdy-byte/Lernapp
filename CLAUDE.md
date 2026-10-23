@@ -27,7 +27,7 @@ Jede Aufgabe gehört genau einem von **drei Kompetenzniveaus** (Anforderungsbere
 
 - Fachinhalte immer von der Lehrkraft prüfen lassen und darauf hinweisen.
 - Keine personenbezogenen Daten erfassen. Ergebnisse höchstens lokal im Browser speichern.
-- Medien liegen in `Medien/` (Vorlagen, nicht automatisch veröffentlicht). Nur das, was eine App braucht, wird ins Repository übernommen. Dateinamen ohne Leerzeichen und Umlaute. Nichts Urheberrechtlich Geschütztes oder Kinderfotos veröffentlichen.
+- Arbeitsmaterial der Lehrkraft (Arbeitsaufträge, Lösungen, Vorlagen) liegt in `Medien/`. Ist es fertig bearbeitet, wird es nach `Fertig/` verschoben. Beide Ordner stehen in `.gitignore` und werden nie veröffentlicht (Lösungen sind „nur für die Lehrkraft“). Was eine App braucht, wird gezielt ins Repository übernommen. Nur das, was eine App braucht, wird ins Repository übernommen. Dateinamen ohne Leerzeichen und Umlaute. Nichts Urheberrechtlich Geschütztes oder Kinderfotos veröffentlichen.
 - Design der Übersichtsseite: `index.html` im Hauptordner (Pastellfarben, umrandete Karten, runde Schaltflächen, Schrift Century Gothic bzw. lokal Questrial aus `fonts/`). Neue Apps nutzen denselben Stil.
 - Committen nur die eigenen Ordner plus `index.html`. Pushen nur auf ausdrückliche Anweisung der Lehrkraft.
 

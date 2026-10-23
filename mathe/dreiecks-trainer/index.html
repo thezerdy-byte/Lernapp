@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dreiecks-Trainer</title>
+<style>
+  @font-face { font-family: "Questrial"; src: url("../../fonts/Questrial-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+  :root {
+    --bg: #f2f7ff; --card: rgba(255,255,255,.82); --text: #26335a; --muted: #6f7ca3;
+    --blue: #6f9fe8; --blue-t: #e3eeff; --purple: #a58ae6; --purple-t: #eee8ff; --green: #78cc8c; --green-t: #e2f6e7;
+    --rose: #e08a8a; --rose-t: #fdeaea;
+    --shadow: 0 8px 28px rgba(80,110,170,.14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141a30; --card: rgba(34,42,76,.82); --text: #eaf0ff; --muted: #9aa8d3;
+      --blue: #6f9fe8; --blue-t: #27386a; --purple: #a58ae6; --purple-t: #382f66; --green: #78cc8c; --green-t: #25503a;
+      --rose: #e08a8a; --rose-t: #5a2f3a;
+      --shadow: 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 16px; display: flex; justify-content: center;
+    font-family: "Century Gothic", CenturyGothic, "Questrial", "Avenir Next", Futura, "Trebuchet MS", sans-serif;
+    color: var(--text); background-color: var(--bg);
+    background-image:
+      radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--blue) 45%, transparent) 0, transparent 26%),
+      radial-gradient(ellipse at 0% 55%, color-mix(in srgb, var(--green) 40%, transparent) 0, transparent 22%),
+      radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--purple) 45%, transparent) 0, transparent 30%),
+      radial-gradient(circle at 100% 8%, color-mix(in srgb, var(--blue) 30%, transparent) 0, transparent 20%);
+    background-attachment: fixed;
+  }
+  .hidden { display: none !important; }
+  main { position: relative; width: 100%; max-width: 640px; }
+  h1 { text-align: center; margin: 14px 0 6px; font-size: 1.9rem; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 18px; }
+  h2 { margin: 0 0 12px; font-size: 1.15rem; }
+  .card { background: var(--card); border: 2.5px solid var(--blue); border-radius: 24px; box-shadow: var(--shadow); padding: 20px; backdrop-filter: blur(6px); }
+  .card + .card { margin-top: 16px; }
+  .card.purple { border-color: var(--purple); }
+  .card.green { border-color: var(--green); }
+  p { line-height: 1.55; margin: 0 0 12px; }
+  .pill { display: block; width: 100%; text-align: center; padding: 12px 16px; font-size: 1rem; font-weight: 700; font-family: inherit; color: var(--text);
+    background: var(--blue-t); border: 2px solid var(--blue); border-radius: 999px; cursor: pointer; text-decoration: none; }
+  .pill.green { background: var(--green-t); border-color: var(--green); }
+  .pill.purple { background: var(--purple-t); border-color: var(--purple); }
+  .pill:hover:not(:disabled) { filter: brightness(.97); transform: translateY(-1px); }
+  .pill:disabled { opacity: .5; cursor: default; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row .pill { flex: 1 1 160px; }
+  .link { display: block; text-align: center; margin-top: 14px; color: var(--muted); text-decoration: none; font-size: .95rem; }
+
+  /* Spiel */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; color: var(--muted); font-size: .95rem; }
+  .dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--blue); background: transparent; }
+  .dot.now { background: var(--blue-t); transform: scale(1.25); }
+  .dot.done { background: var(--blue); }
+  .fig { text-align: center; margin-bottom: 8px; }
+  .fig svg { width: 100%; max-width: 360px; height: auto; color: var(--text); }
+  .fig .shape { fill: var(--blue-t); stroke: var(--blue); stroke-width: 3; stroke-linejoin: round; }
+  .fig .diag { stroke: var(--purple); stroke-width: 2.5; stroke-dasharray: 6 5; fill: none; }
+  .fig .ray { stroke: var(--blue); stroke-width: 3; stroke-linecap: round; fill: none; }
+  .fig .arc { stroke: var(--purple); stroke-width: 2.5; fill: var(--purple-t); }
+  .fig .rm { stroke: var(--purple); stroke-width: 2.2; fill: none; }
+  .fig text { fill: currentColor; font-size: 14px; font-family: inherit; text-anchor: middle; }
+  .fig .vn { font-weight: 700; font-size: 15px; fill: var(--muted); }
+  .fig .q { fill: var(--purple); font-weight: 700; font-size: 16px; }
+  .fig .cap { font-size: 11px; fill: var(--muted); }
+  .task { font-size: 1.12rem; line-height: 1.5; margin-bottom: 12px; }
+  .hint { background: var(--purple-t); border: 2px solid var(--purple); border-radius: 16px; padding: 10px 14px; margin-bottom: 14px; font-size: .95rem; line-height: 1.5; }
+  .hint b { margin-right: 4px; }
+  .opts { display: grid; gap: 10px; margin-bottom: 14px; }
+  .o { text-align: left; padding: 12px 16px; font-family: inherit; font-size: 1rem; color: var(--text); background: var(--card); border: 2px solid var(--blue); border-radius: 18px; cursor: pointer; line-height: 1.4; }
+  .o:hover:not(:disabled) { background: var(--blue-t); }
+  .o.sel { background: var(--blue-t); box-shadow: inset 0 0 0 2px var(--blue); }
+  .o.right { background: var(--green-t); border-color: var(--green); box-shadow: none; }
+  .o.wrong { background: var(--rose-t); border-color: var(--rose); box-shadow: none; }
+  .o:disabled { cursor: default; }
+  .num { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .num input { flex: 1; min-width: 0; font-family: inherit; font-size: 1.4rem; text-align: center; padding: 10px; color: var(--text); background: var(--card); border: 2px solid var(--blue); border-radius: 18px; }
+  .num input:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 35%, transparent); }
+  .num span { font-size: 1.3rem; }
+  .fb { border-radius: 16px; padding: 12px 14px; margin: 14px 0 0; line-height: 1.5; }
+  .fb.ok { background: var(--green-t); border: 2px solid var(--green); }
+  .fb.no { background: var(--rose-t); border: 2px solid var(--rose); }
+  .fb b { display: block; margin-bottom: 2px; }
+
+  /* Überblick */
+  .topic { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: 1.5px dashed color-mix(in srgb, var(--muted) 45%, transparent); }
+  .topic:first-of-type { border-top: 0; }
+  .topic .ic { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; border: 2px solid; }
+  .topic.ok .ic { background: var(--green-t); border-color: var(--green); }
+  .topic.practice .ic { background: var(--purple-t); border-color: var(--purple); }
+  .topic small { display: block; color: var(--muted); margin-top: 2px; line-height: 1.45; }
+  .mia { text-align: center; font-weight: 700; }
+
+  .deco { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .deco svg { position: absolute; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: .45; }
+  .deco .a { width: 70px; top: 8%; right: 3%; color: var(--blue); transform: rotate(14deg); }
+  .deco .b { width: 62px; bottom: 6%; left: 3%; color: var(--purple); transform: rotate(-10deg); }
+  @media (max-width: 700px) { .deco svg { opacity: .25; } }
+  main { z-index: 1; }
+</style>
+</head>
+<body>
+<div class="deco" aria-hidden="true">
+  <svg class="a" viewBox="0 0 64 64"><path d="M8 54L56 54L56 12Z"/><path d="M56 54v-10h-10"/></svg>
+  <svg class="b" viewBox="0 0 64 64"><path d="M32 8L58 54H6Z"/><path d="M20 42a14 14 0 0 1 24 0"/></svg>
+</div>
+
+<main>
+  <h1>Dreiecks-Trainer</h1>
+  <p class="sub">Winkel, Dreiecke und die große Wette</p>
+
+  <section id="start" class="card">
+    <p><b>Mia wettet:</b> „In jedem Dreieck ist die Winkelsumme gleich, egal wie groß oder wie spitz es ist!“ Stimmt das? Löse die Aufgaben und finde es heraus.</p>
+    <p>Du bekommst 15 Aufgaben. Am Ende siehst du, was du schon gut kannst und was du noch üben solltest.</p>
+    <button class="pill" id="go">Los geht’s</button>
+    <a class="link" href="../kopfrechenfussball/">⚽ Erst aufwärmen mit Kopfrechenfußball</a>
+    <a class="link" href="../../">← Zur Übersicht</a>
+  </section>
+
+  <section id="game" class="card hidden">
+    <div class="top"><span id="count"></span><span class="dots" id="dots"></span></div>
+    <div class="fig" id="fig"></div>
+    <div class="task" id="task"></div>
+    <div class="hint hidden" id="hint"></div>
+    <div id="answer"></div>
+    <button class="pill" id="check">Prüfen</button>
+    <div class="fb hidden" id="fb"></div>
+    <button class="pill green hidden" id="next" style="margin-top:12px">Weiter</button>
+  </section>
+
+  <section id="end" class="hidden">
+    <div class="card">
+      <h2>Dein Überblick</h2>
+      <p id="sum"></p>
+      <div id="topics"></div>
+    </div>
+    <div class="card purple">
+      <p class="mia" id="mia"></p>
+      <div class="row">
+        <button class="pill" id="again">Nochmal üben</button>
+        <a class="pill purple" href="../../">Zur Übersicht</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ===== Hilfsfunktionen ===== */
+const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+const pick = a => a[rnd(0, a.length - 1)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(0, i); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const dg = n => n + '°';
+const choice = (options, correct) => { const o = shuffle(options); return { kind: 'choice', options: o, correct: o.indexOf(correct) }; };
+
+/* ===== Zeichnen ===== */
+function triSvg(A, B, C, o = {}) {
+  const r = Math.PI / 180, t = o.t || {}, s = o.s || {};
+  const a = Math.sin(A * r), b = Math.sin(B * r), c = Math.sin(C * r);
+  const P = { A: [0, 0], B: [c, 0], C: [b * Math.cos(A * r), b * Math.sin(A * r)] };
+  const xs = [P.A[0], P.B[0], P.C[0]], minx = Math.min(...xs), maxx = Math.max(...xs), maxy = P.C[1];
+  const w = maxx - minx, h = maxy;
+  const sc = Math.min(230 / w, 100 / h), ox = 35 + (230 - w * sc) / 2, oy = 46 + (100 - h * sc) / 2;
+  const S = {};
+  for (const k of ['A', 'B', 'C']) { let x = ox + (P[k][0] - minx) * sc; const y = oy + (maxy - P[k][1]) * sc; S[k] = [o.flip ? 300 - x : x, y]; }
+  const G = [(S.A[0] + S.B[0] + S.C[0]) / 3, (S.A[1] + S.B[1] + S.C[1]) / 3];
+  const unit = (p, q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1; return [dx / l, dy / l]; };
+  let out = `<svg viewBox="0 0 300 170" role="img" aria-label="Dreieck"><polygon class="shape" points="${S.A} ${S.B} ${S.C}"/>`;
+  const ang = { A, B, C }, nb = { A: ['B', 'C'], B: ['A', 'C'], C: ['A', 'B'] };
+  for (const k of ['A', 'B', 'C']) {
+    const d = unit(G, S[k]);
+    if (!o.noRight && Math.abs(ang[k] - 90) < 0.5) {
+      const u = unit(S[k], S[nb[k][0]]), v = unit(S[k], S[nb[k][1]]), m = 11;
+      out += `<path class="rm" d="M${S[k][0] + u[0] * m} ${S[k][1] + u[1] * m} L${S[k][0] + (u[0] + v[0]) * m} ${S[k][1] + (u[1] + v[1]) * m} L${S[k][0] + v[0] * m} ${S[k][1] + v[1] * m}"/>`;
+    }
+    if (o.letters !== false) out += `<text class="vn" x="${S[k][0] + d[0] * 17}" y="${S[k][1] + d[1] * 17 + 5}">${k}</text>`;
+    if (t[k]) { const f = ang[k] < 40 ? 42 : -30; out += `<text class="${t[k].includes('?') ? 'q' : ''}" x="${S[k][0] + d[0] * f}" y="${S[k][1] + d[1] * f + 5}">${t[k]}</text>`; }
+  }
+  const edges = { a: ['B', 'C'], b: ['A', 'C'], c: ['A', 'B'] };
+  for (const k of ['a', 'b', 'c']) if (s[k]) {
+    const [p, q] = edges[k], m = [(S[p][0] + S[q][0]) / 2, (S[p][1] + S[q][1]) / 2], d = unit(G, m);
+    out += `<text x="${m[0] + d[0] * 18}" y="${m[1] + d[1] * 18 + 5}">${s[k]}</text>`;
+  }
+  return out + '</svg>';
+}
+function anglesFromSides(a, b, c) {
+  const f = (x, y, z) => Math.acos((y * y + z * z - x * x) / (2 * y * z)) * 180 / Math.PI;
+  return [f(a, b, c), f(b, a, c), f(c, a, b)];
+}
+function angleSvg(d, label) {
+  const r = Math.PI / 180, V = [150, 125], L = 110, e = [V[0] + L * Math.cos(d * r), V[1] - L * Math.sin(d * r)];
+  let out = `<svg viewBox="0 0 300 150" role="img" aria-label="Winkel"><path class="ray" d="M${V} L270 125 M${V} L${e}"/>`;
+  if (d === 90) out += `<path class="rm" d="M${V[0] + 16} ${V[1]} V${V[1] - 16} H${V[0]}"/>`;
+  else out += `<path class="arc" d="M${V[0] + 30} ${V[1]} A30 30 0 0 0 ${V[0] + 30 * Math.cos(d * r)} ${V[1] - 30 * Math.sin(d * r)} L${V} Z"/>`;
+  out += `<text x="${V[0] + 52 * Math.cos(d * r / 2)}" y="${V[1] - 52 * Math.sin(d * r / 2) + 5}">${label}</text></svg>`;
+  return out;
+}
+function quadSvg(t) {
+  const Q = { A: [40, 135], B: [255, 135], C: [225, 38], D: [65, 52] };
+  const G = [146, 90], unit = (p, q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1; return [dx / l, dy / l]; };
+  let out = `<svg viewBox="0 0 300 170" role="img" aria-label="Viereck mit Diagonale"><polygon class="shape" points="${Q.A} ${Q.B} ${Q.C} ${Q.D}"/><path class="diag" d="M${Q.A} L${Q.C}"/>`;
+  const T = { A: [100, 128], B: [226, 124], C: [208, 78], D: [96, 70] };
+  for (const k of ['A', 'B', 'C', 'D']) {
+    const d = unit(G, Q[k]);
+    out += `<text class="vn" x="${Q[k][0] + d[0] * 17}" y="${Q[k][1] + d[1] * 17 + 5}">${k}</text>`;
+    out += `<text class="${t[k].includes('?') ? 'q' : ''}" x="${T[k][0]}" y="${T[k][1] + 5}">${t[k]}</text>`;
+  }
+  return out + '<text class="cap" x="150" y="166">Skizze, nicht maßstabsgetreu</text></svg>';
+}
+
+/* ===== Themen für den Überblick ===== */
+const THEMEN = {
+  ordnen:    { titel: 'Winkel und Dreiecke benennen und ordnen', tipp: 'Merke: spitz < 90°, recht = 90°, stumpf > 90°. Gleichseitig: drei gleiche Seiten. Gleichschenklig: zwei gleiche Seiten.' },
+  summe:     { titel: 'Winkelsumme 180° kennen und nutzen', tipp: 'Merke: α + β + γ = 180°. Zum Berechnen: 180° − Winkel − Winkel.' },
+  besondere: { titel: 'Rechtwinklige und gleichschenklige Dreiecke', tipp: 'Rechtwinklig: ein Winkel ist 90°. Gleichschenklig: zwei Winkel sind gleich groß, also (180° − Spitzenwinkel) : 2.' },
+  begruenden:{ titel: 'Aussagen überprüfen und begründen', tipp: 'Addiere die Winkel. Ist die Summe nicht genau 180°, kann das Dreieck nicht stimmen.' },
+  transfer:  { titel: 'Auf neue Situationen übertragen', tipp: 'Mache eine Skizze und überlege, welche Regel passt: Winkelsumme im Dreieck (180°), im Viereck (360°) oder sss, sws, wsw beim Zeichnen.' }
+};
+
+/* ===== Aufgaben (hier anpassbar) =====
+   Jede Aufgabe: niveau 1 = Reproduktion, 2 = Reorganisation, 3 = Transfer.
+   make(s) liefert Text, Figur, Antwortformat, Lösung, Erklärung und die Hilfen h[1], h[2], h[3] (leer = keine Hilfe).
+   Der Parameter s steuert nur unauffällig Hilfen und Zahlenwerte. */
+const TASKS = [
+  /* ---------- Niveau 1: Reproduktion ---------- */
+  { niveau: 1, thema: 'ordnen', make(s) {
+      const typ = pick([['spitzer Winkel', rnd(15, 85)], ['rechter Winkel', 90], ['stumpfer Winkel', rnd(95, 170)], ['gestreckter Winkel', 180]]);
+      const w = s === 1 ? Math.round(typ[1] / 5) * 5 || 5 : typ[1];
+      const art = w < 90 ? 'spitzer Winkel' : w === 90 ? 'rechter Winkel' : w < 180 ? 'stumpfer Winkel' : 'gestreckter Winkel';
+      return { fig: angleSvg(w, `α = ${dg(w)}`), text: `Welche Art von Winkel ist α = ${dg(w)}?`,
+        ...choice(['spitzer Winkel', 'rechter Winkel', 'stumpfer Winkel', 'gestreckter Winkel'], art),
+        h: { 1: 'spitz: kleiner als 90° · recht: genau 90° · stumpf: zwischen 90° und 180° · gestreckt: genau 180°', 2: 'Vergleiche den Winkel mit 90° und mit 180°.', 3: '' },
+        expl: `${dg(w)} ist ${w < 90 ? 'kleiner als 90°' : w === 90 ? 'genau 90°' : w < 180 ? 'größer als 90° und kleiner als 180°' : 'genau 180°'}: ${art}.` };
+  } },
+  { niveau: 1, thema: 'ordnen', make(s) {
+      const typ = pick(['spitz', 'recht', 'stumpf']); let w;
+      if (typ === 'recht') { const a = rnd(25, 65); w = [90, a, 90 - a]; }
+      else if (typ === 'stumpf') { const g = rnd(100, 130), a = rnd(20, 180 - g - 20); w = [g, a, 180 - g - a]; }
+      else { do { const a = rnd(45, 80), b = rnd(45, 80); w = [a, b, 180 - a - b]; } while (w[2] >= 88 || w[2] < 30); }
+      w = shuffle(w);
+      const art = { spitz: 'spitzwinkliges Dreieck', recht: 'rechtwinkliges Dreieck', stumpf: 'stumpfwinkliges Dreieck' }[typ];
+      return { fig: triSvg(w[0], w[1], w[2], { t: { A: dg(w[0]), B: dg(w[1]), C: dg(w[2]) }, flip: Math.random() < .5 }),
+        text: 'Wie heißt dieses Dreieck, wenn man auf die Winkel schaut?',
+        ...choice(['spitzwinkliges Dreieck', 'rechtwinkliges Dreieck', 'stumpfwinkliges Dreieck'], art),
+        h: { 1: 'Hat ein Winkel genau 90°, ist es rechtwinklig. Ist ein Winkel größer als 90°, ist es stumpfwinklig. Sind alle Winkel kleiner als 90°, ist es spitzwinklig.', 2: 'Suche den größten Winkel und vergleiche ihn mit 90°.', 3: '' },
+        expl: `Der größte Winkel ist ${dg(Math.max(...w))}: ${art}.` };
+  } },
+  { niveau: 1, thema: 'ordnen', make(s) {
+      const typ = pick(['gleichseitig', 'gleichschenklig', 'allgemein']); let sd;
+      if (typ === 'gleichseitig') { const k = rnd(3, 7); sd = [k, k, k]; }
+      else if (typ === 'gleichschenklig') { const k = rnd(4, 7); let m; do { m = rnd(2, 2 * k - 2); } while (m === k); sd = [k, k, m]; }
+      else { do { sd = [rnd(3, 8), rnd(3, 8), rnd(3, 8)]; } while (new Set(sd).size < 3 || sd.slice().sort((x, y) => x - y).reduce((p, c, i) => i < 2 ? p + c : p - c, 0) <= 0); }
+      sd = shuffle(sd);
+      const [A, B, C] = anglesFromSides(...sd);
+      const art = { gleichseitig: 'gleichseitiges Dreieck', gleichschenklig: 'gleichschenkliges Dreieck', allgemein: 'allgemeines Dreieck' }[typ];
+      return { fig: triSvg(A, B, C, { letters: false, noRight: true, s: { a: sd[0] + ' cm', b: sd[1] + ' cm', c: sd[2] + ' cm' }, flip: Math.random() < .5 }),
+        text: 'Wie heißt dieses Dreieck, wenn man auf die Seiten schaut?',
+        ...choice(['gleichseitiges Dreieck', 'gleichschenkliges Dreieck', 'allgemeines Dreieck'], art),
+        h: { 1: 'gleichseitig: alle drei Seiten gleich lang · gleichschenklig: genau zwei Seiten gleich lang · allgemein: alle Seiten verschieden lang', 2: 'Zähle, wie viele Seiten gleich lang sind.', 3: '' },
+        expl: `Seiten: ${sd.join(' cm, ')} cm. Das ist ein ${art}.` };
+  } },
+  { niveau: 1, thema: 'summe', make(s) {
+      let w; do { const a = rnd(35, 85), b = rnd(35, 85); w = [a, b, 180 - a - b]; } while (w[2] < 25 || w[2] > 100 || w[2] === 90);
+      return { fig: triSvg(w[0], w[1], w[2], { t: { A: 'α', B: 'β', C: 'γ' } }),
+        text: 'Wie groß ist die Winkelsumme α + β + γ in jedem Dreieck?',
+        ...choice(['90°', '180°', '270°', '360°'], '180°'),
+        h: { 1: 'Beim Abreißen der Ecken lagen die drei Winkel zusammen auf einer Geraden. Das ist ein gestreckter Winkel.', 2: 'Denke an die abgerissenen Ecken.', 3: '' },
+        expl: 'In jedem Dreieck ergeben die drei Winkel zusammen 180°, auch in einem großen oder kleinen Dreieck.' };
+  } },
+  { niveau: 1, thema: 'ordnen', make(s) {
+      let w; do { const a = rnd(40, 80), b = rnd(40, 80); w = [a, b, 180 - a - b]; } while (w[2] < 30 || w[2] > 85);
+      const k = pick(['A', 'B', 'C']), grk = { A: 'α', B: 'β', C: 'γ' };
+      return { fig: triSvg(w[0], w[1], w[2], { t: { [k]: '?' }, flip: Math.random() < .5 }),
+        text: `Wie heißt der Winkel bei der Ecke ${k}?`,
+        ...choice(['α', 'β', 'γ'], grk[k]),
+        h: { 1: 'Der Winkel α gehört zur Ecke A, β gehört zu B und γ gehört zu C.', 2: 'Winkel und Ecke gehören zusammen: A → α.', 3: '' },
+        expl: `Zur Ecke ${k} gehört der Winkel ${grk[k]}.` };
+  } },
+
+  /* ---------- Niveau 2: Reorganisation ---------- */
+  { niveau: 2, thema: 'summe', make(s) {
+      let a, b; do { a = s === 1 ? 5 * rnd(8, 16) : rnd(30, 85); b = s === 1 ? 5 * rnd(8, 16) : rnd(30, 85); } while (a + b > 150 || a + b < 70 || a + b === 90);
+      const g = 180 - a - b;
+      return { fig: triSvg(a, b, g, { t: { A: dg(a), B: dg(b), C: '?' }, flip: Math.random() < .5 }),
+        text: `Berechne γ. Gegeben sind α = ${dg(a)} und β = ${dg(b)}.`, kind: 'number', correct: g,
+        h: { 1: `Rechne: 180° − ${dg(a)} − ${dg(b)} = ?`, 2: 'Die drei Winkel ergeben zusammen 180°.', 3: '' },
+        expl: `γ = 180° − ${dg(a)} − ${dg(b)} = ${dg(g)}` };
+  } },
+  { niveau: 2, thema: 'besondere', make(s) {
+      const b = s === 1 ? 5 * rnd(4, 15) : rnd(20, 70), g = 90 - b;
+      return { fig: triSvg(90, b, g, { t: { A: dg(90), B: dg(b), C: '?' } }),
+        text: `Berechne γ im rechtwinkligen Dreieck. Gegeben sind α = 90° und β = ${dg(b)}.`, kind: 'number', correct: g,
+        h: { 1: `Ein rechter Winkel hat 90°. Rechne 180° − 90° − ${dg(b)}.`, 2: 'Ein Winkel ist schon 90°. Die Winkelsumme ist 180°.', 3: '' },
+        expl: `γ = 180° − 90° − ${dg(b)} = ${dg(g)}` };
+  } },
+  { niveau: 2, thema: 'besondere', make(s) {
+      const g = s === 1 ? pick([20, 40, 60, 80, 100]) : 2 * rnd(15, 50), a = (180 - g) / 2;
+      return { fig: triSvg(a, a, g, { t: { A: '?', B: '?', C: dg(g) } }),
+        text: `Ein gleichschenkliges Dreieck hat an der Spitze den Winkel γ = ${dg(g)}. Wie groß sind α und β? (Gib α an.)`, kind: 'number', correct: a,
+        h: { 1: `Die beiden anderen Winkel sind gleich groß. Rechne (180° − ${dg(g)}) : 2.`, 2: 'Im gleichschenkligen Dreieck sind zwei Winkel gleich groß.', 3: '' },
+        expl: `α = β = (180° − ${dg(g)}) : 2 = ${dg(a)}` };
+  } },
+  { niveau: 2, thema: 'summe', make(s) {
+      const typ = pick(['spitz', 'recht', 'stumpf']); let w;
+      if (typ === 'recht') { const a = rnd(25, 65); w = [a, 90 - a, 90]; }
+      else if (typ === 'stumpf') { const g = rnd(100, 125); const a = rnd(20, 180 - g - 20); w = [a, 180 - g - a, g]; }
+      else { do { const a = rnd(45, 80), b = rnd(45, 80); w = [a, b, 180 - a - b]; } while (w[2] >= 88 || w[2] < 30); }
+      const hide = rnd(0, 2), known = w.filter((_, i) => i !== hide), grk = ['α', 'β', 'γ'];
+      const given = grk.filter((_, i) => i !== hide).map((n, i) => `${n} = ${dg(known[i])}`);
+      const art = { spitz: 'spitzwinkliges Dreieck', recht: 'rechtwinkliges Dreieck', stumpf: 'stumpfwinkliges Dreieck' }[typ];
+      return { fig: '', text: `Von einem Dreieck kennst du ${given.join(' und ')}. Welche Art von Dreieck ist es?`,
+        ...choice(['spitzwinkliges Dreieck', 'rechtwinkliges Dreieck', 'stumpfwinkliges Dreieck'], art),
+        h: { 1: `Rechne zuerst ${grk[hide]} = 180° − ${dg(known[0])} − ${dg(known[1])}. Prüfe dann, ob ein Winkel 90° hat oder größer als 90° ist.`, 2: 'Berechne zuerst den dritten Winkel.', 3: '' },
+        expl: `${grk[hide]} = 180° − ${dg(known[0])} − ${dg(known[1])} = ${dg(w[hide])}. Die Winkel sind ${dg(w[0])}, ${dg(w[1])} und ${dg(w[2])}: ${art}.` };
+  } },
+  { niveau: 2, thema: 'besondere', make(s) {
+      const x = s === 1 ? 5 * rnd(8, 16) : rnd(35, 80), g = 180 - 2 * x;
+      return { fig: triSvg(x, x, g, { t: { A: dg(x), B: dg(x), C: '?' } }),
+        text: `Ein gleichschenkliges Dreieck hat an der Basis zwei gleich große Winkel mit je ${dg(x)}. Wie groß ist der Winkel γ an der Spitze?`, kind: 'number', correct: g,
+        h: { 1: `Rechne 180° − ${dg(x)} − ${dg(x)}.`, 2: 'Die Winkelsumme beträgt 180°.', 3: '' },
+        expl: `γ = 180° − ${dg(x)} − ${dg(x)} = ${dg(g)}` };
+  } },
+
+  /* ---------- Niveau 3: Transfer ---------- */
+  { niveau: 3, thema: 'begruenden', make(s) {
+      const v = pick([
+        { q: 'Kann ein Dreieck zwei rechte Winkel haben?', ok: 'Nein, denn 90° + 90° = 180°. Für den dritten Winkel bliebe 0° übrig.', bad: ['Ja, dann ist der dritte Winkel 180°.', 'Ja, das ist dann ein gleichseitiges Dreieck.', 'Nein, denn ein rechter Winkel hat 100°.'], e: '90° + 90° = 180°. Dann bleibt für den dritten Winkel nichts übrig, also gibt es kein Dreieck.' },
+        { q: 'Kann ein Dreieck zwei stumpfe Winkel haben?', ok: 'Nein, denn zwei Winkel über 90° ergeben schon mehr als 180°.', bad: ['Ja, wenn der dritte Winkel sehr klein ist.', 'Ja, die Summe darf bis 360° gehen.', 'Nein, denn stumpfe Winkel sind kleiner als 90°.'], e: 'Zwei Winkel über 90° ergeben zusammen mehr als 180°. Die Winkelsumme im Dreieck ist aber genau 180°.' },
+        { q: 'Kann ein Dreieck einen rechten und einen stumpfen Winkel haben?', ok: 'Nein, denn 90° plus mehr als 90° ist schon mehr als 180°.', bad: ['Ja, dann ist der dritte Winkel spitz.', 'Ja, das ist dann ein gleichschenkliges Dreieck.', 'Nein, denn ein stumpfer Winkel ist genau 180°.'], e: 'Ein rechter Winkel (90°) und ein stumpfer Winkel (mehr als 90°) ergeben zusammen mehr als 180°.' }
+      ]);
+      return { fig: '', text: v.q + ' Wähle die richtige Antwort mit Begründung.', ...choice([v.ok, ...v.bad], v.ok),
+        h: { 1: 'Rechne: Wie viel Grad bleiben für den dritten Winkel übrig?', 2: 'Denke an die Winkelsumme 180°.', 3: '' }, expl: v.e };
+  } },
+  { niveau: 3, thema: 'begruenden', make(s) {
+      const v = pick([[100, 50, 40], [70, 60, 50], [110, 45, 25], [80, 60, 40], [95, 55, 30], [120, 40, 30], [60, 60, 60]].concat(s === 1 ? [] : [[75, 65, 45], [105, 50, 25]]));
+      const w = shuffle(v), sum = w[0] + w[1] + w[2];
+      const o = ['Ja, das kann stimmen.', 'Nein, die Summe ist größer als 180°.', 'Nein, die Summe ist kleiner als 180°.'];
+      const ok = sum === 180 ? o[0] : sum > 180 ? o[1] : o[2];
+      return { fig: '', text: `Leon behauptet: „Mein Dreieck hat die Winkel α = ${dg(w[0])}, β = ${dg(w[1])} und γ = ${dg(w[2])}.“ Kann das stimmen?`, ...choice(o, ok),
+        h: { 1: `Addiere die drei Winkel: ${dg(w[0])} + ${dg(w[1])} + ${dg(w[2])} = ?`, 2: 'Die Winkelsumme im Dreieck muss genau 180° sein.', 3: '' },
+        expl: `${dg(w[0])} + ${dg(w[1])} + ${dg(w[2])} = ${dg(sum)}. ${sum === 180 ? 'Das passt zur Winkelsumme 180°.' : 'Die Winkelsumme im Dreieck muss aber 180° sein.'}` };
+  } },
+  { niveau: 3, thema: 'transfer', make(s) {
+      const a = s === 1 ? 5 * rnd(10, 18) : rnd(60, 100), b = s === 1 ? 5 * rnd(10, 18) : rnd(60, 100);
+      let c, d; do { c = rnd(60, 110); d = rnd(60, 110); } while (a + b + c >= 330);
+      const dl = 360 - a - b - c;
+      return { fig: quadSvg({ A: dg(a), B: dg(b), C: dg(c), D: 'δ = ?' }),
+        text: `Mia wettet: „Im Viereck ist die Winkelsumme auch immer gleich!“ Berechne δ mit α = ${dg(a)}, β = ${dg(b)} und γ = ${dg(c)}.`, kind: 'number', correct: dl,
+        h: { 1: `Die Diagonale teilt das Viereck in 2 Dreiecke. 2 · 180° = 360°. Rechne 360° − ${dg(a)} − ${dg(b)} − ${dg(c)}.`, 2: 'Die Diagonale teilt das Viereck in zwei Dreiecke.', 3: '' },
+        expl: `Zwei Dreiecke ergeben 2 · 180° = 360°. δ = 360° − ${dg(a)} − ${dg(b)} − ${dg(c)} = ${dg(dl)}. Mia hat recht: Im Viereck ist die Winkelsumme immer 360°.` };
+  } },
+  { niveau: 3, thema: 'transfer', make(s) {
+      const x = rnd(3, 6), y = rnd(4, 7), z = rnd(5, 8), w1 = rnd(40, 60), w2 = rnd(50, 70);
+      const gut = pick([
+        { t: `a = ${x} cm, b = ${y} cm, c = ${Math.min(z, x + y - 1)} cm`, e: 'Drei Seiten (sss) reichen aus.' },
+        { t: `b = ${y} cm, c = ${z} cm und der Winkel α = ${dg(w1)} zwischen b und c`, e: 'Zwei Seiten und der eingeschlossene Winkel (sws) reichen aus.' },
+        { t: `c = ${z} cm, α = ${dg(w1)} und β = ${dg(w2)}`, e: 'Eine Seite und die beiden anliegenden Winkel (wsw) reichen aus.' }
+      ]);
+      const bad = shuffle([
+        `α = ${dg(w1)}, β = ${dg(w2)} und γ = ${dg(180 - w1 - w2)}`,
+        `a = ${x} cm und b = ${y} cm`,
+        `c = ${z} cm und α = ${dg(w1)}`
+      ]);
+      return { fig: '', text: 'Du willst ein Dreieck genau so zeichnen, dass es eindeutig ist. Mit welchen Angaben geht das?', ...choice([gut.t, ...bad], gut.t),
+        h: { 1: 'Es reichen: drei Seiten (sss), zwei Seiten und der eingeschlossene Winkel (sws) oder eine Seite und die beiden anliegenden Winkel (wsw).', 2: 'Denke an sss, sws und wsw.', 3: '' },
+        expl: `${gut.e} Mit drei Winkeln allein, mit zwei Seiten oder mit nur einer Seite und einem Winkel gibt es viele verschiedene Dreiecke.` };
+  } },
+  { niveau: 3, thema: 'transfer', make(s) {
+      const v = pick([
+        () => { const g = s === 1 ? pick([40, 60, 80, 100]) : 2 * rnd(15, 55), a = (180 - g) / 2; return { text: `Ein Dachgiebel ist ein gleichschenkliges Dreieck. Der Winkel an der Dachspitze beträgt ${dg(g)}. Wie groß ist der Winkel an der Dachkante unten?`, ans: a, expl: `(180° − ${dg(g)}) : 2 = ${dg(a)}`, h1: `Skizziere das Dreieck. Die beiden unteren Winkel sind gleich groß. Rechne (180° − ${dg(g)}) : 2.` }; },
+        () => { const a = rnd(40, 70), b = rnd(45, 75); return { text: `Ein dreieckiges Segel hat zwei Winkel: ${dg(a)} und ${dg(b)}. Wie groß ist der dritte Winkel?`, ans: 180 - a - b, expl: `180° − ${dg(a)} − ${dg(b)} = ${dg(180 - a - b)}`, h1: `Skizziere das Segel. Rechne 180° − ${dg(a)} − ${dg(b)}.` }; },
+        () => ({ text: 'Ein Zelt hat vorne die Form eines gleichseitigen Dreiecks. Wie groß ist jeder Winkel?', ans: 60, expl: 'Alle drei Winkel sind gleich groß: 180° : 3 = 60°.', h1: 'Beim gleichseitigen Dreieck sind alle Seiten und alle Winkel gleich. Rechne 180° : 3.' })
+      ])();
+      return { fig: '', text: v.text, kind: 'number', correct: v.ans, h: { 1: v.h1, 2: 'Wende die Winkelsumme 180° an.', 3: '' }, expl: v.expl };
+  } }
+];
+
+/* ===== Ablauf ===== */
+const $ = id => document.getElementById(id);
+let st;
+const startStufe = (() => { const p = new URLSearchParams(location.search).get('stufe'); return ['1', '2', '3'].includes(p) ? +p : 2; })();
+
+function startGame() {
+  st = { i: 0, stufe: startStufe, ok: 0, bad: 0, res: [], cur: null, done: false };
+  show('game'); renderDots(); load();
+}
+function show(id) { ['start', 'game', 'end'].forEach(x => $(x).classList.toggle('hidden', x !== id)); window.scrollTo(0, 0); }
+function renderDots() {
+  $('dots').innerHTML = TASKS.map((_, i) => `<span class="dot ${i < st.i ? 'done' : i === st.i ? 'now' : ''}"></span>`).join('');
+  $('count').textContent = `Aufgabe ${st.i + 1} von ${TASKS.length}`;
+}
+function load() {
+  const t = TASKS[st.i], c = t.make(st.stufe); st.cur = { t, c, sel: null }; st.done = false;
+  renderDots();
+  $('fig').innerHTML = c.fig || ''; $('fig').classList.toggle('hidden', !c.fig);
+  $('task').textContent = c.text;
+  const h = c.h[st.stufe];
+  $('hint').classList.toggle('hidden', !h); $('hint').innerHTML = h ? `<b>Hinweis:</b> ${h}` : '';
+  if (c.kind === 'choice') {
+    $('answer').innerHTML = `<div class="opts">${c.options.map((o, i) => `<button class="o" data-i="${i}">${o}</button>`).join('')}</div>`;
+  } else {
+    $('answer').innerHTML = '<div class="num"><input id="inp" type="text" inputmode="numeric" autocomplete="off" aria-label="Deine Antwort"><span>°</span></div>';
+    $('inp').addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+    setTimeout(() => $('inp').focus(), 50);
+  }
+  $('check').classList.remove('hidden'); $('check').disabled = false;
+  $('next').classList.add('hidden'); $('fb').classList.add('hidden');
+}
+$('answer').addEventListener('click', e => {
+  const b = e.target.closest('.o'); if (!b || st.done) return;
+  document.querySelectorAll('.o').forEach(o => o.classList.remove('sel')); b.classList.add('sel'); st.cur.sel = +b.dataset.i;
+});
+function check() {
+  if (st.done) return;
+  const { c, t } = st.cur; let ok, given;
+  if (c.kind === 'choice') { if (st.cur.sel == null) return; given = st.cur.sel; ok = given === c.correct; }
+  else {
+    const raw = $('inp').value.replace(/°/g, '').replace(',', '.').trim(); if (raw === '' || isNaN(+raw)) return;
+    ok = Math.abs(+raw - c.correct) < 1e-9;
+  }
+  st.done = true; st.res.push({ thema: t.thema, ok });
+  if (ok) { st.ok++; st.run = (st.run || 0) + 1; st.badRun = 0; if (st.run >= 3 && st.stufe < 3) { st.stufe++; st.run = 0; } }
+  else { st.bad++; st.badRun = (st.badRun || 0) + 1; st.run = 0; if (st.badRun >= 2 && st.stufe > 1) { st.stufe--; st.badRun = 0; } }
+  if (c.kind === 'choice') document.querySelectorAll('.o').forEach((o, i) => { o.disabled = true; if (i === c.correct) o.classList.add('right'); else if (i === st.cur.sel) o.classList.add('wrong'); });
+  else $('inp').disabled = true;
+  const fb = $('fb'); fb.className = 'fb ' + (ok ? 'ok' : 'no');
+  fb.innerHTML = `<b>${ok ? 'Richtig!' : 'Noch nicht ganz.'}</b>${c.expl}`;
+  $('check').classList.add('hidden');
+  $('next').textContent = st.i === TASKS.length - 1 ? 'Zum Überblick' : 'Weiter'; $('next').classList.remove('hidden');
+}
+function next() { if (st.i === TASKS.length - 1) return finish(); st.i++; load(); }
+
+function finish() {
+  const by = {}; st.res.forEach(r => { (by[r.thema] = by[r.thema] || { n: 0, ok: 0 }); by[r.thema].n++; if (r.ok) by[r.thema].ok++; });
+  const keys = Object.keys(THEMEN), can = [], practice = [];
+  keys.forEach(k => { const d = by[k]; if (!d) return; (d.ok / d.n >= 0.66 ? can : practice).push(k); });
+  $('sum').textContent = `Du hast ${st.ok} von ${TASKS.length} Aufgaben richtig gelöst. Das hast du dir angesehen:`;
+  const row = (k, ok) => `<div class="topic ${ok ? 'ok' : 'practice'}"><span class="ic">${ok ? '✓' : '↻'}</span><div><b>${THEMEN[k].titel}</b> (${by[k].ok} von ${by[k].n} richtig)<small>${ok ? 'Das kannst du schon gut.' : 'Das solltest du noch üben. ' + THEMEN[k].tipp}</small></div></div>`;
+  $('topics').innerHTML = can.map(k => row(k, true)).join('') + practice.map(k => row(k, false)).join('');
+  $('mia').textContent = 'Und die Wette? Mia hat recht: In jedem Dreieck beträgt die Winkelsumme 180°, im Viereck sogar 360°.';
+  show('end');
+}
+
+$('go').onclick = startGame; $('again').onclick = startGame;
+$('toMenu') && ($('toMenu').onclick = () => show('start'));
+$('check').onclick = check; $('next').onclick = next;
+</script>
+</body>
+</html>
