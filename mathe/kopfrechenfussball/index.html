@@ -174,14 +174,29 @@
     { id: 'dreieck', label: '🔺 Dreiecke' }
   ];
   const GENS = [
+    /* Grundrechenarten: einzelne Rechnungen mit größeren Zahlen und mehrteilige Aufgaben (Punkt vor Strich, Klammern) */
     { topic: 'kopf', ab: '2000-01-01', make() {
-      const op = pick(['add', 'sub', 'mul', 'div']), easy = Math.random() < .6;
-      let a, b, sym, ans;
-      if (op === 'add') { if (easy) { a = rnd(2, 20); b = rnd(2, 20); } else { a = rnd(12, 90); b = rnd(2, 9); } sym = '+'; ans = a + b; }
-      else if (op === 'sub') { if (easy) { a = rnd(5, 20); b = rnd(1, a - 1); } else { a = rnd(20, 99); b = pick([rnd(2, 9), 10 * rnd(1, Math.min(5, Math.floor((a - 1) / 10)))]); } sym = '−'; ans = a - b; }
-      else if (op === 'mul') { a = rnd(2, 10); b = rnd(2, 10); sym = '×'; ans = a * b; }
-      else { b = rnd(2, 10); ans = rnd(2, 10); a = b * ans; sym = '÷'; }
-      return { text: `${a} ${sym} ${b} =`, ans };
+      if (Math.random() < .35) {
+        const op = pick(['add', 'sub', 'mul', 'div']);
+        let a, b, sym, ans;
+        if (op === 'add') { a = rnd(100, 500); b = rnd(20, 99); sym = '+'; ans = a + b; }
+        else if (op === 'sub') { a = rnd(100, 500); b = rnd(20, 99); sym = '−'; ans = a - b; }
+        else if (op === 'mul') { if (Math.random() < .25) { a = rnd(6, 12); b = rnd(6, 12); } else { a = rnd(11, 25); b = rnd(3, 9); } sym = '×'; ans = a * b; }
+        else { b = rnd(3, 12); ans = rnd(6, 25); a = b * ans; sym = '÷'; }
+        return { text: `${a} ${sym} ${b} =`, ans };
+      }
+      let a, b, c, d;
+      return pick([
+        () => { a = rnd(5, 60); b = rnd(2, 9); c = rnd(2, 9); return { text: `${a} + ${b} × ${c} =`, ans: a + b * c }; },
+        () => { a = rnd(3, 12); b = rnd(3, 12); c = rnd(2, Math.min(40, a * b - 1)); return { text: `${a} × ${b} − ${c} =`, ans: a * b - c }; },
+        () => { b = rnd(2, 9); c = rnd(2, 9); a = b * c + rnd(1, 40); return { text: `${a} − ${b} × ${c} =`, ans: a - b * c }; },
+        () => { a = rnd(2, 30); b = rnd(2, 30); c = rnd(2, 9); return { text: `(${a} + ${b}) × ${c} =`, ans: (a + b) * c }; },
+        () => { a = rnd(12, 60); b = rnd(2, a - 2); c = rnd(2, 9); return { text: `(${a} − ${b}) × ${c} =`, ans: (a - b) * c }; },
+        () => { a = rnd(2, 9); b = rnd(2, 20); c = rnd(2, 20); return { text: `${a} × (${b} + ${c}) =`, ans: a * (b + c) }; },
+        () => { c = rnd(2, 9); const k = rnd(3, 15); a = rnd(1, c * k - 1); b = c * k - a; return { text: `(${a} + ${b}) ÷ ${c} =`, ans: k }; },
+        () => { a = rnd(2, 9); b = rnd(2, 9); c = rnd(2, 9); d = rnd(2, 9); return { text: `${a} × ${b} + ${c} × ${d} =`, ans: a * b + c * d }; },
+        () => { a = rnd(5, 40); b = rnd(2, 9); c = rnd(2, 9); d = rnd(1, a + b * c - 1); return { text: `${a} + ${b} × ${c} − ${d} =`, ans: a + b * c - d }; }
+      ])();
     } },
     /* Terme: Termwerte (ab 21.09.), Zusammenfassen (ab 23.09.), Klammern auflösen (ab 28.09.) */
     { topic: 'terme', ab: '2026-09-21', make() {
