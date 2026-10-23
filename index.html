@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lernapps</title>
+<style>
+  :root { --bg: #f4f6fb; --card: #fff; --text: #1f2540; --muted: #6b7394; --accent: #4f6df5; --shadow: 0 6px 24px rgba(31,37,64,.08); }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #12152a; --card: #1c2040; --text: #eef0ff; --muted: #9aa2c9; --shadow: 0 6px 24px rgba(0,0,0,.4); }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); padding: 16px; display: flex; justify-content: center; }
+  main { width: 100%; max-width: 720px; }
+  h1 { text-align: center; margin: 16px 0 24px; }
+  h2 { color: var(--muted); font-size: .95rem; text-transform: uppercase; letter-spacing: .05em; margin: 28px 0 10px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  a.app { display: block; background: var(--card); color: var(--text); text-decoration: none; padding: 18px; border-radius: 16px; box-shadow: var(--shadow); border: 2px solid transparent; }
+  a.app:hover { border-color: var(--accent); }
+  a.app b { display: block; font-size: 1.1rem; margin-bottom: 4px; }
+  a.app span { color: var(--muted); font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>📚 Lernapps</h1>
+
+  <h2>Mathematik</h2>
+  <div class="grid">
+    <a class="app" href="mathe/kopfrechnen/">
+      <b>🧠 Kopfrechnen-Trainer</b>
+      <span>Plus, Minus, Mal, Geteilt – auf Zeit oder mit 20 Aufgaben</span>
+    </a>
+  </div>
+</main>
+</body>
+</html>

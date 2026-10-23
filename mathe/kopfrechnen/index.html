@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kopfrechnen-Trainer</title>
+<style>
+  :root {
+    --bg: #f4f6fb; --card: #fff; --text: #1f2540; --muted: #6b7394;
+    --accent: #4f6df5; --accent-d: #3a54d6; --ok: #22a06b; --bad: #e5484d;
+    --shadow: 0 6px 24px rgba(31,37,64,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #12152a; --card: #1c2040; --text: #eef0ff; --muted: #9aa2c9; --shadow: 0 6px 24px rgba(0,0,0,.4); }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; padding: 16px; }
+  main { width: 100%; max-width: 520px; }
+  h1 { text-align: center; margin: 12px 0 20px; font-size: 1.8rem; }
+  .card { background: var(--card); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); }
+  h2 { margin: 0 0 10px; font-size: 1rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .opt { border: 2px solid transparent; background: var(--bg); color: var(--text); padding: 10px 14px; border-radius: 12px; font-size: 1rem; cursor: pointer; font-family: inherit; }
+  .opt.sel { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--card)); font-weight: 600; }
+  button.primary { width: 100%; border: 0; background: var(--accent); color: #fff; font-size: 1.15rem; font-weight: 700; padding: 14px; border-radius: 14px; cursor: pointer; font-family: inherit; }
+  button.primary:hover { background: var(--accent-d); }
+  .hidden { display: none !important; }
+  .hud { display: flex; justify-content: space-between; margin-bottom: 18px; font-weight: 600; color: var(--muted); }
+  .hud b { color: var(--text); font-size: 1.2rem; }
+  .bar { height: 8px; background: var(--bg); border-radius: 8px; overflow: hidden; margin-bottom: 26px; }
+  .bar > div { height: 100%; width: 100%; background: var(--accent); transition: width .2s linear; }
+  .task { font-size: 3rem; font-weight: 800; text-align: center; margin: 10px 0 22px; font-variant-numeric: tabular-nums; }
+  input#ans { width: 100%; font-size: 2rem; text-align: center; padding: 12px; border-radius: 14px; border: 2px solid var(--muted); background: var(--bg); color: var(--text); font-family: inherit; }
+  input#ans:focus { outline: none; border-color: var(--accent); }
+  input#ans.ok { border-color: var(--ok); } input#ans.bad { border-color: var(--bad); animation: shake .3s; }
+  @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+  .fb { min-height: 1.6em; text-align: center; margin-top: 12px; font-weight: 600; }
+  .fb.ok { color: var(--ok); } .fb.bad { color: var(--bad); }
+  .result { text-align: center; }
+  .big { font-size: 3.2rem; font-weight: 800; margin: 6px 0; }
+  .stats { color: var(--muted); line-height: 1.7; margin-bottom: 18px; }
+  .row { display: flex; gap: 10px; }
+  .row button { flex: 1; }
+  button.secondary { border: 2px solid var(--accent); background: transparent; color: var(--accent); font-size: 1.05rem; font-weight: 700; padding: 12px; border-radius: 14px; cursor: pointer; font-family: inherit; }
+  #best { text-align: center; color: var(--muted); margin-top: 14px; font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🧠 Kopfrechnen-Trainer</h1>
+
+  <section id="menu" class="card">
+    <h2>Rechenart</h2>
+    <div class="opts" data-key="op">
+      <button class="opt sel" data-v="add">➕ Plus</button>
+      <button class="opt" data-v="sub">➖ Minus</button>
+      <button class="opt" data-v="mul">✖️ Mal</button>
+      <button class="opt" data-v="div">➗ Geteilt</button>
+      <button class="opt" data-v="mix">🎲 Gemischt</button>
+    </div>
+    <h2>Schwierigkeit</h2>
+    <div class="opts" data-key="lvl">
+      <button class="opt sel" data-v="1">Leicht</button>
+      <button class="opt" data-v="2">Mittel</button>
+      <button class="opt" data-v="3">Schwer</button>
+    </div>
+    <h2>Spielmodus</h2>
+    <div class="opts" data-key="mode">
+      <button class="opt sel" data-v="time">⏱️ 60 Sekunden</button>
+      <button class="opt" data-v="count">🎯 20 Aufgaben</button>
+    </div>
+    <button class="primary" id="start">Los geht's!</button>
+    <div id="best"></div>
+  </section>
+
+  <section id="game" class="card hidden">
+    <div class="hud">
+      <div>Punkte<br><b id="score">0</b></div>
+      <div id="hudMid" style="text-align:center">Serie<br><b id="streak">0</b></div>
+      <div style="text-align:right"><span id="hudLabel">Zeit</span><br><b id="left">60</b></div>
+    </div>
+    <div class="bar"><div id="barFill"></div></div>
+    <div class="task" id="task"></div>
+    <input id="ans" type="text" inputmode="numeric" autocomplete="off" placeholder="?" aria-label="Antwort">
+    <div class="fb" id="fb"></div>
+  </section>
+
+  <section id="end" class="card result hidden">
+    <h2>Geschafft!</h2>
+    <div class="big" id="finalScore"></div>
+    <div class="stats" id="finalStats"></div>
+    <div class="row">
+      <button class="primary" id="again">Nochmal</button>
+      <button class="secondary" id="toMenu">Menü</button>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const cfg = { op: 'add', lvl: '1', mode: 'time' };
+  const TIME = 60, COUNT = 20;
+  let st;
+
+  const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem('kopfrechnen') || '{}'); } catch { return {}; } },
+    set(v) { try { localStorage.setItem('kopfrechnen', JSON.stringify(v)); } catch {} }
+  };
+  const key = () => `${cfg.op}-${cfg.lvl}-${cfg.mode}`;
+
+  function showBest() {
+    const b = store.get()[key()];
+    $('best').textContent = b != null ? `🏆 Dein Rekord in dieser Einstellung: ${b} Punkte` : '';
+  }
+
+  document.querySelectorAll('.opts').forEach(g => g.addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if (!b) return;
+    g.querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+    b.classList.add('sel');
+    cfg[g.dataset.key] = b.dataset.v;
+    showBest();
+  }));
+
+  function makeTask() {
+    const l = +cfg.lvl;
+    const op = cfg.op === 'mix' ? ['add', 'sub', 'mul', 'div'][rnd(0, 3)] : cfg.op;
+    let a, b, sym, ans;
+    if (op === 'add') {
+      const m = [20, 100, 1000][l - 1];
+      a = rnd(2, m); b = rnd(2, m); sym = '+'; ans = a + b;
+    } else if (op === 'sub') {
+      const m = [20, 100, 1000][l - 1];
+      a = rnd(5, m); b = rnd(1, a); sym = '−'; ans = a - b;
+    } else if (op === 'mul') {
+      const [x, y] = [[10, 10], [12, 12], [25, 12]][l - 1];
+      a = rnd(2, x); b = rnd(2, y); sym = '×'; ans = a * b;
+    } else {
+      const [x, y] = [[10, 10], [12, 12], [25, 12]][l - 1];
+      b = rnd(2, y); ans = rnd(2, x); a = b * ans; sym = '÷';
+    }
+    return { text: `${a} ${sym} ${b}`, ans };
+  }
+
+  function next() {
+    st.cur = makeTask();
+    $('task').textContent = st.cur.text + ' =';
+    $('ans').value = '';
+    $('ans').className = '';
+    $('ans').focus();
+  }
+
+  function updateHud() {
+    $('score').textContent = st.score;
+    $('streak').textContent = st.streak;
+    if (cfg.mode === 'time') {
+      $('left').textContent = Math.max(0, Math.ceil(st.timeLeft));
+      $('barFill').style.width = (st.timeLeft / TIME * 100) + '%';
+    } else {
+      $('left').textContent = `${st.asked}/${COUNT}`;
+      $('barFill').style.width = (100 - st.asked / COUNT * 100) + '%';
+    }
+  }
+
+  function start() {
+    st = { score: 0, streak: 0, best: 0, right: 0, wrong: 0, asked: 0, timeLeft: TIME, t0: Date.now(), timer: null };
+    $('hudLabel').textContent = cfg.mode === 'time' ? 'Zeit' : 'Aufgabe';
+    $('fb').textContent = ''; $('fb').className = 'fb';
+    show('game');
+    updateHud();
+    next();
+    if (cfg.mode === 'time') {
+      const end = Date.now() + TIME * 1000;
+      st.timer = setInterval(() => {
+        st.timeLeft = (end - Date.now()) / 1000;
+        if (st.timeLeft <= 0) { st.timeLeft = 0; updateHud(); finish(); } else updateHud();
+      }, 100);
+    }
+  }
+
+  function submit() {
+    const raw = $('ans').value.trim();
+    if (raw === '') return;
+    const val = Number(raw);
+    const inp = $('ans'), fb = $('fb');
+    st.asked++;
+    if (val === st.cur.ans) {
+      st.right++; st.streak++; st.best = Math.max(st.best, st.streak);
+      st.score += 10 + Math.min(st.streak - 1, 10) * 2;
+      fb.textContent = st.streak >= 3 ? `🔥 Richtig! ${st.streak} in Folge` : '✅ Richtig!';
+      fb.className = 'fb ok';
+    } else {
+      st.wrong++; st.streak = 0;
+      st.score = Math.max(0, st.score - 5);
+      fb.textContent = `❌ ${st.cur.text} = ${st.cur.ans}`;
+      fb.className = 'fb bad';
+    }
+    updateHud();
+    if (cfg.mode === 'count' && st.asked >= COUNT) return finish();
+    next();
+  }
+
+  function finish() {
+    clearInterval(st.timer);
+    const secs = cfg.mode === 'time' ? TIME : Math.round((Date.now() - st.t0) / 1000);
+    const s = store.get(), k = key();
+    const isRecord = s[k] == null || st.score > s[k];
+    if (isRecord) { s[k] = st.score; store.set(s); }
+    $('finalScore').textContent = `${st.score} Punkte`;
+    const acc = st.asked ? Math.round(st.right / st.asked * 100) : 0;
+    $('finalStats').innerHTML =
+      `${st.right} richtig · ${st.wrong} falsch (${acc} %)<br>` +
+      `Längste Serie: ${st.best}<br>Zeit: ${secs} s` +
+      (isRecord ? '<br><b>🏆 Neuer Rekord!</b>' : '');
+    show('end');
+  }
+
+  function show(id) {
+    ['menu', 'game', 'end'].forEach(x => $(x).classList.toggle('hidden', x !== id));
+    if (id === 'menu') showBest();
+  }
+
+  $('start').onclick = start;
+  $('again').onclick = start;
+  $('toMenu').onclick = () => show('menu');
+  $('ans').addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+  $('ans').addEventListener('input', e => {
+    e.target.value = e.target.value.replace(/[^0-9-]/g, '');
+  });
+  showBest();
+})();
+</script>
+</body>
+</html>
