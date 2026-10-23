@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prozentrechnung-Trainer</title>
+<style>
+  :root {
+    --bg: #f4f6fb; --card: #fff; --text: #1f2540; --muted: #6b7394;
+    --accent: #4f6df5; --accent-d: #3a54d6; --ok: #22a06b; --bad: #e5484d;
+    --shadow: 0 6px 24px rgba(31,37,64,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #12152a; --card: #1c2040; --text: #eef0ff; --muted: #9aa2c9; --shadow: 0 6px 24px rgba(0,0,0,.4); }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; padding: 16px; }
+  main { width: 100%; max-width: 520px; }
+  h1 { text-align: center; margin: 12px 0 20px; font-size: 1.8rem; }
+  .card { background: var(--card); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); }
+  h2 { margin: 0 0 10px; font-size: 1rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .opt { border: 2px solid transparent; background: var(--bg); color: var(--text); padding: 10px 14px; border-radius: 12px; font-size: 1rem; cursor: pointer; font-family: inherit; }
+  .opt.sel { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--card)); font-weight: 600; }
+  button.primary { width: 100%; border: 0; background: var(--accent); color: #fff; font-size: 1.15rem; font-weight: 700; padding: 14px; border-radius: 14px; cursor: pointer; font-family: inherit; }
+  button.primary:hover { background: var(--accent-d); }
+  button.secondary { border: 2px solid var(--accent); background: transparent; color: var(--accent); font-size: 1.05rem; font-weight: 700; padding: 12px; border-radius: 14px; cursor: pointer; font-family: inherit; }
+  .hidden { display: none !important; }
+  .hud { display: flex; justify-content: space-between; margin-bottom: 14px; font-weight: 600; color: var(--muted); }
+  .hud b { color: var(--text); font-size: 1.2rem; }
+  .bar { height: 8px; background: var(--bg); border-radius: 8px; overflow: hidden; margin-bottom: 22px; }
+  .bar > div { height: 100%; background: var(--accent); transition: width .2s; }
+  .kind { color: var(--accent); font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .task { font-size: 1.35rem; font-weight: 700; line-height: 1.4; margin: 0 0 20px; }
+  .inrow { display: flex; align-items: center; gap: 10px; }
+  input#ans { flex: 1; min-width: 0; font-size: 1.8rem; text-align: center; padding: 10px; border-radius: 14px; border: 2px solid var(--muted); background: var(--bg); color: var(--text); font-family: inherit; }
+  input#ans:focus { outline: none; border-color: var(--accent); }
+  input#ans.ok { border-color: var(--ok); } input#ans.bad { border-color: var(--bad); }
+  #unit { font-size: 1.4rem; font-weight: 700; min-width: 2ch; }
+  .fb { margin-top: 14px; font-weight: 600; min-height: 1.6em; }
+  .fb.ok { color: var(--ok); } .fb.bad { color: var(--bad); }
+  .way { font-weight: 400; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  #check { margin-top: 16px; }
+  .result { text-align: center; }
+  .big { font-size: 3.2rem; font-weight: 800; margin: 6px 0; }
+  .stats { color: var(--muted); line-height: 1.7; margin-bottom: 18px; }
+  .row { display: flex; gap: 10px; } .row button { flex: 1; }
+  #best { text-align: center; color: var(--muted); margin-top: 14px; font-size: .9rem; }
+  .tip { margin-top: 16px; font-size: .9rem; color: var(--muted); line-height: 1.5; }
+  .tip b { color: var(--text); }
+  a.back { display: block; text-align: center; margin-top: 16px; color: var(--accent); font-weight: 600; text-decoration: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>％ Prozentrechnung</h1>
+
+  <section id="menu" class="card">
+    <h2>Aufgabentyp</h2>
+    <div class="opts" data-key="kind">
+      <button class="opt sel" data-v="wert">Prozentwert W</button>
+      <button class="opt" data-v="grund">Grundwert G</button>
+      <button class="opt" data-v="satz">Prozentsatz p</button>
+      <button class="opt" data-v="sach">Rabatt &amp; Steuer</button>
+      <button class="opt" data-v="mix">🎲 Gemischt</button>
+    </div>
+    <h2>Schwierigkeit</h2>
+    <div class="opts" data-key="lvl">
+      <button class="opt sel" data-v="1">Leicht</button>
+      <button class="opt" data-v="2">Mittel</button>
+      <button class="opt" data-v="3">Schwer</button>
+    </div>
+    <button class="primary" id="start">Los geht's! (10 Aufgaben)</button>
+    <div id="best"></div>
+    <div class="tip"><b>Merke:</b> Prozentwert W = Grundwert G · p % &nbsp;|&nbsp; G = W : p % &nbsp;|&nbsp; p % = W : G.<br>Dezimalzahlen mit Komma eingeben, z. B. 12,5.</div>
+    <a class="back" href="../../">← Startseite</a>
+  </section>
+
+  <section id="game" class="card hidden">
+    <div class="hud">
+      <div>Aufgabe<br><b id="nr">1/10</b></div>
+      <div style="text-align:right">Richtig<br><b id="score">0</b></div>
+    </div>
+    <div class="bar"><div id="barFill"></div></div>
+    <div class="kind" id="kind"></div>
+    <p class="task" id="task"></p>
+    <div class="inrow">
+      <input id="ans" type="text" inputmode="decimal" autocomplete="off" placeholder="?" aria-label="Antwort">
+      <span id="unit"></span>
+    </div>
+    <div class="fb" id="fb"></div>
+    <button class="primary" id="check">Prüfen</button>
+  </section>
+
+  <section id="end" class="card result hidden">
+    <h2>Geschafft!</h2>
+    <div class="big" id="finalScore"></div>
+    <div class="stats" id="finalStats"></div>
+    <div class="row">
+      <button class="primary" id="again">Nochmal</button>
+      <button class="secondary" id="toMenu">Menü</button>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const cfg = { kind: 'wert', lvl: '1' };
+  const N = 10;
+  let st;
+
+  const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+  const pick = a => a[rnd(0, a.length - 1)];
+  const fmt = x => (Math.round(x * 100) / 100).toString().replace('.', ',');
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem('prozentrechnung') || '{}'); } catch { return {}; } },
+    set(v) { try { localStorage.setItem('prozentrechnung', JSON.stringify(v)); } catch {} }
+  };
+  const key = () => `${cfg.kind}-${cfg.lvl}`;
+
+  function showBest() {
+    const b = store.get()[key()];
+    $('best').textContent = b != null ? `🏆 Bester Wert in dieser Einstellung: ${b} von ${N} richtig` : '';
+  }
+
+  document.querySelectorAll('.opts').forEach(g => g.addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if (!b) return;
+    g.querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+    b.classList.add('sel');
+    cfg[g.dataset.key] = b.dataset.v;
+    showBest();
+  }));
+
+  // Kontexte: [Grundwert-Text, Einheit]
+  const ctx = [
+    ['Eine Klasse hat {G} Schüler', 'Schüler'],
+    ['Ein Fahrrad kostet {G} €', '€'],
+    ['Eine Schule hat {G} Schülerinnen und Schüler', 'Schüler'],
+    ['Ein Wanderweg ist {G} km lang', 'km'],
+    ['Ein Tank fasst {G} Liter', 'l'],
+    ['Ein Verein hat {G} Mitglieder', 'Mitglieder']
+  ];
+
+  function params() {
+    const l = +cfg.lvl;
+    let p, G;
+    if (l === 1) { p = pick([10, 20, 25, 50, 75]); G = rnd(2, 20) * 20; }
+    else if (l === 2) { p = pick([5, 15, 30, 35, 40, 45, 60, 65, 80, 90]); G = rnd(2, 50) * 20; }
+    else { p = rnd(2, 98); G = rnd(1, 20) * 100; if (Math.random() < .3) p = pick([120, 150, 110, 125]); }
+    return { p, G, W: G * p / 100 };
+  }
+
+  function makeTask() {
+    const kind = cfg.kind === 'mix' ? pick(['wert', 'grund', 'satz', 'sach']) : cfg.kind;
+    const { p, G, W } = params();
+    const [c, u] = pick(ctx);
+    const base = c.replace('{G}', G);
+    if (kind === 'wert') return { label: 'Prozentwert', unit: u, ans: W,
+      text: `${base}. Wie viel sind ${p} % davon?`,
+      way: `W = G · p % = ${G} · ${p} : 100 = ${fmt(W)}` };
+    if (kind === 'grund') return { label: 'Grundwert', unit: u, ans: G,
+      text: `${p} % einer Menge sind ${fmt(W)} ${u}. Wie groß ist die ganze Menge (100 %)?`,
+      way: `1 % = ${fmt(W)} : ${p} = ${fmt(W / p)}, 100 % = ${fmt(W / p)} · 100 = ${G}` };
+    if (kind === 'satz') return { label: 'Prozentsatz', unit: '%', ans: p,
+      text: `Von ${G} ${u} sind ${fmt(W)} ${u} gemeint. Wie viel Prozent sind das?`,
+      way: `p % = W : G = ${fmt(W)} : ${G} = ${fmt(W / G)} = ${p} %` };
+    // Rabatt / Aufschlag
+    const l = +cfg.lvl;
+    const pr = l === 1 ? pick([10, 20, 25, 50]) : pick([5, 15, 30, 35, 40, 60]);
+    const price = l === 3 ? rnd(2, 40) * 50 : rnd(2, 50) * 20;
+    const t = rnd(0, 2);
+    if (t === 0) { const a = price * (100 - pr) / 100; return { label: 'Rabatt', unit: '€', ans: a,
+      text: `Eine Jacke kostet ${price} €. Im Schlussverkauf gibt es ${pr} % Rabatt. Wie viel kostet sie jetzt?`,
+      way: `Rabatt = ${price} · ${pr} : 100 = ${fmt(price * pr / 100)} €; neuer Preis = ${price} − ${fmt(price * pr / 100)} = ${fmt(a)} €  (oder gleich ${100 - pr} % von ${price})` }; }
+    if (t === 1) { const a = price * (100 + pr) / 100; return { label: 'Preiserhöhung', unit: '€', ans: a,
+      text: `Ein Spiel kostet ${price} €. Der Preis steigt um ${pr} %. Wie teuer ist es danach?`,
+      way: `Erhöhung = ${price} · ${pr} : 100 = ${fmt(price * pr / 100)} €; neuer Preis = ${price} + ${fmt(price * pr / 100)} = ${fmt(a)} €  (oder gleich ${100 + pr} % von ${price})` }; }
+    const net = price; const a = net * 119 / 100;
+    return { label: 'Mehrwertsteuer', unit: '€', ans: a,
+      text: `Ein Gerät kostet netto ${net} €. Dazu kommen 19 % Mehrwertsteuer. Wie hoch ist der Bruttopreis?`,
+      way: `Steuer = ${net} · 19 : 100 = ${fmt(net * 19 / 100)} €; brutto = ${net} + ${fmt(net * 19 / 100)} = ${fmt(a)} €  (oder gleich 119 % von ${net})` };
+  }
+
+  function show(id) { ['menu', 'game', 'end'].forEach(s => $(s).classList.toggle('hidden', s !== id)); }
+
+  function next() {
+    if (st.i >= N) return finish();
+    st.cur = makeTask(); st.answered = false;
+    $('nr').textContent = `${st.i + 1}/${N}`;
+    $('barFill').style.width = `${st.i / N * 100}%`;
+    $('kind').textContent = st.cur.label;
+    $('task').textContent = st.cur.text;
+    $('unit').textContent = st.cur.unit;
+    $('ans').value = ''; $('ans').className = ''; $('ans').readOnly = false;
+    $('fb').className = 'fb'; $('fb').innerHTML = '';
+    $('check').textContent = 'Prüfen';
+    $('ans').focus();
+  }
+
+  function check() {
+    if (st.answered) { st.i++; return next(); }
+    const raw = $('ans').value.trim().replace(',', '.').replace(/\s/g, '');
+    if (raw === '' || isNaN(+raw)) { $('fb').className = 'fb bad'; $('fb').textContent = 'Bitte eine Zahl eingeben.'; return; }
+    const ok = Math.abs(+raw - st.cur.ans) < 0.005;
+    st.answered = true; $('ans').readOnly = true;
+    $('ans').className = ok ? 'ok' : 'bad';
+    if (ok) st.score++;
+    $('score').textContent = st.score;
+    $('fb').className = 'fb ' + (ok ? 'ok' : 'bad');
+    $('fb').innerHTML = (ok ? '✅ Richtig!' : `❌ Richtig wäre: ${fmt(st.cur.ans)} ${st.cur.unit}`) +
+      `<div class="way">Rechenweg: ${st.cur.way}</div>`;
+    $('check').textContent = st.i + 1 >= N ? 'Ergebnis' : 'Weiter';
+  }
+
+  function finish() {
+    const s = store.get(), k = key();
+    const isBest = s[k] == null || st.score > s[k];
+    if (isBest) { s[k] = st.score; store.set(s); }
+    $('finalScore').textContent = `${st.score} / ${N}`;
+    const msg = st.score === N ? 'Perfekt! 🌟' : st.score >= 8 ? 'Sehr gut! 💪' : st.score >= 5 ? 'Gut, weiter üben!' : 'Übe noch ein bisschen – die Rechenwege helfen.';
+    $('finalStats').textContent = msg + (isBest ? ' Neuer Rekord! 🏆' : '');
+    show('end');
+  }
+
+  function start() {
+    st = { i: 0, score: 0 };
+    $('score').textContent = 0;
+    show('game'); next();
+  }
+
+  $('start').onclick = start;
+  $('again').onclick = start;
+  $('toMenu').onclick = () => { showBest(); show('menu'); };
+  $('check').onclick = check;
+  $('ans').addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Enter' && st && st.answered && !$('game').classList.contains('hidden') && e.target !== $('ans')) check(); });
+  showBest();
+})();
+</script>
+</body>
+</html>
