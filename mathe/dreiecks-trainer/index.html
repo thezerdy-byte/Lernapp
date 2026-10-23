@@ -59,16 +59,18 @@
   .dot.now { background: var(--blue-t); transform: scale(1.25); }
   .dot.done { background: var(--blue); }
   .fig { text-align: center; margin-bottom: 8px; }
-  .fig svg { width: 100%; max-width: 360px; height: auto; color: var(--text); }
+  .fig svg { width: 100%; max-width: 560px; height: auto; color: var(--text); }
+  .fig svg.sm { max-width: 380px; }
   .fig .shape { fill: var(--blue-t); stroke: var(--blue); stroke-width: 3; stroke-linejoin: round; }
   .fig .diag { stroke: var(--purple); stroke-width: 2.5; stroke-dasharray: 6 5; fill: none; }
   .fig .ray { stroke: var(--blue); stroke-width: 3; stroke-linecap: round; fill: none; }
   .fig .arc { stroke: var(--purple); stroke-width: 2.5; fill: var(--purple-t); }
   .fig .rm { stroke: var(--purple); stroke-width: 2.2; fill: none; }
-  .fig text { fill: currentColor; font-size: 14px; font-family: inherit; text-anchor: middle; }
-  .fig .vn { font-weight: 700; font-size: 15px; fill: var(--muted); }
-  .fig .q { fill: var(--purple); font-weight: 700; font-size: 16px; }
-  .fig .cap { font-size: 11px; fill: var(--muted); }
+  .fig text { fill: currentColor; font-size: 17px; font-family: inherit; text-anchor: middle; }
+  .fig .vn { font-weight: 700; font-size: 19px; fill: var(--muted); }
+  .fig .q { fill: var(--purple); font-weight: 700; font-size: 19px; }
+  .fig .cap { font-size: 12px; fill: var(--muted); }
+  .fig svg.sm text { font-size: 14px; } .fig svg.sm .vn { font-size: 15px; } .fig svg.sm .q { font-size: 16px; } .fig svg.sm .cap { font-size: 11px; }
   .task { font-size: 1.12rem; line-height: 1.5; margin-bottom: 12px; }
   .hint { background: var(--purple-t); border: 2px solid var(--purple); border-radius: 16px; padding: 10px 14px; margin-bottom: 14px; font-size: .95rem; line-height: 1.5; }
   .hint b { margin-right: 4px; }
@@ -79,6 +81,13 @@
   .o.right { background: var(--green-t); border-color: var(--green); box-shadow: none; }
   .o.wrong { background: var(--rose-t); border-color: var(--rose); box-shadow: none; }
   .o:disabled { cursor: default; }
+  .sheet { display: block; width: 100%; min-height: 144px; resize: vertical; font-family: inherit; font-size: 18px; line-height: 24px; padding: 0 10px; color: var(--text);
+    background-color: var(--card); border: 2px solid var(--blue); border-radius: 18px; overflow: auto;
+    background-image: linear-gradient(to right, color-mix(in srgb, var(--blue) 35%, transparent) 1px, transparent 1px), linear-gradient(color-mix(in srgb, var(--blue) 35%, transparent) 1px, transparent 1px);
+    background-size: 24px 24px; background-attachment: local; background-position: -1px -1px; }
+  .sheet:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 35%, transparent); }
+  .sheet:disabled { opacity: .8; }
+  .note { color: var(--muted); font-size: .85rem; margin: 6px 4px 14px; line-height: 1.4; }
   .num { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
   .num input { flex: 1; min-width: 0; font-family: inherit; font-size: 1.4rem; text-align: center; padding: 10px; color: var(--text); background: var(--card); border: 2px solid var(--blue); border-radius: 18px; }
   .num input:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 35%, transparent); }
@@ -117,21 +126,16 @@
 
   <section id="start" class="card">
     <p><b>Mia wettet:</b> „In jedem Dreieck ist die Winkelsumme gleich, egal wie groß oder wie spitz es ist!“ Stimmt das? Löse die Aufgaben und finde es heraus.</p>
-    <p>Du bekommst 15 Aufgaben. Am Ende siehst du, was du schon gut kannst und was du noch üben solltest.</p>
+    <p>Du bekommst 15 Aufgaben in drei Runden mit je fünf Aufgaben. Rechne im karierten Feld, am besten auf einem Blatt oder mit dem Stift. Am Ende siehst du, was du schon gut kannst und was du noch üben solltest.</p>
     <button class="pill" id="go">Los geht’s</button>
     <a class="link" href="../kopfrechenfussball/">⚽ Erst aufwärmen mit Kopfrechenfußball</a>
     <a class="link" href="../../">← Zur Übersicht</a>
   </section>
 
-  <section id="game" class="card hidden">
+  <section id="game" class="hidden">
     <div class="top"><span id="count"></span><span class="dots" id="dots"></span></div>
-    <div class="fig" id="fig"></div>
-    <div class="task" id="task"></div>
-    <div class="hint hidden" id="hint"></div>
-    <div id="answer"></div>
-    <button class="pill" id="check">Prüfen</button>
-    <div class="fb hidden" id="fb"></div>
-    <button class="pill green hidden" id="next" style="margin-top:12px">Weiter</button>
+    <div id="feed"></div>
+    <button class="pill green hidden" id="pagenext" style="margin-top:16px">Weiter</button>
   </section>
 
   <section id="end" class="hidden">
@@ -161,30 +165,39 @@ const choice = (options, correct) => { const o = shuffle(options); return { kind
 /* ===== Zeichnen ===== */
 function triSvg(A, B, C, o = {}) {
   const r = Math.PI / 180, t = o.t || {}, s = o.s || {};
-  const a = Math.sin(A * r), b = Math.sin(B * r), c = Math.sin(C * r);
+  const b = Math.sin(B * r), c = Math.sin(C * r);
   const P = { A: [0, 0], B: [c, 0], C: [b * Math.cos(A * r), b * Math.sin(A * r)] };
   const xs = [P.A[0], P.B[0], P.C[0]], minx = Math.min(...xs), maxx = Math.max(...xs), maxy = P.C[1];
   const w = maxx - minx, h = maxy;
-  const sc = Math.min(230 / w, 100 / h), ox = 35 + (230 - w * sc) / 2, oy = 46 + (100 - h * sc) / 2;
+  const sc = Math.min(280 / w, 130 / h), ox = 60 + (280 - w * sc) / 2, oy = 70 + (130 - h * sc) / 2;
   const S = {};
-  for (const k of ['A', 'B', 'C']) { let x = ox + (P[k][0] - minx) * sc; const y = oy + (maxy - P[k][1]) * sc; S[k] = [o.flip ? 300 - x : x, y]; }
+  for (const k of ['A', 'B', 'C']) { const x = ox + (P[k][0] - minx) * sc, y = oy + (maxy - P[k][1]) * sc; S[k] = [o.flip ? 400 - x : x, y]; }
   const G = [(S.A[0] + S.B[0] + S.C[0]) / 3, (S.A[1] + S.B[1] + S.C[1]) / 3];
   const unit = (p, q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1; return [dx / l, dy / l]; };
-  let out = `<svg viewBox="0 0 300 170" role="img" aria-label="Dreieck"><polygon class="shape" points="${S.A} ${S.B} ${S.C}"/>`;
+  let out = `<svg viewBox="0 0 400 260" role="img" aria-label="Dreieck"><polygon class="shape" points="${S.A} ${S.B} ${S.C}"/>`;
   const ang = { A, B, C }, nb = { A: ['B', 'C'], B: ['A', 'C'], C: ['A', 'B'] };
   for (const k of ['A', 'B', 'C']) {
-    const d = unit(G, S[k]);
-    if (!o.noRight && Math.abs(ang[k] - 90) < 0.5) {
-      const u = unit(S[k], S[nb[k][0]]), v = unit(S[k], S[nb[k][1]]), m = 11;
-      out += `<path class="rm" d="M${S[k][0] + u[0] * m} ${S[k][1] + u[1] * m} L${S[k][0] + (u[0] + v[0]) * m} ${S[k][1] + (u[1] + v[1]) * m} L${S[k][0] + v[0] * m} ${S[k][1] + v[1] * m}"/>`;
+    const [q1, q2] = nb[k], u = unit(S[k], S[q1]), v = unit(S[k], S[q2]), bis = unit([0, 0], [u[0] + v[0], u[1] + v[1]]), [x, y] = S[k];
+    const right = !o.noRight && Math.abs(ang[k] - 90) < 0.5;
+    if (right) {
+      const m = 15;
+      out += `<path class="rm" d="M${x + u[0] * m} ${y + u[1] * m} L${x + (u[0] + v[0]) * m} ${y + (u[1] + v[1]) * m} L${x + v[0] * m} ${y + v[1] * m}"/>`;
+    } else if (t[k]) {
+      const R = 24, sw = u[0] * v[1] - u[1] * v[0] > 0 ? 1 : 0;
+      out += `<path class="arc" d="M${x + u[0] * R} ${y + u[1] * R} A${R} ${R} 0 0 ${sw} ${x + v[0] * R} ${y + v[1] * R} L${x} ${y} Z"/>`;
     }
-    if (o.letters !== false) out += `<text class="vn" x="${S[k][0] + d[0] * 17}" y="${S[k][1] + d[1] * 17 + 5}">${k}</text>`;
-    if (t[k]) { const f = ang[k] < 40 ? 42 : -30; out += `<text class="${t[k].includes('?') ? 'q' : ''}" x="${S[k][0] + d[0] * f}" y="${S[k][1] + d[1] * f + 5}">${t[k]}</text>`; }
+    if (o.letters !== false) out += `<text class="vn" x="${x - bis[0] * 19}" y="${y - bis[1] * 19 + 6}">${k}</text>`;
+    if (t[k]) {
+      const tw = t[k].length * 10, din = Math.max(36, (tw / 2 + 6) / Math.tan(ang[k] * r / 2) + 4);
+      const inside = din <= 80, d = inside ? din : -(o.letters !== false ? 46 : 30);
+      const txt = t[k], isQ = txt.includes('?');
+      out += `<text class="${isQ ? 'q' : ''}" x="${x + bis[0] * d}" y="${y + bis[1] * d + 6}">${txt}</text>`;
+    }
   }
   const edges = { a: ['B', 'C'], b: ['A', 'C'], c: ['A', 'B'] };
   for (const k of ['a', 'b', 'c']) if (s[k]) {
     const [p, q] = edges[k], m = [(S[p][0] + S[q][0]) / 2, (S[p][1] + S[q][1]) / 2], d = unit(G, m);
-    out += `<text x="${m[0] + d[0] * 18}" y="${m[1] + d[1] * 18 + 5}">${s[k]}</text>`;
+    out += `<text x="${m[0] + d[0] * 22}" y="${m[1] + d[1] * 22 + 6}">${s[k]}</text>`;
   }
   return out + '</svg>';
 }
@@ -194,7 +207,7 @@ function anglesFromSides(a, b, c) {
 }
 function angleSvg(d, label) {
   const r = Math.PI / 180, V = [150, 125], L = 110, e = [V[0] + L * Math.cos(d * r), V[1] - L * Math.sin(d * r)];
-  let out = `<svg viewBox="0 0 300 150" role="img" aria-label="Winkel"><path class="ray" d="M${V} L270 125 M${V} L${e}"/>`;
+  let out = `<svg class="sm" viewBox="0 0 300 150" role="img" aria-label="Winkel"><path class="ray" d="M${V} L270 125 M${V} L${e}"/>`;
   if (d === 90) out += `<path class="rm" d="M${V[0] + 16} ${V[1]} V${V[1] - 16} H${V[0]}"/>`;
   else out += `<path class="arc" d="M${V[0] + 30} ${V[1]} A30 30 0 0 0 ${V[0] + 30 * Math.cos(d * r)} ${V[1] - 30 * Math.sin(d * r)} L${V} Z"/>`;
   out += `<text x="${V[0] + 52 * Math.cos(d * r / 2)}" y="${V[1] - 52 * Math.sin(d * r / 2) + 5}">${label}</text></svg>`;
@@ -203,7 +216,7 @@ function angleSvg(d, label) {
 function quadSvg(t) {
   const Q = { A: [40, 135], B: [255, 135], C: [225, 38], D: [65, 52] };
   const G = [146, 90], unit = (p, q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1; return [dx / l, dy / l]; };
-  let out = `<svg viewBox="0 0 300 170" role="img" aria-label="Viereck mit Diagonale"><polygon class="shape" points="${Q.A} ${Q.B} ${Q.C} ${Q.D}"/><path class="diag" d="M${Q.A} L${Q.C}"/>`;
+  let out = `<svg class="sm" viewBox="0 0 300 170" role="img" aria-label="Viereck mit Diagonale"><polygon class="shape" points="${Q.A} ${Q.B} ${Q.C} ${Q.D}"/><path class="diag" d="M${Q.A} L${Q.C}"/>`;
   const T = { A: [100, 128], B: [226, 124], C: [208, 78], D: [96, 70] };
   for (const k of ['A', 'B', 'C', 'D']) {
     const d = unit(G, Q[k]);
@@ -382,58 +395,112 @@ const TASKS = [
 
 /* ===== Ablauf ===== */
 const $ = id => document.getElementById(id);
+const PAGE = 5;
 let st;
 const startStufe = (() => { const p = new URLSearchParams(location.search).get('stufe'); return ['1', '2', '3'].includes(p) ? +p : 2; })();
 
+/* Liest das Ergebnis aus dem Antwortfeld. Erlaubt ist auch die ganze Rechnung,
+   z. B. "180° − 50° − 60° = 70°" oder "γ = 70°". Es zählt das Ergebnis nach dem letzten "=". */
+function parseAnswer(raw) {
+  const s = raw.replace(/°/g, '').replace(/grad/gi, '').replace(/[−–—]/g, '-').replace(/[×·]/g, '*').replace(/[:÷]/g, '/').replace(/,/g, '.');
+  const parts = s.split(/[=\n]/).map(x => x.replace(/[A-Za-zα-ωΑ-ΩäöüÄÖÜß]+/g, ' ').replace(/\s+/g, ' ').trim()).filter(x => x !== '');
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const e = parts[i];
+    if (!/^[0-9+\-*/(). ]+$/.test(e) || /[*/]{2}/.test(e) || /(^|[^\d.])0\d/.test(e) || !/\d/.test(e)) continue;
+    try { const v = Function('"use strict";return (' + e + ')')(); if (typeof v === 'number' && isFinite(v)) return v; } catch (x) { /* nächster Teil */ }
+  }
+  return null;
+}
+const fmtNum = v => String(Math.round(v * 100) / 100).replace('.', ',');
+
 function startGame() {
-  st = { i: 0, stufe: startStufe, ok: 0, bad: 0, res: [], cur: null, done: false };
-  show('game'); renderDots(); load();
+  st = { i: 0, stufe: startStufe, ok: 0, bad: 0, res: [], run: 0, badRun: 0 };
+  $('feed').innerHTML = ''; $('pagenext').classList.add('hidden');
+  show('game'); renderDots(); addTask();
 }
 function show(id) { ['start', 'game', 'end'].forEach(x => $(x).classList.toggle('hidden', x !== id)); window.scrollTo(0, 0); }
 function renderDots() {
   $('dots').innerHTML = TASKS.map((_, i) => `<span class="dot ${i < st.i ? 'done' : i === st.i ? 'now' : ''}"></span>`).join('');
-  $('count').textContent = `Aufgabe ${st.i + 1} von ${TASKS.length}`;
+  $('count').textContent = `Aufgabe ${Math.min(st.i + 1, TASKS.length)} von ${TASKS.length}`;
 }
-function load() {
-  const t = TASKS[st.i], c = t.make(st.stufe); st.cur = { t, c, sel: null }; st.done = false;
-  renderDots();
-  $('fig').innerHTML = c.fig || ''; $('fig').classList.toggle('hidden', !c.fig);
-  $('task').textContent = c.text;
-  const h = c.h[st.stufe];
-  $('hint').classList.toggle('hidden', !h); $('hint').innerHTML = h ? `<b>Hinweis:</b> ${h}` : '';
-  if (c.kind === 'choice') {
-    $('answer').innerHTML = `<div class="opts">${c.options.map((o, i) => `<button class="o" data-i="${i}">${o}</button>`).join('')}</div>`;
+
+function addTask() {
+  const t = TASKS[st.i], c = t.make(st.stufe);
+  const shown = c.h[st.stufe] || '';
+  const tips = [c.h[2], c.h[1], THEMEN[t.thema].tipp].filter((x, i, a) => x && x !== shown && a.indexOf(x) === i);
+  const el = document.createElement('div'); el.className = 'card';
+  el.innerHTML = (c.fig ? `<div class="fig">${c.fig}</div>` : '') + '<div class="task"></div>' +
+    (shown ? `<div class="hint"><b>Hinweis:</b> ${shown}</div>` : '') + '<div class="ans"></div><div class="hint tip hidden"></div>' +
+    '<button class="pill chk">Prüfen</button><div class="fb hidden"></div>';
+  el.querySelector('.task').textContent = c.text;
+  const ans = el.querySelector('.ans'), tipBox = el.querySelector('.tip'), chk = el.querySelector('.chk'), fb = el.querySelector('.fb');
+  const choiceMode = c.kind === 'choice';
+  let sel = null, tries = 0, first = null, ta = null;
+
+  if (choiceMode) {
+    ans.innerHTML = `<div class="opts">${c.options.map((o, i) => `<button class="o" data-i="${i}">${o}</button>`).join('')}</div>`;
+    ans.addEventListener('click', e => {
+      const b = e.target.closest('.o'); if (!b || b.disabled) return;
+      ans.querySelectorAll('.o').forEach(o => o.classList.remove('sel')); b.classList.add('sel'); sel = +b.dataset.i;
+    });
   } else {
-    $('answer').innerHTML = '<div class="num"><input id="inp" type="text" inputmode="numeric" autocomplete="off" aria-label="Deine Antwort"><span>°</span></div>';
-    $('inp').addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
-    setTimeout(() => $('inp').focus(), 50);
+    ans.innerHTML = '<textarea class="sheet" rows="6" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Deine Rechnung und dein Ergebnis" placeholder="Schreibe hier deine Rechnung und das Ergebnis auf."></textarea><div class="note">Du kannst nur das Ergebnis oder die ganze Rechnung schreiben, zum Beispiel 180° − 50° − 60° = 70°. Mit dem Apple Pencil schreibst du direkt in das Feld.</div>';
+    ta = ans.querySelector('textarea');
+    const qs = [...el.querySelectorAll('.fig .q')]; qs.forEach(q => q.dataset.orig = q.textContent);
+    ta.addEventListener('input', () => {
+      const v = parseAnswer(ta.value);
+      qs.forEach(q => { q.textContent = v === null ? q.dataset.orig : q.dataset.orig.replace('?', fmtNum(v) + '°'); });
+    });
+    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); check(); } });
   }
-  $('check').classList.remove('hidden'); $('check').disabled = false;
-  $('next').classList.add('hidden'); $('fb').classList.add('hidden');
-}
-$('answer').addEventListener('click', e => {
-  const b = e.target.closest('.o'); if (!b || st.done) return;
-  document.querySelectorAll('.o').forEach(o => o.classList.remove('sel')); b.classList.add('sel'); st.cur.sel = +b.dataset.i;
-});
-function check() {
-  if (st.done) return;
-  const { c, t } = st.cur; let ok, given;
-  if (c.kind === 'choice') { if (st.cur.sel == null) return; given = st.cur.sel; ok = given === c.correct; }
-  else {
-    const raw = $('inp').value.replace(/°/g, '').replace(',', '.').trim(); if (raw === '' || isNaN(+raw)) return;
-    ok = Math.abs(+raw - c.correct) < 1e-9;
+
+  function showTip(txt) { tipBox.classList.remove('hidden'); tipBox.innerHTML = `<b>Tipp:</b> ${txt}`; }
+
+  function resolve(ok) {
+    const firstOk = first === true;
+    st.res.push({ thema: t.thema, ok: firstOk });
+    if (firstOk) { st.ok++; st.run++; st.badRun = 0; if (st.run >= 3 && st.stufe < 3) { st.stufe++; st.run = 0; } }
+    else { st.bad++; st.badRun++; st.run = 0; if (st.badRun >= 2 && st.stufe > 1) { st.stufe--; st.badRun = 0; } }
+    if (choiceMode) ans.querySelectorAll('.o').forEach((o, i) => { o.disabled = true; o.classList.remove('sel'); if (i === c.correct) o.classList.add('right'); });
+    else { ta.disabled = true; }
+    tipBox.classList.add('hidden');
+    fb.className = 'fb ' + (ok ? 'ok' : 'no');
+    fb.innerHTML = ok ? `<b>Richtig!</b>${c.expl}` : `<b>Das war noch nicht richtig. So geht es:</b>${c.expl}`;
+    chk.classList.add('hidden');
+    st.i++; renderDots();
+    if (st.i >= TASKS.length || st.i % PAGE === 0) {
+      $('pagenext').textContent = st.i >= TASKS.length ? 'Zum Überblick' : 'Weiter zu den nächsten Aufgaben';
+      $('pagenext').classList.remove('hidden');
+      $('pagenext').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else { addTask(); }
   }
-  st.done = true; st.res.push({ thema: t.thema, ok });
-  if (ok) { st.ok++; st.run = (st.run || 0) + 1; st.badRun = 0; if (st.run >= 3 && st.stufe < 3) { st.stufe++; st.run = 0; } }
-  else { st.bad++; st.badRun = (st.badRun || 0) + 1; st.run = 0; if (st.badRun >= 2 && st.stufe > 1) { st.stufe--; st.badRun = 0; } }
-  if (c.kind === 'choice') document.querySelectorAll('.o').forEach((o, i) => { o.disabled = true; if (i === c.correct) o.classList.add('right'); else if (i === st.cur.sel) o.classList.add('wrong'); });
-  else $('inp').disabled = true;
-  const fb = $('fb'); fb.className = 'fb ' + (ok ? 'ok' : 'no');
-  fb.innerHTML = `<b>${ok ? 'Richtig!' : 'Noch nicht ganz.'}</b>${c.expl}`;
-  $('check').classList.add('hidden');
-  $('next').textContent = st.i === TASKS.length - 1 ? 'Zum Überblick' : 'Weiter'; $('next').classList.remove('hidden');
+
+  function check() {
+    if (chk.classList.contains('hidden')) return;
+    let ok;
+    if (choiceMode) { if (sel == null) return; ok = sel === c.correct; }
+    else {
+      const v = parseAnswer(ta.value);
+      if (v === null) { showTip('Ich finde in deinem Feld kein Ergebnis. Schreibe es zum Beispiel so auf: γ = 70°'); return; }
+      ok = Math.abs(v - c.correct) < 1e-6;
+    }
+    if (first === null) first = ok;
+    tries++;
+    if (ok || tries >= 3) return resolve(ok);
+    if (choiceMode) { const b = ans.querySelector(`.o[data-i="${sel}"]`); b.classList.remove('sel'); b.classList.add('wrong'); b.disabled = true; sel = null; }
+    showTip(tips[Math.min(tries - 1, tips.length - 1)] || 'Lies die Aufgabe noch einmal genau und prüfe deine Rechnung.');
+    tipBox.insertAdjacentHTML('beforeend', ' <i>Versuche es noch einmal.</i>');
+    if (ta) ta.focus();
+  }
+  chk.onclick = check;
+  $('feed').appendChild(el);
+  if (ta && st.i % PAGE === 0) ta.focus({ preventScroll: true });
+  if (st.i % PAGE !== 0) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-function next() { if (st.i === TASKS.length - 1) return finish(); st.i++; load(); }
+$('pagenext').onclick = () => {
+  if (st.i >= TASKS.length) return finish();
+  $('feed').innerHTML = ''; $('pagenext').classList.add('hidden'); window.scrollTo(0, 0); addTask();
+};
 
 function finish() {
   const by = {}; st.res.forEach(r => { (by[r.thema] = by[r.thema] || { n: 0, ok: 0 }); by[r.thema].n++; if (r.ok) by[r.thema].ok++; });
@@ -447,8 +514,6 @@ function finish() {
 }
 
 $('go').onclick = startGame; $('again').onclick = startGame;
-$('toMenu') && ($('toMenu').onclick = () => show('start'));
-$('check').onclick = check; $('next').onclick = next;
 </script>
 </body>
 </html>
