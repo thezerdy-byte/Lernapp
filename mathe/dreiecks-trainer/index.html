@@ -167,6 +167,7 @@ const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 const pick = a => a[rnd(0, a.length - 1)];
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(0, i); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const dg = n => n + '°';
+const ch = (s, ok, bads) => choice([ok, ...(s === 1 ? shuffle(bads).slice(0, 2) : bads)], ok);
 const choice = (options, correct) => { const o = shuffle(options); return { kind: 'choice', options: o, correct: o.indexOf(correct) }; };
 
 /* ===== Zeichnen ===== */
@@ -406,6 +407,267 @@ const TASKS = [
         () => ({ text: 'Ein Zelt hat vorne die Form eines gleichseitigen Dreiecks. Wie groß ist jeder Winkel?', ans: 60, expl: 'Alle drei Winkel sind gleich groß: 180° : 3 = 60°.', h1: 'Beim gleichseitigen Dreieck sind alle Seiten und alle Winkel gleich. Rechne 180° : 3.' })
       ])();
       return { fig: '', text: v.text, kind: 'number', correct: v.ans, h: { 1: v.h1, 2: 'Wende die Winkelsumme 180° an.', 3: '' }, expl: v.expl };
+  } },
+  /* ===== Weitere Aufgaben (je Station insgesamt 10) ===== */
+  /* ---------- Station 1: Winkel und Dreiecke benennen ---------- */
+  { niveau: 2, thema: 'ordnen', make(s) {
+      const typ = pick(['gleichschenklig', 'gleichseitig', 'allgemein']); let w;
+      if (typ === 'gleichseitig') w = [60, 60, 60];
+      else if (typ === 'gleichschenklig') { let b; do { b = rnd(30, 75); } while (b === 60); w = [b, b, 180 - 2 * b]; }
+      else { do { const a = rnd(30, 85), b = rnd(30, 85); w = [a, b, 180 - a - b]; } while (new Set(w).size < 3 || w[2] < 20); }
+      w = shuffle(w);
+      const art = { gleichseitig: 'gleichseitiges Dreieck', gleichschenklig: 'gleichschenkliges Dreieck', allgemein: 'allgemeines Dreieck' }[typ];
+      return { fig: triSvg(w[0], w[1], w[2], { t: { A: dg(w[0]), B: dg(w[1]), C: dg(w[2]) }, flip: Math.random() < .5 }),
+        text: 'Du siehst die Winkel eines Dreiecks. Was für ein Dreieck ist es, wenn man auf die Seiten schaut?',
+        ...ch(s, art, ['gleichseitiges Dreieck', 'gleichschenkliges Dreieck', 'allgemeines Dreieck'].filter(x => x !== art)),
+        h: { 1: 'Gleich große Winkel liegen gegenüber von gleich langen Seiten. Zwei gleiche Winkel: gleichschenklig. Drei gleiche Winkel: gleichseitig. Alle Winkel verschieden: allgemein.', 2: 'Zähle, wie viele Winkel gleich groß sind.', 3: '' },
+        expl: `Winkel: ${w.map(dg).join(', ')}. Das ist ein ${art}.` };
+  } },
+  { niveau: 2, thema: 'ordnen', make(s) {
+      const v = pick([
+        ['Ein Giebel mit zwei gleich langen Dachschrägen und einer anderen Länge am Boden', 'gleichschenkliges Dreieck'],
+        ['Ein Warnschild, dessen drei Seiten alle gleich lang sind', 'gleichseitiges Dreieck'],
+        ['Eine Ecke eines Bilderrahmens mit einem Winkel von 90° und drei verschieden langen Seiten', 'rechtwinkliges Dreieck'],
+        ['Ein Segel mit einem Winkel von 110°', 'stumpfwinkliges Dreieck']
+      ]);
+      const all = ['gleichseitiges Dreieck', 'gleichschenkliges Dreieck', 'rechtwinkliges Dreieck', 'stumpfwinkliges Dreieck'];
+      return { fig: '', text: `Welches Dreieck passt am besten? ${v[0]}.`, ...ch(s, v[1], all.filter(x => x !== v[1])),
+        h: { 1: 'Achte auf das, was genannt wird: gleich lange Seiten (gleichschenklig, gleichseitig) oder ein bestimmter Winkel (recht, stumpf).', 2: 'Welche Angabe steht in der Beschreibung: Seiten oder Winkel?', 3: '' },
+        expl: `${v[0]}: Das passt zum ${v[1]}.` };
+  } },
+  { niveau: 2, thema: 'ordnen', make(s) {
+      const v = pick([
+        { g: [90, 45], t: 'rechtwinklig-gleichschenkliges Dreieck', e: 'γ = 180° − 90° − 45° = 45°. Ein Winkel ist 90° und zwei Winkel sind gleich groß.' },
+        { g: [60, 60], t: 'gleichseitiges Dreieck', e: 'γ = 180° − 60° − 60° = 60°. Alle drei Winkel sind gleich groß.' },
+        { g: [40, 40], t: 'stumpfwinklig-gleichschenkliges Dreieck', e: 'γ = 180° − 40° − 40° = 100°. Ein Winkel ist größer als 90° und zwei Winkel sind gleich groß.' },
+        { g: [90, 30], t: 'rechtwinkliges Dreieck mit drei verschieden langen Seiten', e: 'γ = 180° − 90° − 30° = 60°. Ein Winkel ist 90°, alle drei Winkel sind verschieden.' }
+      ]);
+      const all = ['rechtwinklig-gleichschenkliges Dreieck', 'gleichseitiges Dreieck', 'stumpfwinklig-gleichschenkliges Dreieck', 'rechtwinkliges Dreieck mit drei verschieden langen Seiten'];
+      return { fig: '', text: `Von einem Dreieck kennst du α = ${dg(v.g[0])} und β = ${dg(v.g[1])}. Wie heißt das Dreieck genau?`, ...ch(s, v.t, all.filter(x => x !== v.t)),
+        h: { 1: `Berechne zuerst γ = 180° − ${dg(v.g[0])} − ${dg(v.g[1])}. Prüfe dann: Gibt es einen 90°-Winkel oder einen Winkel über 90°? Sind zwei oder drei Winkel gleich?`, 2: 'Berechne zuerst den dritten Winkel.', 3: '' },
+        expl: v.e };
+  } },
+  { niveau: 3, thema: 'ordnen', make(s) {
+      return { fig: '', text: 'Wie viele spitze Winkel hat jedes Dreieck mindestens?', ...ch(s, '2', ['0', '1', '3']),
+        h: { 1: 'Ein Dreieck kann höchstens einen rechten oder stumpfen Winkel haben (zwei davon wären zusammen mindestens 180°). Alle anderen Winkel sind spitz.', 2: 'Wie viele Winkel von 90° oder mehr passen in ein Dreieck?', 3: '' },
+        expl: 'Zwei Winkel von 90° oder mehr ergeben schon mindestens 180°. Deshalb hat jedes Dreieck höchstens einen rechten oder stumpfen Winkel und damit mindestens zwei spitze Winkel.' };
+  } },
+  { niveau: 3, thema: 'ordnen', make(s) {
+      const ok = 'Ja, zum Beispiel mit den Winkeln 90°, 45° und 45°.';
+      return { fig: '', text: 'Kann ein Dreieck gleichschenklig und rechtwinklig zugleich sein?', ...ch(s, ok, ['Nein, ein rechtwinkliges Dreieck hat drei verschieden lange Seiten.', 'Nein, ein rechter Winkel passt nicht zu zwei gleich großen Winkeln.', 'Ja, mit den Winkeln 90°, 90° und 0°.']),
+        h: { 1: 'Suche zwei gleich große Winkel und einen rechten Winkel, die zusammen 180° ergeben. Rechne (180° − 90°) : 2.', 2: 'Probiere es mit einem 90°-Winkel und zwei gleichen Winkeln.', 3: '' },
+        expl: '90° + 45° + 45° = 180°. Dieses Dreieck ist rechtwinklig und gleichschenklig zugleich.' };
+  } },
+  { niveau: 3, thema: 'ordnen', make(s) {
+      const ok = 'Nein, denn dann wären alle Winkel 60°. Ein stumpfer Winkel ist aber größer als 90°.';
+      return { fig: '', text: 'Kann ein Dreieck gleichseitig und stumpfwinklig sein?', ...ch(s, ok, ['Ja, ein Winkel darf bis 179° groß sein.', 'Ja, wenn die Seiten sehr lang sind.', 'Nein, denn ein stumpfer Winkel hat immer genau 100°.']),
+        h: { 1: 'Im gleichseitigen Dreieck sind alle drei Winkel gleich groß. Rechne 180° : 3.', 2: 'Wie groß ist jeder Winkel im gleichseitigen Dreieck?', 3: '' },
+        expl: '180° : 3 = 60°. Alle Winkel im gleichseitigen Dreieck sind 60° und damit spitz.' };
+  } },
+
+  /* ---------- Station 2: Die Winkelsumme 180° ---------- */
+  { niveau: 1, thema: 'summe', make(s) {
+      let w; do { const a = rnd(35, 85), b = rnd(35, 85); w = [a, b, 180 - a - b]; } while (w[2] < 25 || w[2] > 100 || w[2] === 90);
+      return { fig: triSvg(w[0], w[1], w[2], { t: { A: 'α', B: 'β', C: 'γ' }, flip: Math.random() < .5 }),
+        text: 'Von einem Dreieck kennst du α und β. Wie berechnest du γ?',
+        ...ch(s, 'γ = 180° − α − β', ['γ = α + β', 'γ = 360° − α − β', 'γ = 90° − α − β']),
+        h: { 1: 'Die drei Winkel ergeben zusammen 180°. Ziehe die beiden bekannten Winkel von 180° ab.', 2: 'Die Winkelsumme im Dreieck beträgt 180°.', 3: '' },
+        expl: 'Weil α + β + γ = 180° gilt, ist γ = 180° − α − β.' };
+  } },
+  { niveau: 1, thema: 'summe', make(s) {
+      let a, g, b; do { a = s === 1 ? 5 * rnd(8, 16) : rnd(30, 85); g = s === 1 ? 5 * rnd(8, 16) : rnd(30, 85); b = 180 - a - g; } while (b < 25 || b > 100 || b === 90);
+      return { fig: triSvg(a, b, g, { t: { A: dg(a), B: '?', C: dg(g) }, flip: Math.random() < .5 }),
+        text: `Berechne β. Gegeben sind α = ${dg(a)} und γ = ${dg(g)}.`, kind: 'number', correct: b,
+        h: { 1: `Rechne: 180° − ${dg(a)} − ${dg(g)} = ?`, 2: 'Die drei Winkel ergeben zusammen 180°.', 3: '' },
+        expl: `β = 180° − ${dg(a)} − ${dg(g)} = ${dg(b)}` };
+  } },
+  { niveau: 2, thema: 'summe', make(s) {
+      let a, b; do { a = rnd(30, 80); b = rnd(30, 80); } while (a + b >= 150 || a + b <= 80 || a + b === 90);
+      const g = 180 - a - b, ok = `α = ${dg(a)}, β = ${dg(b)}, γ = ${dg(g)}`;
+      const bad = [`α = ${dg(a)}, β = ${dg(b)}, γ = ${dg(g + 10)}`, `α = ${dg(a)}, β = ${dg(b)}, γ = ${dg(Math.max(g - 10, 5))}`, `α = ${dg(a)}, β = ${dg(b)}, γ = ${dg(360 - a - b)}`];
+      return { fig: '', text: 'Welche drei Winkel können zu einem Dreieck gehören?', ...ch(s, ok, bad),
+        h: { 1: 'Addiere bei jeder Antwort die drei Winkel. Nur die Antwort mit der Summe 180° passt.', 2: 'Die Winkelsumme im Dreieck muss genau 180° sein.', 3: '' },
+        expl: `${dg(a)} + ${dg(b)} + ${dg(g)} = 180°. Bei den anderen Antworten ist die Summe nicht 180°.` };
+  } },
+  { niveau: 2, thema: 'summe', make(s) {
+      let a, b, g; do { a = s === 1 ? 5 * rnd(12, 17) : rnd(60, 88); b = s === 1 ? 5 * rnd(12, 17) : rnd(60, 88); g = 180 - a - b; } while (g < 10 || g >= Math.min(a, b) || g > 55);
+      return { fig: '', text: `Zwei Winkel eines Dreiecks sind ${dg(a)} und ${dg(b)} groß. Wie groß ist der kleinste Winkel des Dreiecks?`, kind: 'number', correct: g,
+        h: { 1: `Berechne den dritten Winkel: 180° − ${dg(a)} − ${dg(b)}. Vergleiche dann alle drei Winkel.`, 2: 'Berechne zuerst den dritten Winkel und vergleiche dann.', 3: '' },
+        expl: `Der dritte Winkel ist 180° − ${dg(a)} − ${dg(b)} = ${dg(g)}. Das ist der kleinste der drei Winkel.` };
+  } },
+  { niveau: 3, thema: 'summe', make(s) {
+      const b = 5 * rnd(3, 10), a = 2 * b, g = 180 - 3 * b;
+      return { fig: '', text: `In einem Dreieck ist α doppelt so groß wie β. Der Winkel γ beträgt ${dg(g)}. Wie groß ist β?`, kind: 'number', correct: b,
+        h: { 1: `Schreibe auf: β + 2 · β + ${dg(g)} = 180°. Dann ist 3 · β = 180° − ${dg(g)}. Teile das Ergebnis durch 3.`, 2: 'α besteht aus zwei β. Alle drei Winkel ergeben 180°.', 3: '' },
+        expl: `3 · β = 180° − ${dg(g)} = ${dg(3 * b)}, also β = ${dg(b)} (und α = ${dg(a)}).` };
+  } },
+  { niveau: 3, thema: 'summe', make(s) {
+      const v = pick(s === 1 ? [[1, 2, 3], [1, 1, 2]] : [[1, 2, 3], [1, 1, 2], [2, 3, 4], [1, 2, 2], [1, 3, 5]]);
+      const tot = v[0] + v[1] + v[2], one = 180 / tot, big = one * v[2];
+      return { fig: '', text: `Die Winkel eines Dreiecks verhalten sich wie ${v[0]} : ${v[1]} : ${v[2]}. Wie groß ist der größte Winkel?`, kind: 'number', correct: big,
+        h: { 1: `Zusammen sind es ${v[0]} + ${v[1]} + ${v[2]} = ${tot} Teile. 180° : ${tot} = ${dg(one)} ist ein Teil. Der größte Winkel hat ${v[2]} Teile.`, 2: 'Teile 180° in so viele gleich große Teile, wie das Verhältnis angibt.', 3: '' },
+        expl: `${tot} Teile sind 180°. Ein Teil ist ${dg(one)}. Der größte Winkel: ${v[2]} · ${dg(one)} = ${dg(big)}.` };
+  } },
+  { niveau: 3, thema: 'summe', make(s) {
+      const b = 5 * rnd(4, 10), d = pick([10, 20, 30]), g = 180 - 2 * b - d;
+      return { fig: '', text: `In einem Dreieck ist α um ${dg(d)} größer als β. Der Winkel γ beträgt ${dg(g)}. Wie groß ist β?`, kind: 'number', correct: b,
+        h: { 1: `Schreibe auf: β + (β + ${dg(d)}) + ${dg(g)} = 180°. Das sind 2 · β + ${dg(d + g)} = 180°. Rechne 180° − ${dg(d + g)} und teile durch 2.`, 2: 'α ist β plus ein Stück. Alle drei Winkel ergeben 180°.', 3: '' },
+        expl: `2 · β = 180° − ${dg(d)} − ${dg(g)} = ${dg(2 * b)}, also β = ${dg(b)} (und α = ${dg(b + d)}).` };
+  } },
+
+  /* ---------- Station 3: Rechtwinklig und gleichschenklig ---------- */
+  { niveau: 1, thema: 'besondere', make(s) {
+      const b = 5 * rnd(4, 15);
+      return { fig: triSvg(90, b, 90 - b, { t: { A: '90°' }, flip: Math.random() < .5 }), text: 'Ein Dreieck ist rechtwinklig. Wie groß sind die beiden anderen Winkel zusammen?',
+        ...ch(s, '90°', ['180°', '45°', '100°']),
+        h: { 1: 'Alle drei Winkel ergeben 180°. Ein Winkel ist schon 90°. Rechne 180° − 90°.', 2: 'Die Winkelsumme beträgt 180°.', 3: '' },
+        expl: '180° − 90° = 90°. Die beiden anderen Winkel ergeben zusammen 90°.' };
+  } },
+  { niveau: 1, thema: 'besondere', make(s) {
+      return { fig: triSvg(60, 60, 60, { t: { A: '?' }, flip: Math.random() < .5 }), text: 'Das Dreieck ist gleichseitig. Wie groß ist der Winkel α?', kind: 'number', correct: 60,
+        h: { 1: 'Im gleichseitigen Dreieck sind alle drei Winkel gleich groß. Rechne 180° : 3.', 2: 'Alle Winkel sind gleich groß, zusammen 180°.', 3: '' },
+        expl: '180° : 3 = 60°. Jeder Winkel im gleichseitigen Dreieck ist 60° groß.' };
+  } },
+  { niveau: 1, thema: 'besondere', make(s) {
+      const x = 5 * rnd(8, 14), g = 180 - 2 * x;
+      return { fig: triSvg(x, x, g, { t: { A: dg(x), B: dg(x), C: dg(g) }, flip: Math.random() < .5 }), text: 'Wie heißen die beiden gleich großen Winkel in einem gleichschenkligen Dreieck?',
+        ...ch(s, 'Basiswinkel', ['Spitzenwinkel', 'Nebenwinkel', 'Scheitelwinkel']),
+        h: { 1: 'Die Seite, die anders lang ist, heißt Basis. Die beiden gleich großen Winkel liegen an der Basis.', 2: 'Die gleichen Winkel liegen an der Basis.', 3: '' },
+        expl: 'Die zwei gleich großen Winkel an der Basis heißen Basiswinkel. Der Winkel an der Spitze heißt Spitzenwinkel.' };
+  } },
+  { niveau: 2, thema: 'besondere', make(s) {
+      return { fig: triSvg(90, 45, 45, { t: { A: '90°', B: '?', C: '?' }, flip: Math.random() < .5 }), text: 'Ein Dreieck ist rechtwinklig und gleichschenklig. Wie groß ist jeder der beiden anderen Winkel?', kind: 'number', correct: 45,
+        h: { 1: 'Zusammen sind es 180° − 90° = 90°. Die beiden Winkel sind gleich groß: 90° : 2.', 2: 'Ein Winkel ist 90°, die beiden anderen sind gleich groß.', 3: '' },
+        expl: '(180° − 90°) : 2 = 45°' };
+  } },
+  { niveau: 3, thema: 'besondere', make(s) {
+      const x = pick([30, 40, 50, 20, 70]), a = (180 - x) / 2, ok = `${dg(a)} und ${dg(a)}  oder  ${dg(x)} und ${dg(180 - 2 * x)}`;
+      return { fig: '', text: `Ein gleichschenkliges Dreieck hat einen Winkel von ${dg(x)}. Welche Möglichkeiten gibt es für die beiden anderen Winkel?`,
+        ...ch(s, ok, [`nur ${dg(a)} und ${dg(a)}`, `nur ${dg(x)} und ${dg(180 - 2 * x)}`, `${dg(x)} und ${dg(x)}`]),
+        h: { 1: `Zwei Fälle: Entweder ${dg(x)} ist der Winkel an der Spitze, dann sind die Basiswinkel (180° − ${dg(x)}) : 2. Oder ${dg(x)} ist ein Basiswinkel, dann ist der zweite Basiswinkel auch ${dg(x)}.`, 2: 'Überlege: Kann der gegebene Winkel an der Spitze oder an der Basis liegen?', 3: '' },
+        expl: `Spitze: (180° − ${dg(x)}) : 2 = ${dg(a)} für beide Basiswinkel. Basis: zwei Winkel mit ${dg(x)}, der dritte ist 180° − 2 · ${dg(x)} = ${dg(180 - 2 * x)}.` };
+  } },
+  { niveau: 3, thema: 'besondere', make(s) {
+      const k = pick([2, 4]), g = 180 / (2 * k + 1), base = k * g, w = { 2: 'doppelt', 4: 'viermal' }[k];
+      return { fig: '', text: `Im gleichschenkligen Dreieck ist jeder Basiswinkel ${w} so groß wie der Winkel an der Spitze. Wie groß ist ein Basiswinkel?`, kind: 'number', correct: base,
+        h: { 1: `Nenne den Winkel an der Spitze γ. Die beiden Basiswinkel sind je ${k} · γ. Also γ + ${k} · γ + ${k} · γ = ${2 * k + 1} · γ = 180°.`, 2: 'Drücke alle drei Winkel mit dem Spitzenwinkel γ aus.', 3: '' },
+        expl: `${2 * k + 1} · γ = 180°, also γ = ${dg(g)}. Ein Basiswinkel ist ${k} · ${dg(g)} = ${dg(base)}.` };
+  } },
+  { niveau: 3, thema: 'besondere', make(s) {
+      const k = pick([2, 4, 5]), small = 90 / (k + 1), big = k * small, w = { 2: 'doppelt', 4: 'viermal', 5: 'fünfmal' }[k];
+      return { fig: '', text: `In einem rechtwinkligen Dreieck ist ein spitzer Winkel ${w} so groß wie der andere spitze Winkel. Wie groß ist der größere spitze Winkel?`, kind: 'number', correct: big,
+        h: { 1: `Die beiden spitzen Winkel ergeben zusammen 90°. Der kleinere sei β, der größere ${k} · β. Dann ist ${k + 1} · β = 90°.`, 2: 'Die beiden spitzen Winkel ergeben zusammen 90°.', 3: '' },
+        expl: `${k + 1} · β = 90°, also β = ${dg(small)}. Der größere Winkel ist ${k} · ${dg(small)} = ${dg(big)}.` };
+  } },
+
+  /* ---------- Station 4: Aussagen prüfen und begründen ---------- */
+  { niveau: 1, thema: 'begruenden', make(s) {
+      let a, b, g; do { a = rnd(40, 80); b = rnd(40, 80); g = 180 - a - b + pick([0, 0, 5, -5, 10]); } while (g < 20);
+      return { fig: '', text: `Tim hat die Winkel eines Dreiecks gemessen: α = ${dg(a)}, β = ${dg(b)} und γ = ${dg(g)}. Wie groß ist die Summe der drei Winkel?`, kind: 'number', correct: a + b + g,
+        h: { 1: `Rechne ${dg(a)} + ${dg(b)} + ${dg(g)}.`, 2: 'Addiere die drei Winkel.', 3: '' },
+        expl: `${dg(a)} + ${dg(b)} + ${dg(g)} = ${dg(a + b + g)}. ${a + b + g === 180 ? 'Das passt zu 180°.' : 'Das sind nicht genau 180°. Beim Messen können kleine Fehler passieren.'}` };
+  } },
+  { niveau: 1, thema: 'begruenden', make(s) {
+      const T = ['Ein spitzer Winkel ist kleiner als 90°.', 'Ein rechter Winkel misst genau 90°.', 'Ein stumpfer Winkel ist größer als 90° und kleiner als 180°.', 'Die Winkelsumme im Dreieck beträgt 180°.'];
+      const F = ['Ein spitzer Winkel ist größer als 90°.', 'Ein rechter Winkel misst 100°.', 'Ein stumpfer Winkel ist kleiner als 90°.', 'Die Winkelsumme im Dreieck beträgt 360°.', 'Ein gestreckter Winkel misst 90°.'];
+      const ok = pick(T);
+      return { fig: '', text: 'Welche Aussage ist richtig?', ...ch(s, ok, shuffle(F).slice(0, 3)),
+        h: { 1: 'spitz: kleiner als 90° · recht: genau 90° · stumpf: zwischen 90° und 180° · gestreckt: 180° · Winkelsumme im Dreieck: 180°', 2: 'Denke an die Winkelarten und die Winkelsumme.', 3: '' },
+        expl: `Richtig ist: ${ok}` };
+  } },
+  { niveau: 1, thema: 'begruenden', make(s) {
+      let a, b, g; do { a = rnd(40, 80); b = rnd(40, 80); g = 180 - a - b + pick([0, 0, 10, -10, 20]); } while (g < 20);
+      const sum = a + b + g, ok = sum === 180 ? 'Ja, die Summe ist 180°.' : sum > 180 ? 'Nein, die Summe ist größer als 180°.' : 'Nein, die Summe ist kleiner als 180°.';
+      return { fig: '', text: `Kann es ein Dreieck mit den Winkeln ${dg(a)}, ${dg(b)} und ${dg(g)} geben?`, ...choice(['Ja, die Summe ist 180°.', 'Nein, die Summe ist größer als 180°.', 'Nein, die Summe ist kleiner als 180°.'], ok),
+        h: { 1: `Rechne ${dg(a)} + ${dg(b)} + ${dg(g)}. Die Summe muss genau 180° sein.`, 2: 'Addiere die Winkel und vergleiche mit 180°.', 3: '' },
+        expl: `${dg(a)} + ${dg(b)} + ${dg(g)} = ${dg(sum)}. ${sum === 180 ? 'Das passt.' : 'Das passt nicht zur Winkelsumme 180°.'}` };
+  } },
+  { niveau: 2, thema: 'begruenden', make(s) {
+      const a = rnd(20, 45), b = rnd(20, 40), kind = pick(['ok', 'arith', 'neun', 'dreisechzig']);
+      const real = 180 - a - b, shown = { ok: real, arith: real + pick([10, -10]), neun: 90 - a - b, dreisechzig: 360 - a - b }[kind], start = { neun: 90, dreisechzig: 360 }[kind] || 180;
+      const O = { ok: 'Die Rechnung stimmt.', arith: 'Der Rechenweg stimmt, aber das Ergebnis ist falsch gerechnet.', neun: 'Sie hat 90° statt 180° benutzt.', dreisechzig: 'Sie hat 360° statt 180° benutzt.' };
+      return { fig: '', text: `Anna soll γ berechnen (α = ${dg(a)}, β = ${dg(b)}). Sie rechnet: γ = ${dg(start)} − ${dg(a)} − ${dg(b)} = ${dg(shown)}. Was stimmt?`, ...choice(Object.values(O), O[kind]),
+        h: { 1: `Rechne selbst nach: Die Winkelsumme ist 180°. Also γ = 180° − ${dg(a)} − ${dg(b)}. Vergleiche mit Annas Rechnung.`, 2: 'Prüfe, mit welcher Zahl Anna angefangen hat und ob sie richtig gerechnet hat.', 3: '' },
+        expl: `Richtig ist γ = 180° − ${dg(a)} − ${dg(b)} = ${dg(real)}. ${O[kind]}` };
+  } },
+  { niveau: 2, thema: 'begruenden', make(s) {
+      const P = [
+        ['In jedem Dreieck sind mindestens zwei Winkel spitz.', 'Ein Dreieck hat höchstens einen Winkel von 90° oder mehr.'],
+        ['Hat ein Dreieck einen rechten Winkel, so sind die beiden anderen Winkel zusammen 90°.', '180° − 90° = 90°.'],
+        ['Ein Dreieck mit drei gleich großen Winkeln hat lauter 60°-Winkel.', '180° : 3 = 60°.']
+      ];
+      const F = ['Ein Dreieck kann zwei rechte Winkel haben.', 'Die Winkelsumme wird größer, wenn das Dreieck größer gezeichnet wird.', 'Ein stumpfwinkliges Dreieck hat zwei stumpfe Winkel.', 'In jedem Dreieck sind alle drei Winkel gleich groß.'];
+      const p = pick(P);
+      return { fig: '', text: 'Welche Aussage stimmt?', ...ch(s, p[0], shuffle(F).slice(0, 3)),
+        h: { 1: 'Prüfe jede Aussage mit der Winkelsumme 180°. Probiere ein Beispiel aus.', 2: 'Denke an die Winkelsumme 180°.', 3: '' },
+        expl: `${p[0]} ${p[1]}` };
+  } },
+  { niveau: 2, thema: 'begruenden', make(s) {
+      const a = pick([20, 30, 40, 50, 80, 100]), b = (180 - a) / 2;
+      return { fig: triSvg(a, b, b, { t: { A: dg(a), B: dg(b), C: dg(b) }, flip: Math.random() < .5 }), text: `Jan hat gemessen: α = ${dg(a)}, β = ${dg(b)} und γ = ${dg(b)}. Welche Folgerung ist richtig?`,
+        ...ch(s, 'Das Dreieck ist gleichschenklig, weil β und γ gleich groß sind.', ['Das Dreieck ist gleichseitig, weil die Winkelsumme 180° ist.', 'Das Dreieck ist rechtwinklig, weil 180° herauskommt.', 'Das Dreieck ist stumpfwinklig, weil einer der Winkel größer als 40° ist.']),
+        h: { 1: 'Zwei gleich große Winkel gehören zu zwei gleich langen Seiten. Gleichseitig wäre es nur bei drei gleichen Winkeln.', 2: 'Welche Winkel sind gleich groß?', 3: '' },
+        expl: `β = γ = ${dg(b)}. Zwei gleiche Winkel bedeuten: gleichschenkliges Dreieck.` };
+  } },
+  { niveau: 3, thema: 'begruenden', make(s) {
+      return { fig: '', text: 'Ist es möglich, dass ein Dreieck drei spitze Winkel hat?', ...ch(s, 'Ja, zum Beispiel 60°, 60° und 60° (Summe 180°).', ['Nein, ein Dreieck hat immer einen rechten Winkel.', 'Nein, drei spitze Winkel ergeben höchstens 90°.', 'Nein, die Summe wäre immer kleiner als 180°.']),
+        h: { 1: 'Probiere drei Winkel unter 90° aus, die zusammen genau 180° ergeben.', 2: 'Spitz heißt: kleiner als 90°. Suche ein Beispiel.', 3: '' },
+        expl: '60° + 60° + 60° = 180°. Alle drei Winkel sind kleiner als 90°, also spitz. Solche Dreiecke heißen spitzwinklig.' };
+  } },
+  { niveau: 3, thema: 'begruenden', make(s) {
+      return { fig: '', text: 'Max wettet: „Je größer ein Dreieck gezeichnet ist, desto größer ist seine Winkelsumme.“ Was sagst du dazu?', ...ch(s, 'Das stimmt nicht: Die Winkelsumme ist immer 180°, auch bei großen und kleinen Dreiecken.', ['Das stimmt: Bei einem großen Dreieck ist die Winkelsumme 360°.', 'Das stimmt: Größere Dreiecke haben größere Winkel.', 'Das stimmt nur bei rechtwinkligen Dreiecken.']),
+        h: { 1: 'Denke an das Abreißen der Ecken: Egal wie groß das Dreieck war, lagen die drei Ecken immer auf einer Geraden.', 2: 'Hängt die Winkelsumme von der Größe des Dreiecks ab?', 3: '' },
+        expl: 'Die Größe der Seiten ändert nichts an der Winkelsumme. In jedem Dreieck ergeben α + β + γ genau 180°.' };
+  } },
+
+  /* ---------- Station 5: Auf neue Situationen übertragen ---------- */
+  { niveau: 1, thema: 'transfer', make(s) {
+      return { fig: '', text: 'Wie groß ist die Winkelsumme in einem Viereck?', ...ch(s, '360°', ['180°', '270°', '540°']),
+        h: { 1: 'Eine Diagonale zerlegt das Viereck in zwei Dreiecke. Jedes Dreieck hat 180°.', 2: 'Zerlege das Viereck in Dreiecke.', 3: '' },
+        expl: '2 · 180° = 360°. Im Viereck beträgt die Winkelsumme immer 360°.' };
+  } },
+  { niveau: 1, thema: 'transfer', make(s) {
+      const v = pick([['sss', 'Drei Seiten'], ['sws', 'Zwei Seiten und der Winkel dazwischen'], ['wsw', 'Eine Seite und die beiden Winkel an dieser Seite']]);
+      return { fig: '', text: `Wofür steht „${v[0]}“ beim Konstruieren von Dreiecken?`, ...ch(s, v[1], ['Drei Seiten', 'Zwei Seiten und der Winkel dazwischen', 'Eine Seite und die beiden Winkel an dieser Seite', 'Drei Winkel'].filter(x => x !== v[1])),
+        h: { 1: 's steht für Seite, w steht für Winkel. Die Reihenfolge der Buchstaben sagt, wie die Teile im Dreieck liegen.', 2: 's = Seite, w = Winkel.', 3: '' },
+        expl: `${v[0]} bedeutet: ${v[1]}.` };
+  } },
+  { niveau: 2, thema: 'transfer', make(s) {
+      const x = rnd(3, 6), y = rnd(4, 7), z = rnd(5, 8), w1 = rnd(40, 60), w2 = rnd(50, 70), w3 = 180 - w1 - w2;
+      const C = [
+        { g: `a = ${x} cm, b = ${y} cm und c = ${Math.min(z, x + y - 1)} cm`, a: 'sss (drei Seiten)' },
+        { g: `a = ${x} cm, b = ${y} cm und der Winkel γ = ${dg(w1)} zwischen a und b`, a: 'sws (zwei Seiten und der Winkel dazwischen)' },
+        { g: `c = ${z} cm, α = ${dg(w1)} und β = ${dg(w2)}`, a: 'wsw (eine Seite und die beiden anliegenden Winkel)' },
+        { g: `α = ${dg(w1)}, β = ${dg(w2)} und γ = ${dg(w3)}`, a: 'Kein Verfahren reicht: Drei Winkel allein legen die Größe nicht fest.' }
+      ];
+      const c = pick(C), all = C.map(q => q.a);
+      return { fig: '', text: `Gegeben sind: ${c.g}. Welche Konstruktion passt?`, ...ch(s, c.a, all.filter(x => x !== c.a)),
+        h: { 1: 'sss: drei Seiten. sws: zwei Seiten und der Winkel zwischen ihnen. wsw: eine Seite und die beiden Winkel an dieser Seite. Drei Winkel allein reichen nicht.', 2: 'Zähle, wie viele Seiten und Winkel gegeben sind und wo der Winkel liegt.', 3: '' },
+        expl: `Das passt zu: ${c.a}` };
+  } },
+  { niveau: 2, thema: 'transfer', make(s) {
+      const a = s === 1 ? 5 * rnd(8, 15) : rnd(40, 80), b = s === 1 ? 5 * rnd(8, 15) : rnd(40, 80), g = 180 - a - b;
+      return { fig: triSvg(a, b, g, { t: { A: dg(a), B: dg(b), C: '?' }, s: { c: `${rnd(4, 8)} cm` }, flip: Math.random() < .5 }), text: `Du zeichnest ein Dreieck nach „wsw“ mit α = ${dg(a)} und β = ${dg(b)}. Wie groß ist der Winkel γ, ohne dass du ihn misst?`, kind: 'number', correct: g,
+        h: { 1: `Rechne 180° − ${dg(a)} − ${dg(b)}.`, 2: 'Die Winkelsumme im Dreieck hilft dir.', 3: '' },
+        expl: `γ = 180° − ${dg(a)} − ${dg(b)} = ${dg(g)}` };
+  } },
+  { niveau: 2, thema: 'transfer', make(s) {
+      const w = pick([60, 70, 80, 100, 110, 120]);
+      return { fig: '', text: `Ein Viereck hat die Winkel 90°, 90° und ${dg(w)}. Wie groß ist der vierte Winkel?`, kind: 'number', correct: 360 - 180 - w,
+        h: { 1: `Im Viereck ergeben die vier Winkel 360°. Rechne 360° − 90° − 90° − ${dg(w)}.`, 2: 'Im Viereck beträgt die Winkelsumme 360°.', 3: '' },
+        expl: `360° − 90° − 90° − ${dg(w)} = ${dg(180 - w)}` };
+  } },
+  { niveau: 3, thema: 'transfer', make(s) {
+      const v = pick([['Fünfeck', 3], ['Sechseck', 4], ['Siebeneck', 5]]);
+      return { fig: '', text: `Du zerlegst ein ${v[0]} von einer Ecke aus in ${v[1]} Dreiecke. Wie groß ist die Winkelsumme im ${v[0]}?`, kind: 'number', correct: v[1] * 180,
+        h: { 1: `Jedes Dreieck hat 180°. Rechne ${v[1]} · 180°.`, 2: 'Zähle die Dreiecke und rechne mit 180° je Dreieck.', 3: '' },
+        expl: `${v[1]} · 180° = ${dg(v[1] * 180)}. Genauso gilt im Viereck 2 · 180° = 360°.` };
+  } },
+  { niveau: 3, thema: 'transfer', make(s) {
+      const w = s === 1 ? pick([60, 70, 80]) : rnd(55, 82);
+      return { fig: triSvg(90, w, 90 - w, { t: { A: '90°', B: dg(w), C: '?' }, flip: Math.random() < .5 }), text: `Eine Leiter lehnt an einer senkrechten Wand. Mit dem Boden bildet sie einen Winkel von ${dg(w)}. Wie groß ist der Winkel zwischen Leiter und Wand?`, kind: 'number', correct: 90 - w,
+        h: { 1: `Boden, Wand und Leiter bilden ein rechtwinkliges Dreieck. Rechne 180° − 90° − ${dg(w)}.`, 2: 'Zeichne die Skizze: Boden und Wand stehen senkrecht aufeinander.', 3: '' },
+        expl: `180° − 90° − ${dg(w)} = ${dg(90 - w)}` };
   } }
 ];
 
@@ -443,7 +705,7 @@ function showMenu() {
 $('stations').addEventListener('click', e => { const b = e.target.closest('.st'); if (b) startStation(b.dataset.id); });
 
 function startStation(id) {
-  st.id = id; st.queue = TASKS.filter(t => t.thema === id); st.qi = 0;
+  st.id = id; st.queue = TASKS.filter(t => t.thema === id).sort((a, b) => a.niveau - b.niveau); st.qi = 0;
   $('gNr').textContent = THEMEN[id].nr; $('gTitle').textContent = THEMEN[id].titel;
   $('feed').innerHTML = ''; $('pagenext').classList.add('hidden');
   show('game'); renderDots(); addTask();
