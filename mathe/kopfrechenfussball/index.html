@@ -38,7 +38,8 @@
   .head { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; }
   .blue .head { color: var(--blue); } .red .head { color: var(--red); }
   .head .sc { font-size: 1.3rem; }
-  .task { text-align: center; font-size: clamp(1.8rem, 7vw, 2.6rem); font-weight: 800; font-variant-numeric: tabular-nums; }
+  .task { text-align: center; font-size: clamp(1.7rem, 7vw, 2.6rem); font-weight: 800; font-variant-numeric: tabular-nums; white-space: pre-line; line-height: 1.25; }
+  .task.long { font-size: clamp(1.15rem, 4.6vw, 1.7rem); }
   .ans { text-align: center; font-size: clamp(1.5rem, 6vw, 2rem); font-weight: 700; min-height: 1.4em; border-radius: 10px; background: var(--bg); line-height: 1.5; font-variant-numeric: tabular-nums; }
   .ans.bad { animation: shake .35s; color: var(--red); }
   @keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
@@ -50,18 +51,32 @@
   .panel.locked .pad, .panel.locked .task { opacity: .35; pointer-events: none; }
 
   /* Feld */
-  #field { position: relative; overflow: hidden; background: repeating-linear-gradient(0deg, #2e9b4f 0 12.5%, #34a957 12.5% 25%); }
+  #field { position: relative; z-index: 0; overflow: hidden; background: repeating-linear-gradient(0deg, #2e9b4f 0 12.5%, #34a957 12.5% 25%); }
   .goal { position: absolute; left: 30%; right: 30%; height: 7%; border: 3px solid #fff; background: rgba(255,255,255,.18); }
   .goal.g-top { top: 0; border-top: 0; } .goal.g-bot { bottom: 0; border-bottom: 0; }
   .line { position: absolute; left: 0; right: 0; border-top: 2px dashed rgba(255,255,255,.55); }
   .line.mid { border-top: 3px solid rgba(255,255,255,.9); }
   .circle { position: absolute; left: 50%; top: 50%; width: 22vmin; height: 22vmin; max-width: 120px; max-height: 120px; transform: translate(-50%, -50%); border: 3px solid rgba(255,255,255,.8); border-radius: 50%; }
   #ball { position: absolute; left: 50%; font-size: clamp(1.6rem, 6vh, 2.6rem); transform: translate(-50%, -50%); transition: top .35s cubic-bezier(.3,1.4,.5,1); line-height: 1; filter: drop-shadow(0 3px 2px rgba(0,0,0,.35)); }
-  #menuBtn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: rgba(0,0,0,.35); color: #fff; border-radius: 10px; padding: 6px 10px; font-size: .9rem; cursor: pointer; font-family: inherit; }
-  #banner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(0,0,0,.45); color: #fff; font-size: clamp(2rem, 9vw, 3.4rem); font-weight: 900; text-align: center; padding: 10px; }
+  #menuBtn { z-index: 3; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: rgba(0,0,0,.35); color: #fff; border-radius: 10px; padding: 6px 10px; font-size: .9rem; cursor: pointer; font-family: inherit; }
+  #banner { z-index: 5; position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(0,0,0,.45); color: #fff; font-size: clamp(2rem, 9vw, 3.4rem); font-weight: 900; text-align: center; padding: 10px; }
   #banner small { font-size: 1rem; font-weight: 600; }
   #banner .row { display: flex; gap: 10px; }
   #banner button { border: 0; border-radius: 12px; padding: 10px 18px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+  /* Querformat (Tablet): Spielfeld über den ganzen Bildschirm, Rechenfelder in den Ecken */
+  @media (min-aspect-ratio: 1/1) {
+    #game { display: block; position: relative; overflow: hidden; }
+    #field { position: absolute; inset: 0; }
+    .panel { position: absolute; z-index: 2; width: min(380px, 36vw); height: calc(100% - 16px); max-height: 700px; margin: 8px; border-radius: 18px; box-shadow: var(--shadow); }
+    #pBlue { left: 0; bottom: 0; }
+    #pRed { right: 0; top: 0; }
+    .goal { left: 34%; right: 34%; }
+    .circle { width: 26vmin; height: 26vmin; max-width: 180px; max-height: 180px; }
+    #menuBtn { right: auto; left: 50%; top: auto; bottom: 10px; transform: translateX(-50%); }
+    .task { font-size: clamp(1.6rem, 4.4vmin, 2.4rem); }
+    .task.long { font-size: clamp(1.15rem, 3.4vmin, 1.7rem); }
+  }
 </style>
 </head>
 <body>
@@ -69,21 +84,9 @@
 <section id="menu">
   <h1>⚽ Kopfrechenfußball</h1>
   <div class="card">
-    <p class="hint">Zwei Spieler an einem Gerät, am besten auf einem Tablet in der Mitte des Tisches. Beide sehen dieselbe Aufgabe. Wer sie zuerst richtig löst, schiebt den Ball eine Linie Richtung gegnerisches Tor. Wer sich verrechnet, ist kurz gesperrt.</p>
-    <h2>Rechenart</h2>
-    <div class="opts" data-key="op">
-      <button class="opt sel" data-v="add">➕ Plus</button>
-      <button class="opt" data-v="sub">➖ Minus</button>
-      <button class="opt" data-v="mul">✖️ Mal</button>
-      <button class="opt" data-v="div">➗ Geteilt</button>
-      <button class="opt" data-v="mix">🎲 Gemischt</button>
-    </div>
-    <h2>Schwierigkeit</h2>
-    <div class="opts" data-key="lvl">
-      <button class="opt sel" data-v="1">Leicht</button>
-      <button class="opt" data-v="2">Mittel</button>
-      <button class="opt" data-v="3">Schwer</button>
-    </div>
+    <p class="hint">Zwei Spieler an einem Gerät, am besten auf einem Tablet in der Mitte des Tisches. Beide sehen dieselbe Aufgabe. Wer sie zuerst richtig löst, schiebt den Ball eine Linie Richtung gegnerisches Tor. Wer sich verrechnet, ist kurz gesperrt. Die Aufgaben passen zum Stoff, den ihr im Unterricht schon hattet.</p>
+    <h2>Aufgaben</h2>
+    <div class="opts" data-key="topic" id="topics"></div>
     <h2>Gewonnen hat, wer ... Tore schießt</h2>
     <div class="opts" data-key="goals">
       <button class="opt" data-v="1">1</button>
@@ -123,7 +126,7 @@
 <script>
 (() => {
   const $ = id => document.getElementById(id);
-  const cfg = { op: 'add', lvl: '1', goals: '3' };
+  const cfg = { topic: 'all', goals: '3' };
   const LINES = 7, START = 4, LOCK_MS = 1500;
   const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
   const SIDES = ['blue', 'red'];
@@ -160,32 +163,110 @@
     });
   });
 
+  /* ===== Aufgaben nach Jahresplan 7M (2026/27) =====
+     Jede Aufgabenart hat ein Datum "ab" (erster Unterrichtstag zum Thema laut Jahresplan/Sequenzplan).
+     Es kommen nur Aufgaben vor, die schon dran waren. Zum Testen: ?datum=JJJJ-MM-TT an die Adresse hängen. */
+  const pick = a => a[rnd(0, a.length - 1)];
+  const TOPICS = [
+    { id: 'kopf', label: '➕ Kopfrechnen' },
+    { id: 'terme', label: '🔤 Terme' },
+    { id: 'gleich', label: '⚖️ Gleichungen' },
+    { id: 'dreieck', label: '🔺 Dreiecke' }
+  ];
+  const GENS = [
+    { topic: 'kopf', ab: '2000-01-01', make() {
+      const op = pick(['add', 'sub', 'mul', 'div']), l = pick([1, 2, 2, 3]);
+      let a, b, sym, ans;
+      if (op === 'add') { const m = [20, 100, 500][l - 1]; a = rnd(2, m); b = rnd(2, m); sym = '+'; ans = a + b; }
+      else if (op === 'sub') { const m = [20, 100, 500][l - 1]; a = rnd(5, m); b = rnd(1, a - 1); sym = '−'; ans = a - b; }
+      else if (op === 'mul') { const [x, y] = [[10, 10], [12, 12], [20, 12]][l - 1]; a = rnd(2, x); b = rnd(2, y); sym = '×'; ans = a * b; }
+      else { const [x, y] = [[10, 10], [12, 12], [20, 12]][l - 1]; b = rnd(2, y); ans = rnd(2, x); a = b * ans; sym = '÷'; }
+      return { text: `${a} ${sym} ${b} =`, ans };
+    } },
+    /* Terme: Termwerte (ab 21.09.), Zusammenfassen (ab 23.09.), Klammern auflösen (ab 28.09.) */
+    { topic: 'terme', ab: '2026-09-21', make() {
+      const x = rnd(2, 9), a = rnd(2, 9);
+      if (Math.random() < .5) { const b = rnd(1, 15); return { text: `x = ${x}\n${a} · x + ${b} =`, ans: a * x + b }; }
+      const b = rnd(1, a * x - 1); return { text: `x = ${x}\n${a} · x − ${b} =`, ans: a * x - b };
+    } },
+    { topic: 'terme', ab: '2026-09-23', make() {
+      const x = rnd(2, 9), a = rnd(2, 9);
+      if (Math.random() < .5) { const b = rnd(2, 9); return { text: `x = ${x}\n${a}x + ${b}x =`, ans: (a + b) * x }; }
+      const b = rnd(1, a - 1 || 1); return { text: `x = ${x}\n${a + 1}x − ${b}x =`, ans: (a + 1 - b) * x };
+    } },
+    { topic: 'terme', ab: '2026-09-28', make() {
+      const a = rnd(2, 9);
+      if (Math.random() < .5) { const x = rnd(2, 9), b = rnd(1, 9); return { text: `x = ${x}\n${a} · (x + ${b}) =`, ans: a * (x + b) }; }
+      const x = rnd(3, 12), b = rnd(1, x - 1); return { text: `x = ${x}\n${a} · (x − ${b}) =`, ans: a * (x - b) };
+    } },
+    /* Gleichungen: einfache (ab 30.09.), Umkehrrechnung und ax + b = c (ab 01.10.), x auf beiden Seiten (ab 08.10.) */
+    { topic: 'gleich', ab: '2026-09-30', make() {
+      if (Math.random() < .5) { const x = rnd(2, 30), b = rnd(2, 30); return { text: `x + ${b} = ${x + b}\nx = ?`, ans: x }; }
+      const a = rnd(2, 9), x = rnd(2, 12); return { text: `${a}x = ${a * x}\nx = ?`, ans: x };
+    } },
+    { topic: 'gleich', ab: '2026-10-01', make() {
+      const x = rnd(5, 40), b = rnd(2, x - 1);
+      return { text: Math.random() < .5 ? `x − ${b} = ${x - b}\nx = ?` : `${x - b} = x − ${b}\nx = ?`, ans: x };
+    } },
+    { topic: 'gleich', ab: '2026-10-01', make() {
+      const a = rnd(2, 9), x = rnd(2, 12);
+      if (Math.random() < .5) { const b = rnd(1, 20); return { text: `${a}x + ${b} = ${a * x + b}\nx = ?`, ans: x }; }
+      const b = rnd(1, a * x - 1); return { text: `${a}x − ${b} = ${a * x - b}\nx = ?`, ans: x };
+    } },
+    { topic: 'gleich', ab: '2026-10-08', make() {
+      const b = rnd(1, 6), a = b + rnd(1, 5), x = rnd(2, 10);
+      return { text: `${a}x = ${b}x + ${(a - b) * x}\nx = ?`, ans: x };
+    } },
+    /* Dreiecke: Begriffe (ab 14.10.), Innenwinkelsumme und fehlende Winkel (ab 19.10.) */
+    { topic: 'dreieck', ab: '2026-10-14', make() {
+      return pick([
+        { text: 'Gleichseitiges Dreieck:\nWie viele Seiten sind gleich lang?', ans: 3 },
+        { text: 'Rechtwinkliges Dreieck:\nWie viele rechte Winkel hat es?', ans: 1 },
+        { text: 'Wie viele Ecken\nhat ein Dreieck?', ans: 3 }
+      ]);
+    } },
+    { topic: 'dreieck', ab: '2026-10-19', make() {
+      if (Math.random() < .12) return { text: 'Winkelsumme\nim Dreieck = ?°', ans: 180 };
+      const a = rnd(30, 85), b = rnd(30, 85), g = 180 - a - b, n = ['α', 'β', 'γ'], w = [a, b, g], hide = rnd(0, 2);
+      const known = n.map((x, i) => i === hide ? null : `${x} = ${w[i]}°`).filter(Boolean);
+      return { text: `Dreieck: ${known.join(', ')}\n${n[hide]} = ?°`, ans: w[hide] };
+    } },
+    { topic: 'dreieck', ab: '2026-10-19', make() {
+      const b = rnd(10, 80); return { text: `Rechtwinkliges Dreieck:\nα = 90°, β = ${b}°, γ = ?°`, ans: 90 - b };
+    } },
+    { topic: 'dreieck', ab: '2026-10-19', make() {
+      if (Math.random() < .5) { const g = 2 * rnd(10, 60); return { text: `Gleichschenkliges Dreieck,\nSpitze γ = ${g}°, α = ?°`, ans: (180 - g) / 2 }; }
+      const x = rnd(25, 80); return { text: `Gleichschenkliges Dreieck,\nα = β = ${x}°, γ = ?°`, ans: 180 - 2 * x };
+    } }
+  ];
+  const today = (() => {
+    const p = new URLSearchParams(location.search).get('datum');
+    if (p && /^\d{4}-\d{2}-\d{2}$/.test(p)) return p;
+    const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })();
+  const avail = () => GENS.filter(g => g.ab <= today);
+  const topicsNow = () => TOPICS.filter(t => avail().some(g => g.topic === t.id));
+
   function makeTask() {
-    const l = +cfg.lvl;
-    const op = cfg.op === 'mix' ? ['add', 'sub', 'mul', 'div'][rnd(0, 3)] : cfg.op;
-    let a, b, sym, ans;
-    if (op === 'add') {
-      const m = [20, 100, 500][l - 1];
-      a = rnd(2, m); b = rnd(2, m); sym = '+'; ans = a + b;
-    } else if (op === 'sub') {
-      const m = [20, 100, 500][l - 1];
-      a = rnd(5, m); b = rnd(1, a); sym = '−'; ans = a - b;
-    } else if (op === 'mul') {
-      const [x, y] = [[10, 10], [12, 12], [20, 12]][l - 1];
-      a = rnd(2, x); b = rnd(2, y); sym = '×'; ans = a * b;
-    } else {
-      const [x, y] = [[10, 10], [12, 12], [20, 12]][l - 1];
-      b = rnd(2, y); ans = rnd(2, x); a = b * ans; sym = '÷';
+    const pool = avail(), ts = cfg.topic === 'all' ? topicsNow().map(t => t.id) : [cfg.topic];
+    let t;
+    for (let i = 0; i < 6; i++) {
+      const topic = pick(ts), g = pick(pool.filter(x => x.topic === topic));
+      t = g.make();
+      if (!st || !st.cur || st.cur.text !== t.text) break;
     }
-    return { text: `${a} ${sym} ${b}`, ans };
+    return t;
   }
+
+  const tbox = $('topics');
+  tbox.innerHTML = [{ id: 'all', label: '🎲 Alles, was wir hatten' }, ...topicsNow()].map((t, i) => `<button class="opt${i === 0 ? ' sel' : ''}" data-v="${t.id}">${t.label}</button>`).join('');
 
   const cap = s => s[0].toUpperCase() + s.slice(1);
   const $t = s => $('task' + cap(s)), $a = s => $('ans' + cap(s)), $s = s => $('sc' + cap(s)), $p = s => $('p' + cap(s));
 
   function newTask() {
     st.cur = makeTask();
-    SIDES.forEach(s => { st.input[s] = ''; $t(s).textContent = st.cur.text + ' ='; $a(s).textContent = ''; });
+    SIDES.forEach(s => { st.input[s] = ''; $t(s).textContent = st.cur.text; $t(s).classList.toggle('long', st.cur.text.length > 11); $a(s).textContent = ''; });
   }
 
   function placeBall() {
@@ -207,7 +288,7 @@
     if (!st || st.paused || st.lock[side]) return;
     if (k === '⌫') st.input[side] = st.input[side].slice(0, -1);
     else if (k === '✔') return submit(side);
-    else if (st.input[side].length < 5) st.input[side] += k;
+    else if (st.input[side].length < 4) st.input[side] += k;
     $a(side).textContent = st.input[side];
   }
 
