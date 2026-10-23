@@ -5,25 +5,79 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lernapps</title>
 <style>
-  :root { --bg: #f4f6fb; --card: #fff; --text: #1f2540; --muted: #6b7394; --accent: #4f6df5; --shadow: 0 6px 24px rgba(31,37,64,.08); }
+  :root {
+    --bg: #f2f7ff; --card: rgba(255,255,255,.78); --text: #26335a; --muted: #6f7ca3;
+    --blue: #6f9fe8; --blue-t: #e3eeff; --purple: #a58ae6; --purple-t: #eee8ff; --green: #78cc8c; --green-t: #e2f6e7;
+    --shadow: 0 8px 28px rgba(80,110,170,.14);
+  }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #12152a; --card: #1c2040; --text: #eef0ff; --muted: #9aa2c9; --shadow: 0 6px 24px rgba(0,0,0,.4); }
+    :root {
+      --bg: #141a30; --card: rgba(34,42,76,.8); --text: #eaf0ff; --muted: #9aa8d3;
+      --blue: #6f9fe8; --blue-t: #27386a; --purple: #a58ae6; --purple-t: #382f66; --green: #78cc8c; --green-t: #25503a;
+      --shadow: 0 8px 28px rgba(0,0,0,.4);
+    }
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); padding: 16px; display: flex; justify-content: center; }
-  main { width: 100%; max-width: 720px; }
-  h1 { text-align: center; margin: 16px 0 24px; }
-  h2 { color: var(--muted); font-size: .95rem; text-transform: uppercase; letter-spacing: .05em; margin: 28px 0 10px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-  a.app { display: block; background: var(--card); color: var(--text); text-decoration: none; padding: 18px; border-radius: 16px; box-shadow: var(--shadow); border: 2px solid transparent; }
-  a.app:hover { border-color: var(--accent); }
-  a.app b { display: block; font-size: 1.1rem; margin-bottom: 4px; }
-  a.app span { color: var(--muted); font-size: .9rem; }
+  body {
+    margin: 0; min-height: 100vh; padding: 16px; display: flex; justify-content: center;
+    font-family: "Century Gothic", CenturyGothic, "Questrial", "Avenir Next", Futura, "Trebuchet MS", sans-serif;
+    color: var(--text); background-color: var(--bg);
+    background-image:
+      radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--blue) 45%, transparent) 0, transparent 26%),
+      radial-gradient(ellipse at 0% 55%, color-mix(in srgb, var(--green) 40%, transparent) 0, transparent 22%),
+      radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--purple) 45%, transparent) 0, transparent 30%),
+      radial-gradient(circle at 100% 8%, color-mix(in srgb, var(--blue) 30%, transparent) 0, transparent 20%);
+    background-attachment: fixed;
+  }
+  .deco { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .deco svg { position: absolute; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }
+  .deco .a { width: 74px; top: 9%; right: 4%; color: var(--blue); transform: rotate(14deg); }
+  .deco .b { width: 70px; top: 38%; left: 2%; color: var(--purple); transform: rotate(-14deg); }
+  .deco .c { width: 64px; bottom: 7%; left: 5%; color: var(--blue); }
+  .deco .d { width: 70px; bottom: 22%; right: 3%; color: var(--purple); transform: rotate(10deg); }
+  @media (max-width: 700px) { .deco svg { opacity: .3; } }
+  main { position: relative; width: 100%; max-width: 760px; }
+  h1 { text-align: center; margin: 20px 0 8px; font-size: 2rem; letter-spacing: .01em; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 12px; }
+
+  h2 {
+    display: inline-block; margin: 30px 0 14px; padding: 8px 22px; font-size: .95rem; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--text);
+    background: var(--blue-t); border: 2px solid var(--blue); border-radius: 999px;
+  }
+  h2:nth-of-type(3n+2) { background: var(--purple-t); border-color: var(--purple); }
+  h2:nth-of-type(3n) { background: var(--green-t); border-color: var(--green); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+  a.app {
+    --c: var(--blue); --t: var(--blue-t);
+    display: flex; flex-direction: column; gap: 10px; padding: 18px; text-decoration: none; color: var(--text);
+    background: var(--card); border: 2.5px solid var(--c); border-radius: 24px; box-shadow: var(--shadow);
+    backdrop-filter: blur(6px); transition: transform .15s ease, box-shadow .15s ease;
+  }
+  a.app:nth-child(3n+2) { --c: var(--purple); --t: var(--purple-t); }
+  a.app:nth-child(3n) { --c: var(--green); --t: var(--green-t); }
+  a.app:hover, a.app:focus-visible { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(80,110,170,.22); outline: none; }
+  a.app b { display: block; font-size: 1.1rem; }
+  a.app span { color: var(--muted); font-size: .9rem; line-height: 1.45; flex: 1; }
+  a.app::after {
+    content: "Öffnen"; align-self: stretch; text-align: center; padding: 9px 12px; font-weight: 700; font-size: .95rem;
+    background: var(--t); border: 2px solid var(--c); border-radius: 999px;
+  }
 </style>
 </head>
 <body>
+
+<div class="deco" aria-hidden="true">
+  <svg class="a" viewBox="0 0 64 64"><path d="M6 58V8M6 58h52"/><path d="M12 46l16-14 10 8 20-24"/><path d="M48 16h10v10"/><rect x="40" y="42" width="6" height="12"/><rect x="50" y="36" width="6" height="18"/></svg>
+  <svg class="b" viewBox="0 0 64 64"><rect x="14" y="6" width="36" height="8" rx="2"/><path d="M20 14v34M32 14v34M44 14v34"/><rect x="12" y="48" width="40" height="8" rx="2"/></svg>
+  <svg class="c" viewBox="0 0 64 64"><rect x="10" y="4" width="44" height="56" rx="6"/><rect x="17" y="11" width="30" height="12" rx="2"/><path d="M20 33h4M30 33h4M40 33h4M20 43h4M30 43h4M40 43h4M20 52h4M30 52h4M40 52h4"/></svg>
+  <svg class="d" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26"/><circle cx="32" cy="32" r="19"/><path d="M38 24q-4-4-9-1t0 8q5 3 3 7t-8 1M33 20v24"/></svg>
+</div>
+
 <main>
-  <h1>📚 Lernapps</h1>
+  <h1>Lernapps</h1>
+  <p class="sub">Üben, spielen, wiederholen</p>
 
   <h2>Mathematik</h2>
   <div class="grid">
