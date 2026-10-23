@@ -736,7 +736,7 @@ function addTask() {
       ans.querySelectorAll('.o').forEach(o => o.classList.remove('sel')); b.classList.add('sel'); sel = +b.dataset.i;
     });
   } else {
-    ans.innerHTML = '<textarea class="sheet" rows="6" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Deine Rechnung und dein Ergebnis" placeholder="Schreibe hier deine Rechnung und das Ergebnis auf."></textarea><div class="note">Du kannst nur das Ergebnis oder die ganze Rechnung schreiben, zum Beispiel 180° − 50° − 60° = 70°. Mit dem Apple Pencil schreibst du direkt in das Feld.</div>';
+    ans.innerHTML = '<textarea class="sheet" rows="6" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Deine Rechnung und dein Ergebnis"></textarea><div class="note">Du kannst nur das Ergebnis oder die ganze Rechnung schreiben, zum Beispiel 180° − 50° − 60° = 70°. Mit dem Apple Pencil schreibst du direkt in das Feld.</div>';
     ta = ans.querySelector('textarea');
     const qs = [...el.querySelectorAll('.fig .q')]; qs.forEach(q => q.dataset.orig = q.textContent);
     ta.addEventListener('input', () => {
