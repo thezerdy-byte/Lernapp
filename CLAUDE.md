@@ -20,6 +20,6 @@ Statische Lern-Apps für eine Mittelschule in Bayern (LehrplanPLUS), veröffentl
 - Design der Übersichtsseite: `index.html` im Hauptordner (Pastellfarben, umrandete Karten, runde Schaltflächen, Schrift Century Gothic bzw. lokal Questrial aus `fonts/`). Neue Apps nutzen denselben Stil.
 - Committen nur die eigenen Ordner plus `index.html`. Pushen nur auf ausdrückliche Anweisung der Lehrkraft.
 
-## Offene Punkte
+## Ausnahmen
 
-- `mathe/kopfrechnen` und `mathe/kopfrechenfussball` zeigen noch offen „Leicht/Mittel/Schwer". Sie müssen noch an diese Regeln und das neue Design angepasst werden.
+- `mathe/kopfrechnen` und `mathe/kopfrechenfussball` bleiben bewusst so, wie sie sind (offene Stufenwahl, altes Design). Auf ausdrückliche Anweisung der Lehrkraft nicht ändern. Die Regeln oben gelten nur für neue Apps.
