@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>BUZZER</title>
+<style>
+  :root { --t1: #e8743b; --t2: #2fa6c9; --idle: #1b32c8; --gold: #f3d37a; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  html, body { height: 100%; margin: 0; overflow: hidden; background: #000; }
+  body {
+    display: flex; flex-direction: column; user-select: none; -webkit-user-select: none;
+    font-family: Impact, "Arial Narrow Bold", "Haettenschweiler", "Franklin Gothic Condensed", "Arial Black", sans-serif; color: #fff;
+  }
+  .pad {
+    flex: 1; border: 0; margin: 0; padding: 0; font-family: inherit; color: #fff; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    background: var(--idle); transition: background .15s, opacity .15s; text-shadow: 0 3px 0 rgba(0,0,0,.55);
+  }
+  .pad.t1 { transform: rotate(180deg); } /* Team 1 sitzt gegenüber */
+  .pad .name { font-size: clamp(2rem, 9vmin, 5rem); letter-spacing: .06em; text-transform: uppercase; line-height: 1; }
+  .pad .state { font-size: clamp(1.1rem, 4vmin, 2.2rem); letter-spacing: .08em; opacity: .85; }
+  .pad.t1 .name { color: var(--t1); } .pad.t2 .name { color: var(--t2); }
+  body.locked .pad { opacity: .35; cursor: default; }
+  body.locked .pad.win { opacity: 1; }
+  body.locked .pad.win.t1 { background: var(--t1); } body.locked .pad.win.t2 { background: var(--t2); }
+  body.locked .pad.win .name { color: #fff; font-size: clamp(2.4rem, 11vmin, 6.4rem); }
+  .mid { height: clamp(52px, 9vmin, 80px); display: flex; align-items: center; justify-content: center; gap: 12px; background: #000; padding: 0 12px; }
+  .mid button, .mid a {
+    font-family: system-ui, sans-serif; font-weight: 700; font-size: clamp(.9rem, 2.6vmin, 1.2rem); padding: 10px 22px; border-radius: 999px;
+    border: 2px solid var(--gold); background: transparent; color: var(--gold); cursor: pointer; text-decoration: none;
+  }
+  .mid button.reset { background: var(--gold); color: #000; }
+  .mid button.reset:active { filter: brightness(.9); }
+  .mid .score { font-size: clamp(1.1rem, 3.4vmin, 1.8rem); color: var(--gold); letter-spacing: .06em; min-width: 3.4em; text-align: center; }
+</style>
+</head>
+<body>
+<button class="pad t1" id="b1" type="button"><span class="name">Team 1</span><span class="state" id="s1">Drücken!</span></button>
+<div class="mid">
+  <span class="score" id="sc1">0</span>
+  <button class="reset" id="reset" type="button">Nächste Runde</button>
+  <span class="score" id="sc2">0</span>
+  <a href="../../">Start</a>
+</div>
+<button class="pad t2" id="b2" type="button"><span class="name">Team 2</span><span class="state" id="s2">Drücken!</span></button>
+
+<script>
+// Ein Gerät, zwei Teams: Team 1 oben (steht auf dem Kopf, für das gegenüber sitzende Team), Team 2 unten.
+// Wer zuerst tippt, sperrt das Feld für das andere Team. Die Lehrkraft startet mit „Nächste Runde" neu.
+const $ = id => document.getElementById(id);
+let winner = 0, wins = [0, 0], ctx = null;
+const pads = [null, $("b1"), $("b2")];
+
+function beep(f) {
+  try {
+    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "square"; o.frequency.value = f; g.gain.value = .15;
+    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .25);
+  } catch (e) {}
+}
+function buzz(team) {
+  if (winner) return;
+  winner = team; wins[team - 1]++;
+  document.body.classList.add("locked");
+  pads[team].classList.add("win");
+  $("s" + team).textContent = "Zuerst!";
+  $("s" + (3 - team)).textContent = "Zu spät";
+  $("sc1").textContent = wins[0]; $("sc2").textContent = wins[1];
+  beep(team === 1 ? 660 : 880);
+  try { navigator.vibrate && navigator.vibrate(120); } catch (e) {}
+}
+function next() {
+  winner = 0;
+  document.body.classList.remove("locked");
+  [1, 2].forEach(t => { pads[t].classList.remove("win"); $("s" + t).textContent = "Drücken!"; });
+}
+[1, 2].forEach(t => pads[t].addEventListener("pointerdown", e => { e.preventDefault(); buzz(t); }));
+$("reset").onclick = next;
+// Doppeltippen auf einen Zähler setzt beide Zähler auf 0
+$("sc1").ondblclick = $("sc2").ondblclick = () => { wins = [0, 0]; $("sc1").textContent = $("sc2").textContent = 0; };
+</script>
+</body>
+</html>
