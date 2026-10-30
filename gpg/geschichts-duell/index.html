@@ -73,10 +73,50 @@
   .rate .ok { background: #12974f; } .rate .bad { background: #b32b36; }
   .rate button:hover { filter: brightness(1.15); }
   .tip { font-family: system-ui, sans-serif; font-size: clamp(.8rem, 2vw, 1rem); opacity: .75; }
+
+  .hidden { display: none !important; }
+  /* Intro */
+  #start { position: fixed; inset: 0; z-index: 30; background: radial-gradient(circle at 50% 40%, #12289c, #000 70%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
+  #start .big { font-size: clamp(2rem, 8vw, 4.4rem); letter-spacing: .03em; text-align: center; }
+  #start button { font-family: inherit; font-size: clamp(1.4rem, 5vw, 2.4rem); letter-spacing: .06em; padding: 14px 40px; border-radius: 999px; border: 4px solid #fff1b8; background: #1b32c8; color: #fff1b8; cursor: pointer; text-shadow: 0 2px 0 #000; animation: pulse 1.2s ease-in-out infinite; }
+  #start p { margin: 0; font-family: system-ui, sans-serif; font-size: .85rem; color: #9aa6e0; }
+  @keyframes pulse { 50% { transform: scale(1.07); } }
+  #skip { position: fixed; right: 12px; top: 12px; z-index: 20; font-family: system-ui, sans-serif; font-weight: 700; font-size: .85rem; padding: 8px 16px; border-radius: 999px; border: 2px solid #6f80e8; background: rgba(0,0,0,.6); color: #cfd6ff; cursor: pointer; }
+  .ltr { display: inline-block; white-space: pre; }
+  .ltr.pre { opacity: 0; }
+  .ltr.in { animation: fly 1s cubic-bezier(.2,1.5,.4,1) both; }
+  @keyframes fly {
+    0% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(5); }
+    30% { opacity: 1; }
+    100% { opacity: 1; transform: none; }
+  }
+  h1.wobble { animation: wob .7s ease-in-out; }
+  @keyframes wob { 25% { transform: rotate(-2.5deg) scale(1.06); } 60% { transform: rotate(2deg) scale(1.03); } }
+  .frame, .scores, .tools, .hint { transition: opacity .6s, transform .6s; }
+  body.introing .frame { pointer-events: none; }
+  .frame.pre, .scores.pre, .tools.pre, .hint.pre { opacity: 0; transform: translateY(30px); }
+  .cat.pre { opacity: 0; }
+  .cat.in { animation: catin .9s cubic-bezier(.2,1.5,.4,1) both; }
+  @keyframes catin { 0% { opacity: 0; transform: translateX(var(--fx)) rotate(var(--fr)) scale(.3); } 100% { opacity: 1; transform: none; } }
+  button.tile.pre { opacity: 0; transform: scale(0); }
+  button.tile.in { animation: pop .45s cubic-bezier(.2,1.8,.4,1) both; }
+  @keyframes pop { 0% { opacity: 0; transform: scale(0) rotate(-20deg); } 100% { opacity: 1; transform: none; } }
+  #burst { position: fixed; left: 50%; top: 50%; z-index: 15; font-size: clamp(6rem, 30vw, 14rem); pointer-events: none; opacity: 0; transform: translate(-50%, -50%); }
+  #burst.go { animation: burst 1.6s ease-out both; }
+  @keyframes burst { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.2) rotate(-30deg); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1) rotate(8deg); } 70% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); } }
+  @media (prefers-reduced-motion: reduce) { .ltr.in, .cat.in, button.tile.in, #burst.go { animation-duration: .01s; } }
 </style>
 </head>
 <body>
-<h1 class="gold">GESCHICHTS-DUELL</h1>
+<div id="start">
+  <div class="big gold">GESCHICHTS-DUELL</div>
+  <button id="go" type="button">▶ START</button>
+  <p>Mit Ton – Lautstärke vorher prüfen.</p>
+</div>
+<button id="skip" type="button" class="hidden">Intro überspringen</button>
+<div id="burst" aria-hidden="true"></div>
+
+<h1 aria-label="GESCHICHTS-DUELL" id="title">GESCHICHTS-DUELL</h1>
 
 <div class="frame"><div class="board" id="board"></div></div>
 
@@ -86,6 +126,7 @@
 </div>
 
 <div class="tools">
+  <button id="replay" type="button">Intro</button>
   <button id="reset" type="button">Neues Spiel</button>
   <a href="../../">Zur Startseite</a>
 </div>
@@ -132,6 +173,8 @@ const KATEGORIEN = [
   ]}
 ];
 
+const ICONS = ["🕰️", "🏺", "🏛️", "🏰"]; // je Kategorie ein Bild für das Intro
+const INTRO_MS = 30000; // Länge der Musik (intro.mp3, Anfang 30 s)
 const $ = id => document.getElementById(id);
 const board = $("board"), overlay = $("overlay"), card = $("card");
 let current = null, step = 0, points = 0, score = [0, 0]; // step 0 zu, 1 Frage, 2 Antwort
@@ -182,6 +225,77 @@ document.addEventListener("keydown", e => {
 });
 $("reset").onclick = () => { overlay.classList.remove("open"); step = 0; score = [0, 0]; showScores(); build(); };
 build();
+
+// ---------- Intro ----------
+const timers = [];
+const T = (ms, fn) => timers.push(setTimeout(fn, ms));
+let music = null, fadeTimer = null;
+const rnd = (a, b) => a + Math.random() * (b - a);
+
+function fade(ms) {
+  clearInterval(fadeTimer);
+  if (!music) return;
+  const m = music, v0 = m.volume, t0 = Date.now();
+  fadeTimer = setInterval(() => {
+    const k = Math.min(1, (Date.now() - t0) / ms);
+    m.volume = v0 * (1 - k);
+    if (k >= 1) { clearInterval(fadeTimer); m.pause(); }
+  }, 50);
+}
+function titleLetters() {
+  const h = $("title"); h.textContent = "";
+  [..."GESCHICHTS-DUELL"].forEach(ch => {
+    const sp = document.createElement("span");
+    sp.className = "ltr gold pre"; sp.textContent = ch;
+    sp.style.setProperty("--x", rnd(-120, 120) + "vw"); sp.style.setProperty("--y", rnd(-90, 90) + "vh");
+    sp.style.setProperty("--r", rnd(-540, 540) + "deg");
+    h.appendChild(sp);
+  });
+}
+function cleanup() {
+  timers.splice(0).forEach(clearTimeout);
+  document.querySelectorAll(".pre, .in").forEach(e => e.classList.remove("pre", "in"));
+  $("skip").classList.add("hidden"); $("burst").classList.remove("go");
+  document.body.classList.remove("introing");
+}
+function skipIntro() { cleanup(); fade(600); }
+function runIntro() {
+  cleanup(); step = 0; overlay.classList.remove("open"); score = [0, 0]; showScores(); build();
+  document.body.classList.add("introing");
+  $("skip").classList.remove("hidden");
+  titleLetters();
+  const frame = document.querySelector(".frame"), sc = document.querySelector(".scores"), tl = document.querySelector(".tools"), hint = document.querySelector(".hint");
+  [frame, sc, tl, hint].forEach(e => e.classList.add("pre"));
+  const cats = [...document.querySelectorAll(".cat")], tiles = [...document.querySelectorAll("button.tile")];
+  cats.forEach((c, i) => { c.classList.add("pre"); c.style.setProperty("--fx", (i % 2 ? 90 : -90) + "vw"); c.style.setProperty("--fr", (i % 2 ? 25 : -25) + "deg"); });
+  tiles.forEach(t => t.classList.add("pre"));
+
+  if (music) { music.pause(); }
+  music = new Audio("intro.mp3"); music.volume = 1; music.play().catch(() => {});
+
+  const L = [...document.querySelectorAll(".ltr")];
+  L.forEach((l, i) => T(i * 90, () => { l.classList.remove("pre"); l.classList.add("in"); }));
+  T(L.length * 90 + 900, () => { $("title").classList.add("wobble"); });
+  T(3200, () => frame.classList.remove("pre"));
+  cats.forEach((c, i) => T(4200 + i * 2500, () => {
+    c.classList.remove("pre"); c.classList.add("in");
+    const b = $("burst"); b.textContent = ICONS[i]; b.classList.remove("go"); void b.offsetWidth; b.classList.add("go");
+  }));
+  tiles.forEach((t, i) => T(14500 + i * 200, () => { t.classList.remove("pre"); t.classList.add("in"); }));
+  T(18200, () => sc.classList.remove("pre"));
+  T(19000, () => { tl.classList.remove("pre"); hint.classList.remove("pre"); });
+  T(20000, () => { cleanup_keepMusic(); });
+  T(INTRO_MS - 3500, () => fade(3500));
+}
+function cleanup_keepMusic() {
+  document.querySelectorAll(".pre, .in").forEach(e => e.classList.remove("pre", "in"));
+  $("skip").classList.add("hidden"); document.body.classList.remove("introing");
+}
+document.querySelector(".board").addEventListener("animationend", e => e.target.classList.remove("in"));
+$("go").onclick = () => { $("start").classList.add("hidden"); runIntro(); };
+$("skip").onclick = skipIntro;
+$("replay").onclick = runIntro;
+document.body.classList.add("introing");
 </script>
 </body>
 </html>
