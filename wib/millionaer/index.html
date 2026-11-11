@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wer wird Millionär? – WiB</title>
+<!--
+  Fachinhalte (Fragen, Antworten, Hinweise) bitte von der Lehrkraft prüfen lassen.
+  Aufgaben stehen gesammelt in THEMEN am Anfang des Skripts und lassen sich dort ändern.
+  Startstufe der Hilfen (nirgends sichtbar): Link-Parameter ?stufe=1, ?stufe=2 oder ?stufe=3.
+-->
+<style>
+  @font-face { font-family: "Questrial"; src: url("../../fonts/Questrial-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+  :root {
+    --bg: #f2f7ff; --card: rgba(255,255,255,.82); --text: #26335a; --muted: #6f7ca3;
+    --blue: #6f9fe8; --blue-t: #e3eeff; --purple: #a58ae6; --purple-t: #eee8ff; --green: #78cc8c; --green-t: #e2f6e7;
+    --red: #e88a8a; --red-t: #fde6e6; --gold: #f0c05a; --gold-t: #fff3d6;
+    --shadow: 0 8px 28px rgba(80,110,170,.14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141a30; --card: rgba(34,42,76,.82); --text: #eaf0ff; --muted: #9aa8d3;
+      --blue-t: #27386a; --purple-t: #382f66; --green-t: #25503a; --red-t: #5a2f3a; --gold-t: #5a4a22;
+      --shadow: 0 8px 28px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 16px; display: flex; justify-content: center;
+    font-family: "Century Gothic", CenturyGothic, "Questrial", "Avenir Next", Futura, "Trebuchet MS", sans-serif;
+    color: var(--text); background-color: var(--bg);
+    background-image:
+      radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--blue) 45%, transparent) 0, transparent 26%),
+      radial-gradient(ellipse at 0% 55%, color-mix(in srgb, var(--green) 40%, transparent) 0, transparent 22%),
+      radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--purple) 45%, transparent) 0, transparent 30%);
+    background-attachment: fixed;
+  }
+  main { width: 100%; max-width: 720px; }
+  .back { display: inline-block; margin: 4px 0 0; color: var(--muted); text-decoration: none; font-size: .9rem; }
+  h1 { text-align: center; margin: 10px 0 14px; font-size: 1.7rem; }
+  .card {
+    background: var(--card); border: 2.5px solid var(--blue); border-radius: 24px; box-shadow: var(--shadow);
+    padding: 18px; margin-bottom: 14px; backdrop-filter: blur(6px);
+  }
+  .center { text-align: center; }
+  .muted { color: var(--muted); }
+  button {
+    font: inherit; color: var(--text); cursor: pointer; padding: 11px 18px; font-weight: 700;
+    background: var(--blue-t); border: 2px solid var(--blue); border-radius: 999px;
+    transition: transform .12s ease;
+  }
+  button:hover:not(:disabled), button:focus-visible { transform: translateY(-2px); outline: none; }
+  button:disabled { opacity: .45; cursor: default; }
+  .themen { display: grid; gap: 12px; margin-top: 16px; }
+  .themen button { padding: 16px; text-align: left; border-radius: 22px; }
+  .themen button:nth-child(2) { background: var(--purple-t); border-color: var(--purple); }
+  .themen button small { display: block; font-weight: 400; color: var(--muted); margin-top: 4px; }
+
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .betrag { font-weight: 700; padding: 6px 16px; background: var(--gold-t); border: 2px solid var(--gold); border-radius: 999px; }
+  .leiter { display: flex; gap: 4px; margin: 12px 0 0; }
+  .leiter i { flex: 1; height: 8px; border-radius: 99px; background: var(--blue-t); border: 1.5px solid var(--blue); }
+  .leiter i.sicher { border-color: var(--gold); }
+  .leiter i.fertig { background: var(--green); border-color: var(--green); }
+  .leiter i.jetzt { background: var(--gold); border-color: var(--gold); }
+  .frage { font-size: 1.2rem; line-height: 1.5; margin: 0 0 14px; font-weight: 700; }
+  .denk { margin: 0 0 14px; padding: 10px 14px; background: var(--purple-t); border: 2px solid var(--purple); border-radius: 18px; font-size: .95rem; line-height: 1.45; }
+  .denk b { display: block; margin-bottom: 2px; }
+  .antworten { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 520px) { .antworten { grid-template-columns: 1fr; } }
+  .antworten button { text-align: left; padding: 13px 16px; border-radius: 20px; font-weight: 400; background: var(--card); line-height: 1.35; }
+  .antworten button b { color: var(--blue); margin-right: 6px; }
+  .antworten button.weg { visibility: hidden; }
+  .antworten button.gewaehlt { background: var(--gold-t); border-color: var(--gold); }
+  .antworten button.richtig { background: var(--green-t); border-color: var(--green); }
+  .antworten button.falsch { background: var(--red-t); border-color: var(--red); }
+  .joker { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .joker button { padding: 8px 14px; font-size: .9rem; }
+  .joker .rechts { margin-left: auto; background: var(--gold-t); border-color: var(--gold); }
+  .info { margin-top: 14px; padding: 12px 14px; border-radius: 18px; background: var(--blue-t); border: 2px solid var(--blue); line-height: 1.45; }
+  .info.ok { background: var(--green-t); border-color: var(--green); }
+  .info.nein { background: var(--red-t); border-color: var(--red); }
+  .balken { display: flex; align-items: flex-end; gap: 10px; height: 90px; margin-top: 8px; }
+  .balken div { flex: 1; text-align: center; font-size: .85rem; }
+  .balken span { display: block; background: var(--blue); border-radius: 8px 8px 0 0; min-height: 3px; margin-bottom: 3px; }
+  .aktion { display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+  .gross { font-size: 2rem; font-weight: 700; margin: 8px 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="../../">← Alle Lernapps</a>
+  <h1>Wer wird Millionär?</h1>
+  <div id="app"></div>
+</main>
+
+<script>
+/* ============================================================
+   AUFGABEN (hier ändern)
+   Jedes Thema hat 15 Fragen, aufsteigend. niveau: 1 = Reproduktion (Fragen 1–5),
+   2 = Reorganisation (6–10), 3 = Transfer (11–15).
+   hinweis: [ausführlich, knapp] – wird je nach Hilfestufe unauffällig gezeigt;
+   ohne Hilfe bei der dritten Stufe. richtig = Index der richtigen Antwort (0–3).
+   ============================================================ */
+const THEMEN = [
+  {
+    id: "k6",
+    name: "Arbeit im Haushalt",
+    unter: "Klasse 6 · Haushaltsformen, Haus- und Familienarbeit, Arbeitsplatz",
+    fragen: [
+      { niveau: 1, frage: "Wie nennt man einen Haushalt, in dem eine Person allein lebt?",
+        antworten: ["Einpersonenhaushalt", "Wohngemeinschaft", "Mehrgenerationenhaushalt", "Familienhaushalt"], richtig: 0,
+        hinweis: ["Denk an die Zahl der Personen: Wie viele wohnen dort? Das steckt schon im Wort.", "Es geht um die Anzahl der Personen."],
+        erklaerung: "Lebt nur eine Person im Haushalt, spricht man vom Einpersonenhaushalt." },
+      { niveau: 1, frage: "Was gehört zur materiellen Hausarbeit?",
+        antworten: ["Ein Kind trösten", "Wäsche waschen", "Die kranke Oma versorgen", "Mit dem Kind Hausaufgaben üben"], richtig: 1,
+        hinweis: ["Materiell heißt: Es geht um Dinge, die man anfassen kann, zum Beispiel Kleidung, Geschirr oder Räume. Welche Tätigkeit passt dazu?", "Materiell = mit Dingen."],
+        erklaerung: "Materielle Hausarbeit sind Tätigkeiten wie Kochen, Putzen, Waschen oder Einkaufen." },
+      { niveau: 1, frage: "Was ist Erwerbsarbeit?",
+        antworten: ["Arbeit, für die man Geld bekommt", "Arbeit, die man freiwillig und ohne Bezahlung macht", "Arbeit nur im eigenen Haushalt", "Arbeit, die nur Erwachsene machen dürfen"], richtig: 0,
+        hinweis: ["Das Wort „Erwerb“ erinnert an „erwerben“, also etwas bekommen. Was bekommt man für diese Arbeit?", "Erwerb = Einkommen."],
+        erklaerung: "Bei Erwerbsarbeit wird die Arbeit bezahlt, zum Beispiel als Lohn oder Gehalt." },
+      { niveau: 1, frage: "Welches ist ein Merkmal eines Arbeitsplatzes?",
+        antworten: ["Lieblingsfarbe", "Arbeitsmittel", "Schuhgröße", "Taschengeld"], richtig: 1,
+        hinweis: ["Überlege, was man bei einer Arbeit braucht: Womit arbeitet man? Wo? Wie lange?", "Zum Beispiel Arbeitsaufgabe, Arbeitsort, Arbeitszeit …"],
+        erklaerung: "Arbeitsplatzmerkmale sind Arbeitsaufgabe, Arbeitsmittel, Arbeitsort, Arbeitszeit und Arbeitsdauer." },
+      { niveau: 1, frage: "Welche Tätigkeit ist Nichterwerbsarbeit?",
+        antworten: ["Als Köchin im Restaurant arbeiten", "Als Pflegekraft im Krankenhaus arbeiten", "Für die eigene Familie kochen", "Als Reinigungskraft im Hotel arbeiten"], richtig: 2,
+        hinweis: ["Nichterwerbsarbeit wird nicht bezahlt. Bei welcher Tätigkeit gibt es keinen Lohn?", "Gesucht ist die Arbeit ohne Bezahlung."],
+        erklaerung: "Arbeit für die eigene Familie wird nicht bezahlt. Sie ist trotzdem echte Arbeit." },
+
+      { niveau: 2, frage: "Ein Vater hilft seinem Kind bei den Hausaufgaben. Zu welcher Art von Familienarbeit gehört das?",
+        antworten: ["Materielle Hausarbeit", "Erziehungsarbeit", "Pflegearbeit", "Erwerbsarbeit"], richtig: 1,
+        hinweis: ["Vergleiche: Geht es um Dinge (Putzen), um Kranke (Pflege), um Gespräche und Nähe oder um das Großziehen eines Kindes?", "Es geht um das Aufwachsen und Lernen eines Kindes."],
+        erklaerung: "Kinder fördern, begleiten und unterstützen ist Erziehungsarbeit." },
+      { niveau: 2, frage: "Wozu dient ein Plan, der die Aufgaben im Haushalt verteilt?",
+        antworten: ["Alle wissen, wer was wann macht", "Er ersetzt die Arbeit", "Er macht die Arbeit teurer", "Er ist nur für Erwachsene gedacht"], richtig: 0,
+        hinweis: ["Stell dir vor, es gäbe keinen Plan: Was würde im Haushalt passieren? Was verbessert ein Plan?", "Ein Plan schafft Überblick und Ordnung."],
+        erklaerung: "Ein Arbeitsplan zeigt Arbeitsteilung und Arbeitsplanung: Wer macht was und wann?" },
+      { niveau: 2, frage: "Beim Staubsaugen ist der Staubsauger bei den Arbeitsplatzmerkmalen …",
+        antworten: ["die Arbeitsaufgabe", "das Arbeitsmittel", "der Arbeitsort", "die Arbeitszeit"], richtig: 1,
+        hinweis: ["Ordne zu: Die Aufgabe ist „Boden saugen“. Was ist dann der Staubsauger für diese Aufgabe?", "Womit arbeitet man?"],
+        erklaerung: "Der Staubsauger ist das Werkzeug, also das Arbeitsmittel. Die Aufgabe ist das Saugen." },
+      { niveau: 2, frage: "Was bedeutet „ergonomisch“ bei einer Arbeit?",
+        antworten: ["Besonders billig", "Besonders schnell", "Den Körper schonend gestaltet", "Besonders umweltfreundlich"], richtig: 2,
+        hinweis: ["Überlege, was bei falscher Haltung weh tun kann: der Rücken, die Schultern … Was soll bei guter Gestaltung passieren?", "Es geht um den Körper."],
+        erklaerung: "Ergonomisch heißt: Arbeitsplatz und Haltung sind so gestaltet, dass der Körper geschont wird." },
+      { niveau: 2, frage: "Wie kann man den Wert von Hausarbeit in Geld ausdrücken?",
+        antworten: ["Man schätzt nach Gefühl", "Man schaut, was eine bezahlte Hilfskraft dafür bekäme", "Das ist unmöglich", "Man nimmt das Taschengeld"], richtig: 1,
+        hinweis: ["Angenommen, die Familie würde für das Putzen jemanden bezahlen: Was würde das kosten? Wie rechnet man das aus?", "Vergleich mit bezahlter Arbeit, Stunden mal Stundenlohn."],
+        erklaerung: "Man vergleicht mit dem Lohn für dieselbe Arbeit, zum Beispiel Stunden mal Stundenlohn einer Haushaltshilfe." },
+
+      { niveau: 3, frage: "In einer Familie arbeiten beide Eltern Vollzeit. Abends macht die Mutter allein den ganzen Haushalt und ist erschöpft. Was ist die sinnvollste Lösung?",
+        antworten: ["Die Mutter arbeitet einfach schneller", "Alle Haushaltsmitglieder übernehmen Aufgaben", "Der Haushalt wird nicht mehr gemacht", "Nur die Kinder machen alles"], richtig: 1,
+        hinweis: ["Prüfe jede Antwort: Wird dadurch die Belastung der Mutter fairer verteilt? Passt die Lösung auch auf Dauer?", "Denk an Arbeitsteilung."],
+        erklaerung: "Eine Arbeitsteilung durch alle Haushaltsmitglieder verteilt die Belastung fair und schützt die Gesundheit." },
+      { niveau: 3, frage: "Jonas behauptet: „Hausarbeit ist keine richtige Arbeit, denn dafür gibt es kein Geld.“ Welches Argument widerlegt das am besten?",
+        antworten: ["Hausarbeit macht manchmal Spaß", "Hausarbeit kostet Zeit und Kraft und hat einen Wert, auch ohne Bezahlung", "Hausarbeit machen nur Frauen", "Hausarbeit dauert immer lange"], richtig: 1,
+        hinweis: ["Überlege: Was hat Hausarbeit mit anderer Arbeit gemeinsam, auch wenn sie nicht bezahlt wird? Aufwand, Ziel, Nutzen für andere?", "Bezahlung ist nicht das einzige Merkmal von Arbeit."],
+        erklaerung: "Hausarbeit braucht Zeit und Kraft, verfolgt ein Ziel und nützt anderen. Sie hat einen Geldwert, wird aber nicht bezahlt." },
+      { niveau: 3, frage: "Beim Bügeln ist das Brett zu niedrig und Lena bekommt Rückenschmerzen. Welche Arbeitsbedingung ist hier das Problem und was hilft?",
+        antworten: ["Ökologie – ein anderes Waschmittel", "Technik – ein neues Bügeleisen kaufen", "Ergonomie – das Brett höher stellen", "Arbeitszeit – später bügeln"], richtig: 2,
+        hinweis: ["Wo entstehen die Schmerzen, und wodurch? Ordne zu: Körperhaltung, Gerät oder Umwelt? Dann suche die passende Lösung.", "Ursache ist die Körperhaltung."],
+        erklaerung: "Falsche Höhe belastet den Rücken. Das ist ein ergonomisches Problem, die Höhe lässt sich anpassen." },
+      { niveau: 3, frage: "Welche Entscheidung im Haushalt ist besonders umweltschonend?",
+        antworten: ["Waschmaschine halbvoll bei 90 Grad laufen lassen", "Wäsche immer im Trockner trocknen", "Wäsche nur voll beladen und bei niedriger Temperatur waschen", "Jedes Mal Einwegtücher zum Putzen nehmen"], richtig: 2,
+        hinweis: ["Prüfe bei jeder Antwort: Wird viel Strom, Wasser oder Müll verbraucht? Wähle die Antwort mit dem geringsten Verbrauch.", "Weniger Energie, weniger Wasser, weniger Müll."],
+        erklaerung: "Volle Beladung und niedrige Temperatur sparen Strom und Wasser. Das gehört zur ökologischen Arbeitsbedingung." },
+      { niveau: 3, frage: "Tom erkundet zu Hause das Geschirrspülen. Welche Frage gehört zur Untersuchung der Arbeitsbedingungen?",
+        antworten: ["Wie viel hat die Spüle im Laden gekostet?", "Wie hoch ist die Spüle und wie gut ist das Licht?", "Welche Note hat Tom in Mathe?", "Wo wohnt der Nachbar?"], richtig: 1,
+        hinweis: ["Arbeitsbedingungen sind Ergonomie, Technik und Ökologie. Welche Frage prüft, wie gut oder belastend die Arbeit abläuft?", "Es geht um Höhe, Licht, Haltung."],
+        erklaerung: "Bei der Erkundung prüft man, wie der Arbeitsplatz gestaltet ist: Höhe, Beleuchtung, Geräte und Verbrauch." }
+    ]
+  },
+  {
+    id: "k7",
+    name: "Wirtschaft",
+    unter: "Klasse 7 · Einkommen, Angebot und Nachfrage, Einnahmen und Ausgaben",
+    fragen: [
+      { niveau: 1, frage: "Wie nennt man das Geld, das man als Gehalt für seine Arbeit bekommt?",
+        antworten: ["Kapitaleinkommen", "Transfereinkommen", "Arbeitseinkommen", "Zinsen"], richtig: 2,
+        hinweis: ["Das Wort verrät es: Wofür bekommt man das Geld? Für Arbeit, für Besitz oder vom Staat?", "Das Geld kommt aus Arbeit."],
+        erklaerung: "Lohn und Gehalt sind Arbeitseinkommen." },
+      { niveau: 1, frage: "Zu welcher Einkommensart gehören Zinsen auf dem Sparkonto?",
+        antworten: ["Arbeitseinkommen", "Kapitaleinkommen", "Transfereinkommen", "Taschengeld"], richtig: 1,
+        hinweis: ["Hier arbeitet das Geld, nicht der Mensch. Wie heißt Geld, das man anlegt, in der Wirtschaft?", "Geld, das für einen arbeitet, ist Kapital."],
+        erklaerung: "Einkommen aus Besitz, zum Beispiel Zinsen oder Mieteinnahmen, ist Kapitaleinkommen." },
+      { niveau: 1, frage: "Was ist ein Transfereinkommen?",
+        antworten: ["Lohn vom Chef", "Zinsen von der Bank", "Kindergeld vom Staat", "Gewinn aus dem Pausenverkauf"], richtig: 2,
+        hinweis: ["Transfer bedeutet „übertragen“. Wer überträgt hier Geld, ohne dass dafür gearbeitet wird?", "Zahlungen vom Staat ohne Gegenleistung."],
+        erklaerung: "Transfereinkommen sind Zahlungen ohne direkte Gegenleistung, zum Beispiel Kindergeld." },
+      { niveau: 1, frage: "Was bedeutet „Nachfrage“?",
+        antworten: ["Die Waren, die verkauft werden", "Der Wunsch der Käufer, ein Gut zu kaufen", "Der Preis im Laden", "Die Menge im Lager"], richtig: 1,
+        hinweis: ["Wer „nachfragt“, möchte etwas haben. Wer tut das auf dem Markt: Verkäufer oder Käufer?", "Nachfrage kommt von den Käufern."],
+        erklaerung: "Nachfrage ist die Bereitschaft der Käufer, ein Gut zu einem Preis zu kaufen." },
+      { niveau: 1, frage: "Was zeigt ein Haushaltsbuch?",
+        antworten: ["Alle Rezepte der Familie", "Einnahmen und Ausgaben", "Die Namen der Nachbarn", "Die Noten der Kinder"], richtig: 1,
+        hinweis: ["Das Wort „Haushalt“ steht hier für das Geld einer Person oder Familie. Was schreibt man dazu auf?", "Es geht um Geldbewegungen."],
+        erklaerung: "Im Haushaltsbuch hält man fest, wie viel Geld hereinkommt und wofür es ausgegeben wird." },
+
+      { niveau: 2, frage: "Viele Bauern verkaufen Erdbeeren, aber nur wenige Kunden wollen welche. Was passiert mit dem Preis?",
+        antworten: ["Er sinkt", "Er steigt", "Er bleibt immer gleich", "Er wird verboten"], richtig: 0,
+        hinweis: ["Vergleiche Angebot und Nachfrage: Was ist größer? Was tun Verkäufer, wenn sie ihre Ware loswerden wollen?", "Das Angebot ist größer als die Nachfrage."],
+        erklaerung: "Ist das Angebot größer als die Nachfrage, sinkt der Preis." },
+      { niveau: 2, frage: "Was versteht man unter Lebensstandard?",
+        antworten: ["Wie alt jemand wird", "Was man sich mit seinem Einkommen leisten kann", "Wie viele Freunde man hat", "In welcher Stadt man lebt"], richtig: 1,
+        hinweis: ["Überlege: Wovon hängt es ab, ob sich jemand ein großes Auto oder einen Urlaub leisten kann?", "Es geht um das, was man sich leisten kann."],
+        erklaerung: "Der Lebensstandard beschreibt, welche Güter und Dienstleistungen man sich leisten kann." },
+      { niveau: 2, frage: "Ergänze den Je-desto-Satz: „Je mehr Menschen ein knappes Gut haben wollen, desto …“",
+        antworten: ["niedriger wird der Preis", "höher wird der Preis", "weniger Menschen wollen es", "größer wird das Angebot automatisch"], richtig: 1,
+        hinweis: ["Stell dir eine Auktion vor: Viele wollen dasselbe Gut, es gibt aber nur eines. Was bieten die Leute?", "Hohe Nachfrage, knappes Angebot."],
+        erklaerung: "Steigt die Nachfrage bei gleichem Angebot, steigt der Preis." },
+      { niveau: 2, frage: "Eine Familie hat 2400 € im Monat. 30 % davon gehen für Wohnen drauf. Wie viel Euro sind das?",
+        antworten: ["240 €", "720 €", "800 €", "70 €"], richtig: 1,
+        hinweis: ["Zwischenschritte: 10 % von 2400 € sind 240 €. Wie viele solcher 10-%-Stücke sind 30 %?", "10 % sind 240 €."],
+        erklaerung: "10 % sind 240 €, also sind 30 % genau 3 · 240 € = 720 €." },
+      { niveau: 2, frage: "Warum liegen Süßigkeiten im Supermarkt oft direkt an der Kasse?",
+        antworten: ["Weil dort der meiste Platz ist", "Damit man spontan noch etwas dazukauft", "Weil sie dort länger haltbar sind", "Weil es Vorschrift ist"], richtig: 1,
+        hinweis: ["Denk an die Wartezeit an der Kasse: Was passiert, wenn man Süßes direkt vor sich sieht? Was will der Laden dadurch erreichen?", "Es geht um Spontankäufe."],
+        erklaerung: "Das ist eine Einkaufsfalle: Die Platzierung soll zu ungeplanten Käufen verleiten." },
+
+      { niveau: 3, frage: "Lena verdient im Nebenjob 12 € pro Stunde. Ein Handy kostet 600 €. Wie viele Stunden muss sie dafür arbeiten (vereinfacht, ohne Abzüge)?",
+        antworten: ["40 Stunden", "50 Stunden", "60 Stunden", "72 Stunden"], richtig: 1,
+        hinweis: ["Rechne: Wie oft passen 12 € in 600 €? Tipp: 12 € mal 10 Stunden sind 120 €. Wie oft brauchst du das, um 600 € zu erreichen?", "600 € geteilt durch 12 €."],
+        erklaerung: "600 : 12 = 50. Lena muss 50 Stunden arbeiten. Dadurch sieht man den Wert eines Gutes in Arbeitszeit." },
+      { niveau: 3, frage: "Beim Pausenverkauf sind die Brezen am Freitag schon vor der Pause ausverkauft, viele Kinder fragen nach. Wie reagiert man marktüblich?",
+        antworten: ["Den Preis auf 10 Cent senken", "Mehr Brezen anbieten", "Den Verkauf einstellen", "Nur noch an Freunde verkaufen"], richtig: 1,
+        hinweis: ["Wie groß ist hier die Nachfrage im Vergleich zum Angebot? Was würde ein Händler tun, damit niemand leer ausgeht und er mehr verkauft?", "Die Nachfrage ist größer als das Angebot."],
+        erklaerung: "Bei hoher Nachfrage und knappem Angebot erhöht man das Angebot. Auch ein etwas höherer Preis wäre marktüblich." },
+      { niveau: 3, frage: "Paul hat im Monat 80 € Einnahmen und 95 € Ausgaben. Was stimmt?",
+        antworten: ["Alles ist in Ordnung", "Er gibt 15 € mehr aus, als er einnimmt, und sollte Ausgaben senken oder Einnahmen erhöhen", "Er spart 15 €", "Er hat 175 € übrig"], richtig: 1,
+        hinweis: ["Vergleiche die beiden Zahlen: Ist das, was hereinkommt, größer oder kleiner als das, was hinausgeht? Um wie viel?", "Einnahmen minus Ausgaben."],
+        erklaerung: "80 € − 95 € = −15 €. Paul macht ein Minus und sollte seinen Plan anpassen." },
+      { niveau: 3, frage: "Zwei Familien verdienen unterschiedlich viel. Welche Aussage ist am besten begründet?",
+        antworten: ["Wer mehr verdient, hat immer den höheren Lebensstandard", "Ein hohes Einkommen hilft, doch auch Ausgaben wie Miete und Familiengröße spielen mit", "Das Einkommen hat nie Einfluss", "Wer weniger verdient, ist immer unglücklich"], richtig: 1,
+        hinweis: ["Prüfe die Wörter „immer“ und „nie“ kritisch. Was bleibt von einem Einkommen übrig, wenn Miete und Kosten bezahlt sind?", "Vorsicht bei „immer“ und „nie“."],
+        erklaerung: "Das Einkommen beeinflusst den Lebensstandard, entscheidend ist aber auch, was man ausgeben muss." },
+      { niveau: 3, frage: "Ein Laden wirbt: „Nur heute 50 % Rabatt – nur noch 3 Stück!“ Wie verhältst du dich verantwortungsvoll?",
+        antworten: ["Sofort kaufen, sonst ist es weg", "Prüfen, ob man es braucht, Preise vergleichen und den Geldplan beachten", "Auf Kredit von Freunden kaufen", "Mehrere Stück kaufen und weiterverkaufen"], richtig: 1,
+        hinweis: ["Wodurch soll hier Druck entstehen? Welche Fragen solltest du dir stellen, bevor du Geld ausgibst?", "Erst nachdenken, dann kaufen."],
+        erklaerung: "Zeitdruck und knappe Menge sind Werbetricks. Verantwortungsvoll heißt: Bedarf, Preisvergleich und Budget prüfen." }
+    ]
+  }
+];
+
+const BETRAEGE = [50, 100, 200, 300, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 500000, 1000000];
+const SICHER = [4, 9];   /* Index der Sicherheitsstufen: 500 € und 16.000 € */
+/* ============================================================ */
+
+const $ = (s) => document.querySelector(s);
+const app = $("#app");
+const euro = (n) => n.toLocaleString("de-DE") + " €";
+const mischen = (a) => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+const BUCHST = ["A", "B", "C", "D"];
+
+const startParam = parseInt(new URLSearchParams(location.search).get("stufe"), 10);
+const startStufe = [1, 2, 3].includes(startParam) ? startParam : 2;
+
+let S = null;   /* Spielzustand */
+
+function startMenue() {
+  S = null;
+  app.innerHTML = `
+    <div class="card center">
+      <p style="font-size:1.1rem;margin:0">Beantworte 15 Fragen und steige Stufe für Stufe auf.<br>Bei 500 € und 16.000 € sicherst du deinen Gewinn.</p>
+      <p class="muted" style="margin:10px 0 0">Du hast drei Joker: 50:50, Publikum und Telefon.</p>
+      <div class="themen">
+        ${THEMEN.map((t, i) => `<button data-i="${i}">${t.name}<small>${t.unter}</small></button>`).join("")}
+      </div>
+    </div>`;
+  app.querySelectorAll("[data-i]").forEach((b) => b.onclick = () => neuesSpiel(THEMEN[+b.dataset.i], startStufe));
+}
+
+function neuesSpiel(thema, stufe) {
+  S = { thema, stufe, nr: 0, serie: 0, jokerFolge: 0, joker: { fifty: true, publikum: true, telefon: true }, jokerAufFrage: false };
+  zeigeFrage();
+}
+
+function leiterHtml() {
+  return `<div class="leiter" aria-hidden="true">${BETRAEGE.map((_, i) =>
+    `<i class="${SICHER.includes(i) ? "sicher " : ""}${i < S.nr ? "fertig" : i === S.nr ? "jetzt" : ""}"></i>`).join("")}</div>`;
+}
+
+function zeigeFrage() {
+  const f = S.thema.fragen[S.nr];
+  S.reihenfolge = mischen([0, 1, 2, 3]);
+  S.weg = [];
+  S.beantwortet = false;
+  S.jokerAufFrage = false;
+  const hinweis = S.stufe === 3 ? "" : f.hinweis[S.stufe === 1 ? 0 : 1];
+  app.innerHTML = `
+    <div class="card">
+      <div class="top">
+        <span class="muted">Frage ${S.nr + 1} von 15</span>
+        <span class="betrag">${euro(BETRAEGE[S.nr])}</span>
+      </div>
+      ${leiterHtml()}
+    </div>
+    <div class="card">
+      <p class="frage">${f.frage}</p>
+      ${hinweis ? `<div class="denk"><b>Denkanstoß</b>${hinweis}</div>` : ""}
+      <div class="antworten" id="ant"></div>
+      <div id="zusatz"></div>
+      <div class="joker" id="joker">
+        <button data-j="fifty">50:50</button>
+        <button data-j="publikum">Publikum</button>
+        <button data-j="telefon">Telefon</button>
+        <button class="rechts" id="aussteigen">Aussteigen${S.nr > 0 ? " (" + euro(BETRAEGE[S.nr - 1]) + ")" : ""}</button>
+      </div>
+    </div>`;
+  const ant = $("#ant");
+  S.reihenfolge.forEach((orig, pos) => {
+    const b = document.createElement("button");
+    b.dataset.pos = pos;
+    b.innerHTML = `<b>${BUCHST[pos]}:</b>${f.antworten[orig]}`;
+    b.onclick = () => waehle(pos);
+    ant.appendChild(b);
+  });
+  app.querySelectorAll("[data-j]").forEach((b) => { b.disabled = !S.joker[b.dataset.j]; b.onclick = () => nutzeJoker(b.dataset.j); });
+  $("#aussteigen").onclick = aussteigen;
+}
+
+function richtigePos() { return S.reihenfolge.indexOf(S.thema.fragen[S.nr].richtig); }
+
+function nutzeJoker(art) {
+  if (S.beantwortet || !S.joker[art]) return;
+  S.joker[art] = false;
+  S.jokerAufFrage = true;
+  const f = S.thema.fragen[S.nr];
+  const rp = richtigePos();
+  const uebrig = [0, 1, 2, 3].filter((p) => !S.weg.includes(p));
+  const zusatz = $("#zusatz");
+  if (art === "fifty") {
+    const falsche = mischen(uebrig.filter((p) => p !== rp)).slice(0, 2);
+    S.weg.push(...falsche);
+    falsche.forEach((p) => app.querySelector(`#ant [data-pos="${p}"]`).classList.add("weg"));
+  } else if (art === "publikum") {
+    const anteile = {};
+    let rest = 100;
+    const korrekt = 45 + Math.floor(Math.random() * 31);
+    anteile[rp] = korrekt; rest -= korrekt;
+    const andere = uebrig.filter((p) => p !== rp);
+    andere.forEach((p, i) => { const w = i === andere.length - 1 ? rest : Math.floor(Math.random() * (rest + 1)); anteile[p] = w; rest -= w; });
+    zusatz.innerHTML = `<div class="info"><b>Das Publikum stimmt ab:</b><div class="balken">${
+      [0, 1, 2, 3].map((p) => `<div><span style="height:${(anteile[p] || 0) * 0.8}px"></span>${BUCHST[p]}<br>${anteile[p] || 0} %</div>`).join("")}</div></div>`;
+  } else {
+    const sicher = [0.85, 0.7, 0.6][f.niveau - 1];
+    const tipp = Math.random() < sicher ? rp : mischen(uebrig.filter((p) => p !== rp))[0];
+    zusatz.innerHTML = `<div class="info"><b>Deine Freundin am Telefon:</b><br>„Hmm, ich bin mir nicht ganz sicher … ich würde ${BUCHST[tipp]} sagen: ${f.antworten[S.reihenfolge[tipp]]}.“</div>`;
+  }
+  app.querySelector(`[data-j="${art}"]`).disabled = true;
+}
+
+function waehle(pos) {
+  if (S.beantwortet || S.weg.includes(pos)) return;
+  S.beantwortet = true;
+  const f = S.thema.fragen[S.nr];
+  const rp = richtigePos();
+  const knoepfe = app.querySelectorAll("#ant button");
+  knoepfe.forEach((b) => b.disabled = true);
+  knoepfe[pos].classList.add("gewaehlt");
+  app.querySelectorAll("#joker button").forEach((b) => b.disabled = true);
+  setTimeout(() => {
+    knoepfe[rp].classList.add("richtig");
+    if (pos !== rp) knoepfe[pos].classList.add("falsch");
+    knoepfe[pos].classList.remove("gewaehlt");
+    if (pos === rp) richtig(f); else falsch(f);
+  }, 900);
+}
+
+function anpassen() {
+  /* Stille Anpassung der Hilfen: 3 sichere richtige Antworten in Folge -> weniger Hilfe,
+     Jokereinsatz in zwei Fragen nacheinander -> mehr Hilfe. */
+  if (S.jokerAufFrage) { S.serie = 0; S.jokerFolge++; } else { S.serie++; S.jokerFolge = 0; }
+  if (S.serie >= 3 && S.stufe < 3) { S.stufe++; S.serie = 0; }
+  if (S.jokerFolge >= 2 && S.stufe > 1) { S.stufe--; S.jokerFolge = 0; }
+}
+
+function richtig(f) {
+  anpassen();
+  const letzte = S.nr === 14;
+  const gewinn = BETRAEGE[S.nr];
+  $("#zusatz").innerHTML = `<div class="info ok"><b>Richtig!</b> ${letzte ? "" : "Du hast jetzt " + euro(gewinn) + "."}<br>${f.erklaerung}</div>`;
+  const a = document.createElement("div");
+  a.className = "aktion";
+  a.innerHTML = `<button id="weiter">${letzte ? "Zum Ergebnis" : "Nächste Frage"}</button>`;
+  $("#zusatz").appendChild(a);
+  $("#weiter").onclick = () => { if (letzte) ende(gewinn, true); else { S.nr++; zeigeFrage(); } };
+}
+
+function falsch(f) {
+  let gewinn = 0;
+  SICHER.forEach((i) => { if (S.nr > i) gewinn = BETRAEGE[i]; });
+  $("#zusatz").innerHTML = `<div class="info nein"><b>Leider falsch.</b> Die richtige Antwort ist markiert.<br>${f.erklaerung}</div>`;
+  const a = document.createElement("div");
+  a.className = "aktion";
+  a.innerHTML = `<button id="weiter">Weiter</button>`;
+  $("#zusatz").appendChild(a);
+  $("#weiter").onclick = () => ende(gewinn, false);
+}
+
+function aussteigen() {
+  if (S.beantwortet) return;
+  ende(S.nr > 0 ? BETRAEGE[S.nr - 1] : 0, false, true);
+}
+
+function ende(gewinn, geschafft, freiwillig) {
+  const thema = S.thema;
+  const stufeNeu = geschafft ? S.stufe : Math.max(1, S.stufe - (freiwillig ? 0 : 1));
+  app.innerHTML = `
+    <div class="card center">
+      <h2 style="margin:6px 0">${geschafft ? "Du bist Millionär!" : freiwillig ? "Gut ausgestiegen!" : "Das Spiel ist zu Ende"}</h2>
+      <div class="gross">${euro(gewinn)}</div>
+      <p class="muted">${geschafft ? "Alle 15 Fragen richtig, stark!" : `Du hast ${S.nr + (freiwillig ? 0 : 0)} Fragen richtig beantwortet.`}</p>
+      <div class="aktion">
+        <button id="nochmal">Nochmal spielen</button>
+        <button id="menue">Anderes Thema</button>
+      </div>
+    </div>`;
+  $("#nochmal").onclick = () => neuesSpiel(thema, stufeNeu);
+  $("#menue").onclick = startMenue;
+}
+
+startMenue();
+</script>
+</body>
+</html>
