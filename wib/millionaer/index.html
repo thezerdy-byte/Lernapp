@@ -98,7 +98,7 @@
 <script>
 /* ============================================================
    AUFGABEN (hier ändern)
-   Jedes Thema hat 15 Fragen, aufsteigend. niveau: 1 = Reproduktion (Fragen 1–5),
+   Das Thema hat 15 Fragen, aufsteigend. niveau: 1 = Reproduktion (Fragen 1–5),
    2 = Reorganisation (6–10), 3 = Transfer (11–15).
    hinweis: [ausführlich, knapp] – wird je nach Hilfestufe unauffällig gezeigt;
    ohne Hilfe bei der dritten Stufe. richtig = Index der richtigen Antwort (0–3).
@@ -106,8 +106,8 @@
 const THEMEN = [
   {
     id: "k6",
-    name: "Arbeit im Haushalt",
-    unter: "Klasse 6 · Haushaltsformen, Haus- und Familienarbeit, Arbeitsplatz",
+    name: "Der eigene Haushalt",
+    unter: "Klasse 6 · Arbeit im Haushalt",
     fragen: [
       { niveau: 1, frage: "Wie nennt man einen Haushalt, in dem eine Person allein lebt?",
         antworten: ["Einpersonenhaushalt", "Wohngemeinschaft", "Mehrgenerationenhaushalt", "Familienhaushalt"], richtig: 0,
@@ -172,75 +172,6 @@ const THEMEN = [
         hinweis: ["Arbeitsbedingungen sind Ergonomie, Technik und Ökologie. Welche Frage prüft, wie gut oder belastend die Arbeit abläuft?", "Es geht um Höhe, Licht, Haltung."],
         erklaerung: "Bei der Erkundung prüft man, wie der Arbeitsplatz gestaltet ist: Höhe, Beleuchtung, Geräte und Verbrauch." }
     ]
-  },
-  {
-    id: "k7",
-    name: "Wirtschaft",
-    unter: "Klasse 7 · Einkommen, Angebot und Nachfrage, Einnahmen und Ausgaben",
-    fragen: [
-      { niveau: 1, frage: "Wie nennt man das Geld, das man als Gehalt für seine Arbeit bekommt?",
-        antworten: ["Kapitaleinkommen", "Transfereinkommen", "Arbeitseinkommen", "Zinsen"], richtig: 2,
-        hinweis: ["Das Wort verrät es: Wofür bekommt man das Geld? Für Arbeit, für Besitz oder vom Staat?", "Das Geld kommt aus Arbeit."],
-        erklaerung: "Lohn und Gehalt sind Arbeitseinkommen." },
-      { niveau: 1, frage: "Zu welcher Einkommensart gehören Zinsen auf dem Sparkonto?",
-        antworten: ["Arbeitseinkommen", "Kapitaleinkommen", "Transfereinkommen", "Taschengeld"], richtig: 1,
-        hinweis: ["Hier arbeitet das Geld, nicht der Mensch. Wie heißt Geld, das man anlegt, in der Wirtschaft?", "Geld, das für einen arbeitet, ist Kapital."],
-        erklaerung: "Einkommen aus Besitz, zum Beispiel Zinsen oder Mieteinnahmen, ist Kapitaleinkommen." },
-      { niveau: 1, frage: "Was ist ein Transfereinkommen?",
-        antworten: ["Lohn vom Chef", "Zinsen von der Bank", "Kindergeld vom Staat", "Gewinn aus dem Pausenverkauf"], richtig: 2,
-        hinweis: ["Transfer bedeutet „übertragen“. Wer überträgt hier Geld, ohne dass dafür gearbeitet wird?", "Zahlungen vom Staat ohne Gegenleistung."],
-        erklaerung: "Transfereinkommen sind Zahlungen ohne direkte Gegenleistung, zum Beispiel Kindergeld." },
-      { niveau: 1, frage: "Was bedeutet „Nachfrage“?",
-        antworten: ["Die Waren, die verkauft werden", "Der Wunsch der Käufer, ein Gut zu kaufen", "Der Preis im Laden", "Die Menge im Lager"], richtig: 1,
-        hinweis: ["Wer „nachfragt“, möchte etwas haben. Wer tut das auf dem Markt: Verkäufer oder Käufer?", "Nachfrage kommt von den Käufern."],
-        erklaerung: "Nachfrage ist die Bereitschaft der Käufer, ein Gut zu einem Preis zu kaufen." },
-      { niveau: 1, frage: "Was zeigt ein Haushaltsbuch?",
-        antworten: ["Alle Rezepte der Familie", "Einnahmen und Ausgaben", "Die Namen der Nachbarn", "Die Noten der Kinder"], richtig: 1,
-        hinweis: ["Das Wort „Haushalt“ steht hier für das Geld einer Person oder Familie. Was schreibt man dazu auf?", "Es geht um Geldbewegungen."],
-        erklaerung: "Im Haushaltsbuch hält man fest, wie viel Geld hereinkommt und wofür es ausgegeben wird." },
-
-      { niveau: 2, frage: "Viele Bauern verkaufen Erdbeeren, aber nur wenige Kunden wollen welche. Was passiert mit dem Preis?",
-        antworten: ["Er sinkt", "Er steigt", "Er bleibt immer gleich", "Er wird verboten"], richtig: 0,
-        hinweis: ["Vergleiche Angebot und Nachfrage: Was ist größer? Was tun Verkäufer, wenn sie ihre Ware loswerden wollen?", "Das Angebot ist größer als die Nachfrage."],
-        erklaerung: "Ist das Angebot größer als die Nachfrage, sinkt der Preis." },
-      { niveau: 2, frage: "Was versteht man unter Lebensstandard?",
-        antworten: ["Wie alt jemand wird", "Was man sich mit seinem Einkommen leisten kann", "Wie viele Freunde man hat", "In welcher Stadt man lebt"], richtig: 1,
-        hinweis: ["Überlege: Wovon hängt es ab, ob sich jemand ein großes Auto oder einen Urlaub leisten kann?", "Es geht um das, was man sich leisten kann."],
-        erklaerung: "Der Lebensstandard beschreibt, welche Güter und Dienstleistungen man sich leisten kann." },
-      { niveau: 2, frage: "Ergänze den Je-desto-Satz: „Je mehr Menschen ein knappes Gut haben wollen, desto …“",
-        antworten: ["niedriger wird der Preis", "höher wird der Preis", "weniger Menschen wollen es", "größer wird das Angebot automatisch"], richtig: 1,
-        hinweis: ["Stell dir eine Auktion vor: Viele wollen dasselbe Gut, es gibt aber nur eines. Was bieten die Leute?", "Hohe Nachfrage, knappes Angebot."],
-        erklaerung: "Steigt die Nachfrage bei gleichem Angebot, steigt der Preis." },
-      { niveau: 2, frage: "Eine Familie hat 2400 € im Monat. 30 % davon gehen für Wohnen drauf. Wie viel Euro sind das?",
-        antworten: ["240 €", "720 €", "800 €", "70 €"], richtig: 1,
-        hinweis: ["Zwischenschritte: 10 % von 2400 € sind 240 €. Wie viele solcher 10-%-Stücke sind 30 %?", "10 % sind 240 €."],
-        erklaerung: "10 % sind 240 €, also sind 30 % genau 3 · 240 € = 720 €." },
-      { niveau: 2, frage: "Warum liegen Süßigkeiten im Supermarkt oft direkt an der Kasse?",
-        antworten: ["Weil dort der meiste Platz ist", "Damit man spontan noch etwas dazukauft", "Weil sie dort länger haltbar sind", "Weil es Vorschrift ist"], richtig: 1,
-        hinweis: ["Denk an die Wartezeit an der Kasse: Was passiert, wenn man Süßes direkt vor sich sieht? Was will der Laden dadurch erreichen?", "Es geht um Spontankäufe."],
-        erklaerung: "Das ist eine Einkaufsfalle: Die Platzierung soll zu ungeplanten Käufen verleiten." },
-
-      { niveau: 3, frage: "Lena verdient im Nebenjob 12 € pro Stunde. Ein Handy kostet 600 €. Wie viele Stunden muss sie dafür arbeiten (vereinfacht, ohne Abzüge)?",
-        antworten: ["40 Stunden", "50 Stunden", "60 Stunden", "72 Stunden"], richtig: 1,
-        hinweis: ["Rechne: Wie oft passen 12 € in 600 €? Tipp: 12 € mal 10 Stunden sind 120 €. Wie oft brauchst du das, um 600 € zu erreichen?", "600 € geteilt durch 12 €."],
-        erklaerung: "600 : 12 = 50. Lena muss 50 Stunden arbeiten. Dadurch sieht man den Wert eines Gutes in Arbeitszeit." },
-      { niveau: 3, frage: "Beim Pausenverkauf sind die Brezen am Freitag schon vor der Pause ausverkauft, viele Kinder fragen nach. Wie reagiert man marktüblich?",
-        antworten: ["Den Preis auf 10 Cent senken", "Mehr Brezen anbieten", "Den Verkauf einstellen", "Nur noch an Freunde verkaufen"], richtig: 1,
-        hinweis: ["Wie groß ist hier die Nachfrage im Vergleich zum Angebot? Was würde ein Händler tun, damit niemand leer ausgeht und er mehr verkauft?", "Die Nachfrage ist größer als das Angebot."],
-        erklaerung: "Bei hoher Nachfrage und knappem Angebot erhöht man das Angebot. Auch ein etwas höherer Preis wäre marktüblich." },
-      { niveau: 3, frage: "Paul hat im Monat 80 € Einnahmen und 95 € Ausgaben. Was stimmt?",
-        antworten: ["Alles ist in Ordnung", "Er gibt 15 € mehr aus, als er einnimmt, und sollte Ausgaben senken oder Einnahmen erhöhen", "Er spart 15 €", "Er hat 175 € übrig"], richtig: 1,
-        hinweis: ["Vergleiche die beiden Zahlen: Ist das, was hereinkommt, größer oder kleiner als das, was hinausgeht? Um wie viel?", "Einnahmen minus Ausgaben."],
-        erklaerung: "80 € − 95 € = −15 €. Paul macht ein Minus und sollte seinen Plan anpassen." },
-      { niveau: 3, frage: "Zwei Familien verdienen unterschiedlich viel. Welche Aussage ist am besten begründet?",
-        antworten: ["Wer mehr verdient, hat immer den höheren Lebensstandard", "Ein hohes Einkommen hilft, doch auch Ausgaben wie Miete und Familiengröße spielen mit", "Das Einkommen hat nie Einfluss", "Wer weniger verdient, ist immer unglücklich"], richtig: 1,
-        hinweis: ["Prüfe die Wörter „immer“ und „nie“ kritisch. Was bleibt von einem Einkommen übrig, wenn Miete und Kosten bezahlt sind?", "Vorsicht bei „immer“ und „nie“."],
-        erklaerung: "Das Einkommen beeinflusst den Lebensstandard, entscheidend ist aber auch, was man ausgeben muss." },
-      { niveau: 3, frage: "Ein Laden wirbt: „Nur heute 50 % Rabatt – nur noch 3 Stück!“ Wie verhältst du dich verantwortungsvoll?",
-        antworten: ["Sofort kaufen, sonst ist es weg", "Prüfen, ob man es braucht, Preise vergleichen und den Geldplan beachten", "Auf Kredit von Freunden kaufen", "Mehrere Stück kaufen und weiterverkaufen"], richtig: 1,
-        hinweis: ["Wodurch soll hier Druck entstehen? Welche Fragen solltest du dir stellen, bevor du Geld ausgibst?", "Erst nachdenken, dann kaufen."],
-        erklaerung: "Zeitdruck und knappe Menge sind Werbetricks. Verantwortungsvoll heißt: Bedarf, Preisvergleich und Budget prüfen." }
-    ]
   }
 ];
 
@@ -265,11 +196,9 @@ function startMenue() {
     <div class="card center">
       <p style="font-size:1.1rem;margin:0">Beantworte 15 Fragen und steige Stufe für Stufe auf.<br>Bei 500 € und 16.000 € sicherst du deinen Gewinn.</p>
       <p class="muted" style="margin:10px 0 0">Du hast drei Joker: 50:50, Publikum und Telefon.</p>
-      <div class="themen">
-        ${THEMEN.map((t, i) => `<button data-i="${i}">${t.name}<small>${t.unter}</small></button>`).join("")}
-      </div>
+      <div class="aktion"><button id="los">Spiel starten</button></div>
     </div>`;
-  app.querySelectorAll("[data-i]").forEach((b) => b.onclick = () => neuesSpiel(THEMEN[+b.dataset.i], startStufe));
+  $("#los").onclick = () => neuesSpiel(THEMEN[0], startStufe);
 }
 
 function neuesSpiel(thema, stufe) {
@@ -415,11 +344,11 @@ function ende(gewinn, geschafft, freiwillig) {
       <p class="muted">${geschafft ? "Alle 15 Fragen richtig, stark!" : `Du hast ${S.nr + (freiwillig ? 0 : 0)} Fragen richtig beantwortet.`}</p>
       <div class="aktion">
         <button id="nochmal">Nochmal spielen</button>
-        <button id="menue">Anderes Thema</button>
+        
       </div>
     </div>`;
   $("#nochmal").onclick = () => neuesSpiel(thema, stufeNeu);
-  $("#menue").onclick = startMenue;
+  
 }
 
 startMenue();
