@@ -40,6 +40,7 @@
   .head .sc { font-size: 1.3rem; }
   .task { text-align: center; font-size: clamp(1.7rem, 7vw, 2.6rem); font-weight: 800; font-variant-numeric: tabular-nums; white-space: pre-line; line-height: 1.25; }
   .task.long { font-size: clamp(1.15rem, 4.6vw, 1.7rem); }
+  .task.xlong { font-size: clamp(1rem, 3.9vw, 1.3rem); }
   .ans { text-align: center; font-size: clamp(1.5rem, 6vw, 2rem); font-weight: 700; min-height: 1.4em; border-radius: 10px; background: var(--bg); line-height: 1.5; font-variant-numeric: tabular-nums; }
   .ans.bad { animation: shake .35s; color: var(--red); }
   @keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
@@ -76,6 +77,7 @@
     #menuBtn { right: auto; left: 50%; top: auto; bottom: 10px; transform: translateX(-50%); }
     .task { font-size: clamp(1.6rem, 4.4vmin, 2.4rem); }
     .task.long { font-size: clamp(1.15rem, 3.4vmin, 1.7rem); }
+    .task.xlong { font-size: clamp(1rem, 2.7vmin, 1.3rem); }
   }
 </style>
 </head>
@@ -171,7 +173,7 @@
     { id: 'kopf', label: '➕ Kopfrechnen' },
     { id: 'terme', label: '🔤 Terme' },
     { id: 'gleich', label: '⚖️ Gleichungen' },
-    { id: 'dreieck', label: '🔺 Dreiecke' }
+    { id: 'dreieck', label: '🔺 Dreiecke und Konstruktion' }
   ];
   const GENS = [
     /* Grundrechenarten: einzelne Rechnungen mit größeren Zahlen und mehrteilige Aufgaben (Punkt vor Strich, Klammern) */
@@ -232,7 +234,8 @@
       const b = rnd(1, 3), a = b + rnd(1, 3), x = rnd(2, 8);
       return { text: `${a}x = ${b}x + ${(a - b) * x}\nx = ?`, ans: x };
     } },
-    /* Dreiecke: Begriffe (ab 14.10.), Innenwinkelsumme und fehlende Winkel (ab 19.10.), nur glatte Winkel (Vielfache von 5) */
+    /* Dreiecke und Konstruktionen (Sequenzplan Geometrische Figuren): Begriffe (ab 14.10.), Innenwinkelsumme und fehlende Winkel (ab 19.10.),
+       Konstruktion sss/sws/wsw (ab 21./22.10.), Mittelsenkrechte und Senkrechte (ab 09.11.), Winkelhalbierende (ab 11.11.), Abstand (ab 16.11.) */
     { topic: 'dreieck', ab: '2026-10-14', make() {
       return pick([
         { text: 'Gleichseitiges Dreieck:\nWie viele Seiten sind gleich lang?', ans: 3 },
@@ -252,6 +255,29 @@
     { topic: 'dreieck', ab: '2026-10-19', make() {
       if (Math.random() < .5) { const g = 10 * rnd(2, 12); return { text: `Gleichschenkliges Dreieck,\nSpitze γ = ${g}°, α = ?°`, ans: (180 - g) / 2 }; }
       const x = 5 * rnd(5, 16); return { text: `Gleichschenkliges Dreieck,\nα = β = ${x}°, γ = ?°`, ans: 180 - 2 * x };
+    } },
+    { topic: 'dreieck', ab: '2026-10-21', make() {
+      const v = pick([['sss', 'Seiten', 3], ['sws', 'Seiten', 2], ['sws', 'Winkel', 1], ['wsw', 'Seiten', 1], ['wsw', 'Winkel', 2]]);
+      if (Math.random() < .25) return { text: `Wie viele Angaben braucht\nman mindestens, um ein\nDreieck zu konstruieren?`, ans: 3 };
+      return { text: `Konstruktion ${v[0]}:\nWie viele ${v[1]} sind gegeben?`, ans: v[2] };
+    } },
+    { topic: 'dreieck', ab: '2026-10-22', make() {
+      const a = 5 * rnd(6, 16), b = 5 * rnd(6, 16), g = 180 - a - b, n = pick([4, 5, 6, 7, 8]);
+      return { text: `wsw: c = ${n} cm,\nα = ${a}°, β = ${b}°, γ = ?°`, ans: g };
+    } },
+    { topic: 'dreieck', ab: '2026-11-09', make() {
+      const ab = 2 * rnd(3, 15), d = rnd(3, 12), t = rnd(0, 2);
+      if (t === 0) return { text: `Strecke AB = ${ab} cm.\nDie Mittelsenkrechte halbiert sie.\nAM = ? cm`, ans: ab / 2 };
+      if (t === 1) return { text: `P liegt auf der\nMittelsenkrechte von AB.\nPA = ${d} cm, PB = ? cm`, ans: d };
+      return { text: 'Mittelsenkrechte und Strecke:\nWinkel dazwischen = ?°', ans: 90 };
+    } },
+    { topic: 'dreieck', ab: '2026-11-11', make() {
+      if (Math.random() < .5) { const w = 10 * rnd(2, 16); return { text: `Die Winkelhalbierende teilt\nα = ${w}° in zwei gleiche\nTeile. Jeder Teil = ?°`, ans: w / 2 }; }
+      if (Math.random() < .5) { const h = 5 * rnd(3, 17); return { text: `Die Winkelhalbierende teilt\nα in zwei Teile mit je ${h}°.\nα = ?°`, ans: 2 * h }; }
+      return { text: 'Ein rechter Winkel\nwird halbiert.\nJeder Teil = ?°', ans: 45 };
+    } },
+    { topic: 'dreieck', ab: '2026-11-16', make() {
+      return { text: 'Abstand Punkt – Gerade:\nWird senkrecht gemessen.\nWinkel = ?°', ans: 90 };
     } }
   ];
   const today = (() => {
@@ -282,7 +308,7 @@
   function newTask(side) {
     const s = side;
     st.cur[s] = makeTask(s);
-    st.input[s] = ''; $t(s).textContent = st.cur[s].text; $t(s).classList.toggle('long', st.cur[s].text.length > 11); $a(s).textContent = '';
+    st.input[s] = ''; $t(s).textContent = st.cur[s].text; const L = Math.max(...st.cur[s].text.split('\n').map(x => x.length)); $t(s).classList.toggle('long', L > 12); $t(s).classList.toggle('xlong', L > 20); $a(s).textContent = '';
   }
 
   function placeBall() {
