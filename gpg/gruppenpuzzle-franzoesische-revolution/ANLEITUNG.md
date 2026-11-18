@@ -24,11 +24,14 @@ Liegt der Ordner im Repository `thezerdy-byte/Lernapp` auf dem Branch `main` und
 3. Zeige den Code am Beamer. Die Schüler scannen ihn mit der Kamera des iPads. Der Generator arbeitet ohne Internet und ohne fremde Bibliothek.
 
 ## Einsatz in der Stunde
-- Die App wird nur in der **Arbeitsphase** genutzt. Sie hat vier Teile, die sich **nacheinander öffnen**:
-  1. **Einzelarbeit (12 Min.):** Bildbetrachtung, Text markieren, Ordnen/Zuordnen, Erklären, Experten-Check. Teil 2 öffnet sich, wenn alles erledigt ist oder die Zeit um ist.
-  2. **Expertengruppe (6 Min.):** großer Bildschirm mit Timer, Diskussionsfrage (Transfer) und Übersicht der eigenen Ergebnisse. Hier entsteht der Spickzettel. Teil 3 öffnet sich mit fertigem Spickzettel oder nach Ablauf der Zeit.
-  3. **Stammgruppe (18 Min.):** Gruppenblatt, Bericht in der Reihenfolge B → A → C → D, Fazit-Satz.
-  4. **Fertig:** Übersicht und Ausdruck.
+- Die App wird nur in der **Arbeitsphase** genutzt. Die Teile **öffnen sich nacheinander**:
+  1. **Einzelarbeit (11 Min.):** Bildbetrachtung, Text markieren, Ordnen/Zuordnen, Erklären, Experten-Check. Es geht weiter, wenn alles erledigt ist oder die Zeit um ist.
+  2. **Finde deine Expertengruppe (1 Min.):** Groß steht „Bauer“, „Feine Dame“, „Gelehrte“ oder „Revolutionäre“. Nach einer Minute geht es automatisch weiter (oder per Knopf).
+  3. **Expertengruppe (6 Min.):** großer Bildschirm mit Timer, Diskussionsfrage (Transfer) und Übersicht der eigenen Ergebnisse. Hier entsteht der Spickzettel.
+  4. **Finde deine Stammgruppe (1 Min.):** Groß erscheint das Symbol ● ■ ▲. Alle mit demselben Symbol bilden Vierergruppen mit je einem Bauer, einer feinen Dame, einem Gelehrten und einem Revolutionär.
+  5. **Stammgruppe (18 Min.):** Gruppenblatt, Bericht in der Reihenfolge B → A → C → D, Fazit-Satz.
+  6. **Fertig:** Übersicht und Ausdruck.
+- **Stammgruppen bilden:** Teile die Symbole so zu, dass es je Symbol von jeder Rolle gleich viele gibt (z. B. pro Symbol 2 Bauern, 2 Damen, 2 Gelehrte, 2 Revolutionäre bei 8 Schülern).
 - Der **Timer** startet auf jedem iPad, sobald ein Teil zum ersten Mal geöffnet wird. Nach Ablauf blinkt „Zeit ist um!“. Die Zeiten stehen in `CONTENT.minuten`.
 - **Anmeldung:** Vorname, Symbol, Rolle.
   - Das **Symbol teilst du zu**. Es steuert unauffällig die Hilfen:
@@ -42,7 +45,12 @@ Liegt der Ordner im Repository `thezerdy-byte/Lernapp` auf dem Branch `main` und
 - **Experten-Check:** 4 Fragen mit sofortiger Rückmeldung. Der Spickzettel (Teil 2) wird in die eigene Spalte des Gruppenblatts übernommen.
 
 ## Drucken
-Auf „Fertig“ den Knopf „Drucken / als PDF sichern“ antippen. Es entstehen zwei DIN-A4-Seiten (Expertenaufgaben, Gruppenblatt) mit Vorname und Rolle, ohne Symbol und schwarz-weiß-tauglich. Auf dem iPad: im Druckdialog „PDF sichern“ oder über das Teilen-Menü.
+Auf „Fertig“ den Knopf „Drucken / als PDF sichern“ antippen. Es entsteht **genau eine DIN-A4-Seite**: Vorname, Rolle, die Übersicht der Stammgruppe (Gruppenblatt) und das Fazit (plus die „Für Schnelle“-Antwort, falls geschrieben). Bei sehr langen Antworten wird die Schrift automatisch kleiner, damit alles auf eine Seite passt. Auf dem iPad: im Druckdialog oben auf „Teilen“ und „In Dateien sichern“ für ein PDF.
+
+## iPad (11 Zoll)
+- Getestet in den Größen des iPad 11 (820 × 1180, hoch und quer) und des iPad Pro 11 (834 × 1194).
+- Tipp: In Safari über „Teilen → Zum Home-Bildschirm“ wird die App wie eine eigene App im Vollbild geöffnet.
+- Der Fortschritt bleibt auf dem iPad gespeichert, auch wenn Safari geschlossen wird. Der Timer läuft nach der Uhrzeit weiter.
 
 ## Inhalte ändern
 Alles Fachliche steht in `CONTENT` am Anfang des `<script>` in `index.html` (Aufgaben, Hilfen, Wortspeicher, Check-Fragen, Spickzettel, Gruppenblatt). Eine Erklärung der Felder steht direkt darüber im Kommentar. Nach einer Änderung die Datei erneut hochladen bzw. pushen.

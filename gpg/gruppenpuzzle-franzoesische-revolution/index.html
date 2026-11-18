@@ -2,7 +2,13 @@
 <html lang="de-DE">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gruppenpuzzle">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="bilder/icon-fackel.png">
 <title>Gruppenpuzzle – Vor der Französischen Revolution</title>
 <style>
   /* Farben und Schrift aus der PowerPoint-Vorlage „Die Französische Revolution“ */
@@ -11,11 +17,13 @@
     --creme: #FBF5E6; --braun: #8A6D3B; --hellblau: #DCE6F5; --hellgrau: #F3F5F9; --hellrot: #F9E1DF;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; touch-action: manipulation; }   /* iPad: kein Doppeltipp-Zoom */
+  button, summary { -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+  img { -webkit-user-drag: none; }
   body { margin: 0; background: #fff; color: var(--text); font-family: "Century Gothic", "Avenir Next", "Futura", sans-serif; font-size: 17px; line-height: 1.5; }
   #bg { position: fixed; inset: 0; z-index: -1; background: #fff url("bilder/hintergrund.png") center / cover no-repeat; }
   #bg::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: linear-gradient(90deg, var(--blau) 0 33.3%, transparent 33.3% 66.6%, var(--rot) 66.6%); }
-  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 16px 70px; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right)) calc(70px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
   .hidden { display: none !important; }
   h1, h2, h3, h4 { color: var(--blau); margin: 0 0 8px; line-height: 1.25; }
   h1 { font-size: 1.75rem; text-align: center; } h2 { font-size: 1.35rem; } h3 { font-size: 1.12rem; }
@@ -38,7 +46,7 @@
   :focus-visible { outline: 3px solid #E8A33D; outline-offset: 2px; }
 
   /* Kopfleiste mit Timer */
-  .top { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.96); border-bottom: 2px solid var(--hellblau); margin: 0 -16px 14px; padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+  .top { position: sticky; top: 0; z-index: 20; padding-top: max(10px, env(safe-area-inset-top)) !important; background: rgba(255,255,255,.96); border-bottom: 2px solid var(--hellblau); margin: 0 -16px 14px; padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
   .timer { display: flex; align-items: center; gap: 10px; min-width: 230px; }
   .timer .lbl { font-size: .85rem; font-weight: 700; color: var(--grau); }
   .timer b { font-size: 1.5rem; color: var(--blau); font-variant-numeric: tabular-nums; min-width: 3.2em; }
@@ -163,6 +171,16 @@
   .hero ol { text-align: left; max-width: 640px; margin: 14px auto 0; font-size: 20px; line-height: 1.5; padding-left: 28px; }
   .hero ol li { margin-bottom: 8px; }
   .hero .disk { background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.5); border-radius: 8px; padding: 12px 14px; margin-top: 4px; font-weight: 700; }
+  .hero.finde { min-height: calc(100vh - 170px); min-height: calc(100dvh - 170px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .riesig { width: 100%; text-align: center; font-size: clamp(4rem, 13vw, 8.5rem); font-weight: 700; line-height: 1.05; color: #fff; margin: 6px 0 14px; word-break: break-word; }
+  .riesig.symbol { line-height: 0; margin: 10px 0 16px; }
+  .riesig.symbol svg { width: clamp(150px, 30vw, 260px); height: auto; color: #fff; }
+  .sym svg.symg { width: 46px; height: 46px; color: var(--blau); }
+  .hero img.rolle { width: clamp(100px, 16vw, 150px); height: auto; filter: brightness(0) invert(1); }
+  .fsatz { font-size: 22px; max-width: 660px; margin: 0 auto 8px; line-height: 1.45; }
+  .fsatz.klein { font-size: 18px; opacity: .85; }
+  .finde .big { font-size: clamp(2.6rem, 8vw, 4.2rem); margin: 8px 0 14px; }
+  .btn.hellbtn { background: #fff; color: var(--blau); border-color: #fff; font-size: 1.1rem; min-height: 56px; }
   .hero img.deko { position: absolute; width: 120px; opacity: .12; filter: brightness(0) invert(1); }
   .ov h4 { margin: 10px 0 4px; }
   .ans { white-space: pre-wrap; background: var(--hellgrau); border: 1px solid var(--hellblau); border-radius: 6px; padding: 10px 12px; margin: 0 0 10px; }
@@ -190,21 +208,25 @@
   details.col .cell { margin: 0 0 14px; }
   details.col .cell h4 { margin: 0 0 6px; font-size: .95rem; color: var(--grau); }
 
-  #printArea { display: none; }
+  /* Druck: genau eine A4-Seite */
+  #printArea { display: none; color: #000; font-size: 10.5pt; line-height: 1.35; }
+  #printArea.mess { display: block; position: absolute; left: -10000px; top: 0; width: 186mm; }
+  #printArea .pp { break-inside: avoid; }
+  #printArea .pp { font-size: 10.5pt; }            /* wird beim Drucken bei Bedarf verkleinert, alle Maße in em */
+  #printArea h2 { color: #000; font-size: 1.24em; margin: .3em 0 .6em; text-align: left; }
+  #printArea h3 { color: #000; font-size: 1.05em; margin: .8em 0 .25em; }
+  #printArea .ans { white-space: pre-wrap; border: 1px solid #000; padding: .4em .7em; margin: 0 0 .5em; border-radius: 0; background: none; font-size: 1em; }
+  #printArea table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  #printArea th, #printArea td { border: 1px solid #000; padding: .35em .45em; vertical-align: top; font-size: .86em; background: none !important; color: #000; }
+  #printArea th.rowh { width: 16%; }
+  #printArea .pn { display: flex; justify-content: space-between; gap: 10px; border-bottom: 2px solid #000; margin-bottom: .5em; padding-bottom: .3em; font-weight: bold; }
   @media print {
-    @page { size: A4; margin: 14mm; }
-    body { font-size: 11pt; color: #000; }
+    @page { size: A4 portrait; margin: 12mm; }
+    html, body { background: #fff !important; }
     #app, #bg, #lightbox { display: none !important; }
     #printArea { display: block; }
-    .pp { page-break-after: always; break-after: page; }
-    .pp:last-child { page-break-after: auto; break-after: auto; }
-    #printArea h1, #printArea h2, #printArea h3, #printArea h4 { color: #000; }
-    #printArea h3 { font-size: 11.5pt; margin: 8px 0 3px; }
-    #printArea .ans { white-space: pre-wrap; border: 1px solid #000; padding: 5px 8px; margin: 0 0 6px; border-radius: 0; background: none; }
-    #printArea table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-    #printArea th, #printArea td { border: 1px solid #000; padding: 5px; vertical-align: top; font-size: 9.5pt; background: none !important; color: #000; }
-    #printArea .pn { display: flex; justify-content: space-between; border-bottom: 2px solid #000; margin-bottom: 8px; padding-bottom: 4px; font-weight: bold; }
   }
+  @media (max-width: 900px) { .timer { min-width: 0; } .timer .lbl { display: none; } .timer .tbar { width: 80px; } }
   @media (max-width: 700px) { .timer .tbar { display: none; } .steps .step .t { display: none; } }
 </style>
 </head>
@@ -233,8 +255,10 @@
 const CONTENT = {
   titel: "Gruppenpuzzle – Vor der Französischen Revolution",
   thema: "Vor der Französischen Revolution",
-  minuten: { 1: 12, 2: 6, 3: 18 },                   // Timer je Teil
-  teile: ["Einzelarbeit", "Expertengruppe", "Stammgruppe", "Fertig"],
+  minuten: { 1: 11, 2: 1, 3: 6, 4: 1, 5: 18 },       // Timer je Schritt (Minuten)
+  // Ablauf: 1 Einzelarbeit · 2 Finde deine Expertengruppe · 3 Expertengruppe · 4 Finde deine Stammgruppe · 5 Stammgruppe · 6 Fertig
+  schritte: ["Einzelarbeit", "Expertengruppe finden", "Expertengruppe", "Stammgruppe finden", "Stammgruppe", "Fertig"],
+  navi: [1, 3, 5, 6],                                // Schritte in der Leiste oben (die „Finden“-Minuten sind Zwischenbildschirme)
   reihenfolge: ["B", "A", "C", "D"],
   zeilen: ["Wie lebt sie/er?", "Lasten oder Vorrechte?", "Was denkt sie/er über König und Ordnung?", "Zufrieden?"],
   zufrieden: ["zufrieden", "teils", "unzufrieden"],
@@ -248,7 +272,7 @@ const CONTENT = {
   stammPlusStarter: "Am ehesten würde … mitkämpfen, weil …",
 
   rollen: {
-    A: { name: "Ein Bauer", kurz: "Bauer", icon: "bilder/icon-brot.png", zufrieden: "unzufrieden",
+    A: { name: "Ein Bauer", kurz: "Bauer", gruppe: "Bauer", icon: "bilder/icon-brot.png", zufrieden: "unzufrieden",
       bilder: [{ src: "bilder/bauer.jpg", titel: "[1] Die Bauernmahlzeit. Gemälde von Louis Le Nain, 1642", alt: "Gemälde: Eine Bauernfamilie sitzt in einem dunklen Raum an einem einfachen Tisch." }],
       texte: [{ titel: "[2] So könnte ein Bauer erzählt haben", inTask: true, zeilen: [
         "Wir Bauern sind wütend! Wir gehören zum Dritten Stand.",
@@ -294,7 +318,7 @@ const CONTENT = {
         { right: ["findet die Lasten ungerecht", "ist unfrei"], wrong: ["findet die Ordnung richtig"], starter: "Er findet … weil …" }
       ] },
 
-    B: { name: "Eine adlige Dame", kurz: "Adlige", icon: "bilder/icon-krone.png", zufrieden: "zufrieden",
+    B: { name: "Eine adlige Dame", kurz: "Adlige", gruppe: "Feine Dame", icon: "bilder/icon-krone.png", zufrieden: "zufrieden",
       bilder: [{ src: "bilder/dame.jpg", oval: true, titel: "[2] Eine adlige Dame. Gemälde, 1740", alt: "Gemälde: Eine Dame in einem prächtigen grünen Kleid mit Rüschen spielt mit einem kleinen Hund." },
         { src: "bilder/ball.jpg", titel: "[3] Adlige bei einem Ball. Gemälde, 1862", alt: "Gemälde: Viele vornehm gekleidete Menschen tanzen in einem prunkvollen Saal mit Kronleuchtern." }],
       texte: [{ titel: "[1] So könnte eine Adlige erzählt haben", zeilen: [
@@ -345,7 +369,7 @@ const CONTENT = {
         { right: ["Ordnung ist von Gott bestimmt", "findet die Ordnung richtig"], wrong: ["alle Menschen sind gleich"], starter: "Sie findet … weil …" }
       ] },
 
-    C: { name: "Gelehrte Bürger", kurz: "Gelehrte", icon: "bilder/icon-feder.png", zufrieden: "unzufrieden",
+    C: { name: "Gelehrte Bürger", kurz: "Gelehrte", gruppe: "Gelehrte", icon: "bilder/icon-feder.png", zufrieden: "unzufrieden",
       bilder: [{ src: "bilder/salon.jpg", titel: "[1] In einem Salon. Gemälde, zeigt eine Szene von 1755", alt: "Gemälde: Viele vornehm gekleidete Frauen und Männer sitzen in einem großen Raum mit Bildern an den Wänden und hören zu." }],
       texte: [
         { titel: "Neue Ideen: Alles wird hinterfragt", zeilen: [
@@ -395,7 +419,7 @@ const CONTENT = {
         { right: ["König ist nicht von Gott eingesetzt", "schlechter Herrscher darf abgesetzt werden", "König soll nicht Gesetze machen und Richter sein"], wrong: ["König ist von Gott eingesetzt"], starter: "Sie glauben, dass der König …" }
       ] },
 
-    D: { name: "Revolutionäre", kurz: "Revolutionär", icon: "bilder/icon-burg.png", zufrieden: "unzufrieden",
+    D: { name: "Revolutionäre", kurz: "Revolutionär", gruppe: "Revolutionäre", icon: "bilder/icon-burg.png", zufrieden: "unzufrieden",
       bilder: [{ src: "bilder/bastille.jpg", titel: "[1] Die Sieger der Bastille ziehen zum Rathaus von Paris. Gemälde von Paul Delaroche, um 1830", alt: "Gemälde: Eine jubelnde Menschenmenge trägt Gegenstände; eine Figur mit Lorbeerkranz sitzt auf den Schultern der Menschen.",
         info: "Die Menschen tragen Gegenstände aus der Bastille, einem Gefängnis in Paris. Die Figur auf den Schultern trägt einen Lorbeerkranz. Sie hält den Schlüssel der Bastille und einen Brief des getöteten Kommandanten." }],
       texte: [{ titel: "[2] So könnte ein Bürger erzählt haben, der beim Sturm auf die Bastille dabei war", inTask: true, zeilen: [
@@ -445,11 +469,16 @@ const CONTENT = {
   }
 };
 const SYMBOLE = { k: { z: "●", name: "Kreis" }, q: { z: "■", name: "Quadrat" }, t: { z: "▲", name: "Dreieck" } };
+// Symbole als Grafik, damit sie auf jedem Gerät gleich aussehen
+function symSvg(k, cls) {
+  const form = { k: '<circle cx="50" cy="50" r="44"/>', q: '<rect x="8" y="8" width="84" height="84"/>', t: '<polygon points="50,6 96,92 4,92"/>' }[k];
+  return '<svg class="' + (cls || "") + '" viewBox="0 0 100 100" aria-hidden="true" fill="currentColor">' + form + "</svg>";
+}
 
 /* =====================================================================
    Programm
    ===================================================================== */
-const KEY = "gp-franz-revolution-v2";
+const KEY = "gp-franz-revolution-v3";
 const $app = document.getElementById("app"), $print = document.getElementById("printArea"), $lb = document.getElementById("lightbox");
 
 function fresh() { return { name: "", sym: "", role: "", started: false, step: 1, unlocked: 1, t: {}, exp: {}, plus: null, chk: {}, spick: [{}, {}, {}], stamm: { cells: {}, zuf: {}, plus: null }, openCol: {} }; }
@@ -495,7 +524,8 @@ function tick() {
     el.classList.toggle("knapp", r > 0 && r <= 60); el.classList.toggle("aus", r <= 0);
   }
   const big = document.getElementById("bigT");
-  if (big) { const r = rest(2); big.textContent = r > 0 ? mmss(r) : "Zeit ist um!"; big.classList.toggle("aus", r <= 0); }
+  if (big) { const r = rest(s); big.textContent = r > 0 ? mmss(r) : "Zeit ist um!"; big.classList.toggle("aus", r <= 0); }
+  if (st.started && (s === 2 || s === 4) && zeitUm(s)) { gehe(s + 1); return; }   // nach der Minute „Gruppe finden“ automatisch weiter
   if (st.started && freischalten()) done();
 }
 setInterval(tick, 1000);
@@ -520,8 +550,10 @@ function stammFertig() {
 function freischalten() {                          // gibt true zurück, wenn sich etwas geändert hat
   const alt = st.unlocked;
   if (st.unlocked === 1 && (teil1Fertig() || zeitUm(1))) st.unlocked = 2;
-  if (st.unlocked === 2 && (spickFertig() || zeitUm(2))) st.unlocked = 3;
-  if (st.unlocked === 3 && (stammFertig() || zeitUm(3))) st.unlocked = 4;
+  if (st.unlocked === 2 && st.t[2]) st.unlocked = 3;
+  if (st.unlocked === 3 && (spickFertig() || zeitUm(3))) st.unlocked = 4;
+  if (st.unlocked === 4 && st.t[4]) st.unlocked = 5;
+  if (st.unlocked === 5 && (stammFertig() || zeitUm(5))) st.unlocked = 6;
   return st.unlocked !== alt;
 }
 function gehe(s) { st.step = s; if (CONTENT.minuten[s] && !st.t[s]) st.t[s] = Date.now(); save(); render(); window.scrollTo(0, 0); }
@@ -674,7 +706,7 @@ function loginView() {
     h("h1", { text: "Gruppenpuzzle" }), h("p", { class: "info", style: "text-align:center", text: "Wie lebten die Menschen in Frankreich vor 1789?" }),
     h("div", { class: "card" }, h("h3", { text: "1  Dein Vorname" }), h("p", { class: "muted", text: "Er erscheint nur auf deinem Ausdruck." }), inp),
     h("div", { class: "card" }, h("h3", { text: "2  Dein Symbol" }), h("p", { class: "muted", text: "Deine Lehrkraft sagt dir, welches du antippst." }),
-      h("div", { class: "choices" }, Object.keys(SYMBOLE).map(k => h("button", { class: "sym" + (st.sym === k ? " on" : ""), type: "button", "aria-label": SYMBOLE[k].name, "aria-pressed": st.sym === k ? "true" : "false", onclick: () => { st.sym = k; done(); } }, SYMBOLE[k].z)))),
+      h("div", { class: "choices" }, Object.keys(SYMBOLE).map(k => h("button", { class: "sym" + (st.sym === k ? " on" : ""), type: "button", "aria-label": SYMBOLE[k].name, "aria-pressed": st.sym === k ? "true" : "false", onclick: () => { st.sym = k; done(); }, html: symSvg(k, "symg") })))),
     h("div", { class: "card rot" }, h("h3", { text: "3  Deine Rolle" }),
       h("div", { class: "choices" }, ["A", "B", "C", "D"].map(k => { const r = CONTENT.rollen[k];
         return h("button", { class: "role" + (st.role === k ? " on" : ""), type: "button", "aria-pressed": st.role === k ? "true" : "false", onclick: () => { st.role = k; done(); } },
@@ -745,16 +777,52 @@ function weiterCard(s) {
   const naechster = s + 1, frei = st.unlocked >= naechster, um = zeitUm(s);
   const c = h("div", { class: "card weiter " + (frei ? "gruen" : "") });
   if (frei) {
-    c.append(h("h2", { text: um && !(s === 1 ? teil1Fertig() : s === 2 ? spickFertig() : stammFertig()) ? "Die Zeit ist um!" : "Geschafft!" }),
-      h("button", { class: "btn primary", type: "button", onclick: () => gehe(naechster) }, "Weiter zu Teil " + naechster + ": " + CONTENT.teile[naechster - 1]));
+    c.append(h("h2", { text: um && !(s === 1 ? teil1Fertig() : s === 3 ? spickFertig() : stammFertig()) ? "Die Zeit ist um!" : "Geschafft!" }),
+      h("button", { class: "btn primary", type: "button", onclick: () => gehe(naechster) }, "Weiter: " + (naechster === 2 ? "Finde deine Expertengruppe" : naechster === 4 ? "Finde deine Stammgruppe" : CONTENT.schritte[naechster - 1])));
   } else if (s === 1) {
-    c.append(h("p", { class: "info", text: "Teil 2 öffnet sich, wenn du fertig bist." }), h("p", { class: "muted", text: "Das fehlt noch:" }), h("ul", { class: "fehlt", style: "display:inline-block;text-align:left" }, fehltListe().map(x => h("li", { text: x }))));
-  } else if (s === 2) {
-    c.append(h("p", { class: "info", text: "Teil 3 öffnet sich, wenn dein Spickzettel fertig ist." }));
+    c.append(h("p", { class: "info", text: "Es geht weiter, wenn du fertig bist." }), h("p", { class: "muted", text: "Das fehlt noch:" }), h("ul", { class: "fehlt", style: "display:inline-block;text-align:left" }, fehltListe().map(x => h("li", { text: x }))));
+  } else if (s === 3) {
+    c.append(h("p", { class: "info", text: "Es geht weiter, wenn euer Spickzettel fertig ist." }));
   } else {
-    c.append(h("p", { class: "info", text: "Teil 4 öffnet sich, wenn ihr bei allen „Zufrieden?“ ausgewählt und den Fazit-Satz geschrieben habt." }));
+    c.append(h("p", { class: "info", text: "Es geht weiter, wenn ihr bei allen „Zufrieden?“ ausgewählt und den Fazit-Satz geschrieben habt." }));
   }
   return c;
+}
+
+/* ---------- Zwischenbildschirme: Finde deine Gruppe (je 1 Minute) ---------- */
+function findeView(stamm) {
+  const r = R(), s = st.step;
+  const v = h("div", { class: "hero finde" },
+    h("p", { class: "eyebrow", text: stamm ? "Finde deine Stammgruppe" : "Finde deine Expertengruppe" }),
+    stamm ? h("div", { class: "riesig symbol", role: "img", "aria-label": "Symbol " + SYMBOLE[st.sym].name, html: symSvg(st.sym) })
+      : h("div", {}, h("img", { class: "rolle", src: r.icon, alt: "" }), h("div", { class: "riesig", text: r.gruppe })),
+    h("p", { class: "fsatz", text: stamm ? "Sucht euch zu viert: alle mit diesem Symbol. In jeder Stammgruppe sind ein Bauer, eine feine Dame, ein Gelehrter und ein Revolutionär."
+      : "Sucht alle, auf deren iPad auch „" + r.gruppe + "“ steht, und setzt euch zusammen." }),
+    stamm ? h("p", { class: "fsatz klein", text: "Du bist: " + r.gruppe }) : null,
+    h("div", { class: "big", id: "bigT", text: mmss(rest(s)) }),
+    h("button", { class: "btn hellbtn", type: "button", onclick: () => gehe(s + 1) }, "Wir sitzen zusammen – weiter"));
+  return v;
+}
+
+/* ---------- Druck: genau eine Seite mit Übersicht und Schlusssätzen ---------- */
+function druckSeite() {
+  const r = R(), pg = h("div", { class: "pp" },
+    h("div", { class: "pn" }, h("span", { text: "Vorname: " + st.name }), h("span", { text: "Rolle: " + st.role + " – " + r.name }), h("span", { text: new Date().toLocaleDateString("de-DE") })),
+    h("h2", { text: "Vor der Französischen Revolution – Übersicht unserer Stammgruppe" }), groupTable(true),
+    h("h3", { text: "Unser Fazit" }), h("div", { class: "ans", text: fazitText() || "–" }));
+  if (geschrieben(stammPlusText(), CONTENT.stammPlusStarter)) pg.append(h("h3", { text: CONTENT.stammPlus }), h("div", { class: "ans", text: stammPlusText() }));
+  return pg;
+}
+function drucken() {
+  $print.innerHTML = "";
+  const pg = druckSeite();
+  $print.append(pg);
+  // Höhe messen und die Schrift so lange verkleinern, bis alles auf eine A4-Seite passt (Breite 186 mm, Höhe max. 262 mm)
+  $print.classList.add("mess");
+  const passt = () => pg.getBoundingClientRect().height / (pg.getBoundingClientRect().width / 186) <= 262;
+  for (let pt = 10.5; pt >= 5; pt -= 0.25) { pg.style.fontSize = pt + "pt"; if (passt()) break; }
+  $print.classList.remove("mess");
+  setTimeout(() => window.print(), 50);
 }
 
 /* ---------- Teil 2: Expertengruppe (großer Bildschirm) ---------- */
@@ -762,9 +830,9 @@ function teil2View() {
   const r = R(), v = h("div", {});
   v.append(h("div", { class: "hero" },
     h("img", { class: "deko", src: r.icon, alt: "", style: "left:4%;top:12%" }), h("img", { class: "deko", src: "bilder/icon-waage.png", alt: "", style: "right:4%;bottom:10%" }),
-    h("p", { class: "eyebrow", text: "Teil 2 · Expertengruppe · " + r.name }),
+    h("p", { class: "eyebrow", text: "Teil 2 · Expertengruppe · " + CONTENT.minuten[3] + " Minuten" }),
     h("h1", { text: "Besprecht eure Ergebnisse!" }),
-    h("div", { class: "big", id: "bigT", text: mmss(rest(2)) }),
+    h("div", { class: "big", id: "bigT", text: mmss(rest(3)) }),
     h("ol", {}, h("li", { text: "Setzt euch mit den anderen Experten für „" + r.name + "“ zusammen." }),
       h("li", { text: "Vergleicht eure Antworten aus Teil 1 (Übersicht unten). Ergänzt, was fehlt, und klärt Fehler." }),
       h("li", {}, "Diskutiert: ", h("div", { class: "disk", text: r.diskussion })),
@@ -773,7 +841,7 @@ function teil2View() {
   r.tasks.forEach((t, i) => ov.append(h("h4", { text: (i + 1) + "  " + t.kopf }), h("div", { class: "ans", text: taskText(i) || "–" })));
   ov.append(h("h4", { text: "Experten-Check" }), h("div", { class: "ans", text: score() + " von 4 richtig" + (checkDone() ? "" : " (noch nicht fertig)") }));
   if (geschrieben(plusText(), r.plus.starter)) ov.append(h("h4", { text: "+  " + r.plus.text }), h("div", { class: "ans", text: plusText() }));
-  v.append(ov, spickView(), weiterCard(2));
+  v.append(ov, spickView(), weiterCard(3));
   return v;
 }
 function spickView() {
@@ -810,7 +878,7 @@ function zufView(role) {
 }
 function teil3View() {
   const v = h("div", {}), ord = CONTENT.reihenfolge, wide = window.innerWidth > 900, head = r => r + " · " + CONTENT.rollen[r].kurz;
-  v.append(h("div", { class: "card" }, h("p", { class: "eyebrow", text: "Teil 3 · Stammgruppe · " + CONTENT.minuten[3] + " Minuten" }), h("h1", { text: "Gruppenblatt" }),
+  v.append(h("div", { class: "card" }, h("p", { class: "eyebrow", text: "Teil 3 · Stammgruppe · " + CONTENT.minuten[5] + " Minuten" }), h("h1", { text: "Gruppenblatt" }),
     h("p", { class: "info", html: "<b>Berichtet nacheinander: B → A → C → D.</b> Jede Person hat 3 Minuten. Hört gut zu und füllt die anderen Spalten aus. Deine eigene Spalte (grün) ist schon fertig." })));
   if (wide) {
     const t = h("table", { class: "tbl" });
@@ -831,7 +899,7 @@ function teil3View() {
       textBox(fazitText(), val => { st.stamm.fazitText = val; save(); freischalten() && done(); }))));
   v.append(h("div", { class: "card" }, h("div", { class: "plus" }, h("div", { class: "dot", text: "+" }), h("div", { style: "flex:1" },
     h("p", { class: "eyebrow", text: "Für Schnelle" }), h("h3", { text: CONTENT.stammPlus }), textBox(stammPlusText(), val => { st.stamm.plus = val; save(); })))));
-  v.append(weiterCard(3));
+  v.append(weiterCard(5));
   return v;
 }
 
@@ -859,8 +927,8 @@ function pages(print) {
 function teil4View() {
   const v = h("div", {});
   v.append(h("div", { class: "card gruen", style: "text-align:center" }, h("p", { class: "eyebrow", text: "Teil 4 · Fertig" }), h("h1", { text: "Gut gemacht, " + st.name + "!" }),
-    h("p", { class: "info", text: "Hier siehst du alle deine Antworten. Du kannst sie drucken oder als PDF sichern." }),
-    h("button", { class: "btn primary", type: "button", onclick: () => { $print.innerHTML = ""; $print.append(pages(true)); window.print(); } }, "Drucken / als PDF sichern")));
+    h("p", { class: "info", text: "Hier siehst du alle deine Antworten. Der Ausdruck enthält eine Seite: die Übersicht eurer Stammgruppe und euer Fazit." }),
+    h("button", { class: "btn primary", type: "button", onclick: drucken }, "Drucken / als PDF sichern")));
   v.append(pages(false));
   return v;
 }
@@ -877,14 +945,14 @@ function render() {
   if (CONTENT.minuten[st.step] && !st.t[st.step]) { st.t[st.step] = Date.now(); save(); }
   const s = st.step;
   $app.append(h("div", { class: "top" }, h("span", { class: "thema", text: "Stundenthema: " + CONTENT.thema }),
-    CONTENT.minuten[s] ? h("div", { class: "timer", id: "timer", role: "timer", "aria-label": "Restzeit" }, h("span", { class: "lbl", text: "Teil " + s }), h("b", { text: mmss(rest(s)) }), h("div", { class: "tbar" }, h("div", {}))) : h("span", {}),
+    CONTENT.minuten[s] ? h("div", { class: "timer", id: "timer", role: "timer", "aria-label": "Restzeit" }, h("span", { class: "lbl", text: CONTENT.schritte[s - 1] }), h("b", { text: mmss(rest(s)) }), h("div", { class: "tbar" }, h("div", {}))) : h("span", {}),
     h("button", { class: "btn small", type: "button", onclick: () => { if (confirm("Wirklich neu beginnen? Alle deine Antworten auf diesem iPad werden gelöscht.")) { st = fresh(); done(); } } }, "Neu beginnen")),
-    h("nav", { class: "steps", "aria-label": "Teile" }, CONTENT.teile.map((n, i) => {
-      const nr = i + 1, frei = nr <= st.unlocked;
-      return h("button", { class: "step" + (st.step === nr ? " on" : "") + (frei ? "" : " zu"), type: "button", disabled: !frei, "aria-current": st.step === nr ? "step" : "false", "aria-label": frei ? "Teil " + nr + ": " + n : "Teil " + nr + " (noch gesperrt)", onclick: () => gehe(nr) },
-        h("span", { class: "n", text: frei ? nr : "🔒" }), frei ? h("span", { class: "t", text: n }) : null);
+    h("nav", { class: "steps", "aria-label": "Teile" }, CONTENT.navi.map((nr, i) => {
+      const n = CONTENT.schritte[nr - 1], frei = nr <= st.unlocked, on = st.step === nr || st.step === nr - 1 && (nr === 3 || nr === 5);
+      return h("button", { class: "step" + (on ? " on" : "") + (frei ? "" : " zu"), type: "button", disabled: !frei, "aria-current": on ? "step" : "false", "aria-label": frei ? "Teil " + (i + 1) + ": " + n : "Teil " + (i + 1) + " (noch gesperrt)", onclick: () => gehe(nr) },
+        h("span", { class: "n", text: frei ? i + 1 : "🔒" }), frei ? h("span", { class: "t", text: n }) : null);
     })),
-    s === 1 ? teil1View() : s === 2 ? teil2View() : s === 3 ? teil3View() : teil4View());
+    s === 1 ? teil1View() : s === 2 ? findeView(false) : s === 3 ? teil2View() : s === 4 ? findeView(true) : s === 5 ? teil3View() : teil4View());
   window.scrollTo(0, y);
   if (fokus) { const t = $app.querySelector('[data-k="' + fokus.k + '"]'); if (t) { t.focus({ preventScroll: true }); try { t.setSelectionRange(fokus.a, fokus.b); } catch (e) {} } }
   tick();
