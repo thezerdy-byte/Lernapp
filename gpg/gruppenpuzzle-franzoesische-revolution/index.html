@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="de-DE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gruppenpuzzle – Vor der Französischen Revolution</title>
+<style>
+  :root {
+    --blau: #1F3A5F; --rot: #B7352D; --gruen: #2F7D4F; --hellgruen: #E2EFDA; --linie: #C9D3C3; --text: #1F2A37; --grau: #3B4756;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: #fff; color: var(--text); font-family: "Century Gothic", "Avenir Next", "Futura", sans-serif; font-size: 17px; line-height: 1.5; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 14px 16px 60px; }
+  .hidden { display: none !important; }
+  .eyebrow { color: var(--rot); font-weight: 700; font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 4px; }
+  h1, h2, h3 { color: var(--blau); margin: 0 0 8px; line-height: 1.25; }
+  h1 { font-size: 1.7rem; } h2 { font-size: 1.35rem; } h3 { font-size: 1.1rem; }
+  p { margin: 0 0 10px; }
+  .info { font-size: 20px; }
+  .muted { color: var(--grau); }
+  .card { background: #fff; border: 1.5px solid var(--linie); border-radius: 16px; padding: 18px; margin: 0 0 16px; }
+  .card.main { background: var(--hellgruen); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+  .btn { font-family: inherit; font-size: 1rem; font-weight: 700; min-height: 46px; padding: 10px 20px; border-radius: 12px; border: 2px solid var(--blau); background: #fff; color: var(--blau); cursor: pointer; }
+  .btn.primary { background: var(--blau); color: #fff; }
+  .btn.small { min-height: 44px; font-size: .9rem; padding: 8px 14px; }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn:focus-visible, .chip:focus-visible, .gap:focus-visible, textarea:focus-visible, input:focus-visible, .opt:focus-visible { outline: 3px solid #E8A33D; outline-offset: 2px; }
+
+  /* Navigation */
+  .top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .top .titel { font-weight: 700; color: var(--blau); }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+  .step { font-family: inherit; font-size: .95rem; font-weight: 700; min-height: 48px; padding: 8px 10px; border-radius: 12px; border: 1.5px solid var(--linie); background: #fff; color: var(--grau); cursor: pointer; }
+  .step.on { background: var(--blau); border-color: var(--blau); color: #fff; }
+  .step b { display: inline-block; width: 1.6em; height: 1.6em; line-height: 1.6em; border-radius: 50%; background: var(--hellgruen); color: var(--blau); margin-right: 6px; }
+
+  /* Anmeldung */
+  .choices { display: flex; flex-wrap: wrap; gap: 12px; }
+  .sym { font-family: inherit; font-size: 2.4rem; width: 86px; height: 86px; border-radius: 16px; border: 2px solid var(--linie); background: #fff; color: var(--blau); cursor: pointer; }
+  .sym.on, .role.on { border-color: var(--blau); background: var(--hellgruen); box-shadow: 0 0 0 3px var(--blau) inset; }
+  .role { font-family: inherit; text-align: left; flex: 1 1 220px; min-height: 96px; display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; border: 2px solid var(--linie); background: #fff; color: var(--text); cursor: pointer; }
+  .role b { display: block; color: var(--blau); font-size: 1.05rem; }
+  .role span.s { color: var(--grau); font-size: .9rem; }
+  input[type=text] { font-family: inherit; font-size: 1.2rem; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--linie); width: min(100%, 360px); min-height: 48px; color: var(--text); }
+  svg.icon { width: 56px; height: 56px; flex: none; fill: none; stroke: var(--blau); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Aufgaben */
+  .head { display: flex; gap: 14px; align-items: center; }
+  .head svg.icon { width: 72px; height: 72px; }
+  .task h3 { font-size: 1.1rem; }
+  .task h3 .n { display: inline-block; min-width: 1.5em; color: var(--rot); }
+  .ref { display: inline-block; font-size: .82rem; font-weight: 700; color: var(--grau); background: #F1F4EF; border: 1px solid var(--linie); border-radius: 999px; padding: 2px 10px; margin-bottom: 8px; }
+  .plus { display: flex; gap: 12px; align-items: flex-start; }
+  .plus .dot { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--rot); color: #fff; font-weight: 700; font-size: 1.5rem; line-height: 40px; text-align: center; }
+  textarea { width: 100%; min-height: 120px; font-family: inherit; font-size: 1rem; line-height: 1.5; padding: 12px; border-radius: 12px; border: 2px solid var(--linie); color: var(--text); resize: vertical; background: #fff; }
+  textarea.short { min-height: 84px; }
+
+  .bank { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .chip { font-family: inherit; font-size: 1rem; min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 2px solid var(--blau); background: #fff; color: var(--blau); cursor: pointer; font-weight: 700; }
+  .chip.used { opacity: .35; }
+  .chip.bad { border-color: var(--rot); color: var(--rot); animation: shake .35s; }
+  .chip.sel { background: var(--hellgruen); }
+  .chip.ok { background: var(--hellgruen); border-color: var(--gruen); color: var(--gruen); }
+  .chip.no { background: #FBE9E7; border-color: var(--rot); color: var(--rot); }
+  @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  .gaptext { font-size: 1.05rem; line-height: 2.5; }
+  .gap { font-family: inherit; font-size: 1rem; font-weight: 700; min-width: 110px; min-height: 40px; padding: 2px 10px; margin: 0 3px; border-radius: 8px; border: 2px dashed var(--grau); background: #fff; color: var(--blau); cursor: pointer; vertical-align: middle; }
+  .gap.full { border-style: solid; border-color: var(--blau); background: #F1F6FF; }
+  .gap.ok { border-color: var(--gruen); background: var(--hellgruen); color: var(--gruen); }
+  .gap.no { border-color: var(--rot); background: #FBE9E7; color: var(--rot); }
+  .seq { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+  .seq .it { display: flex; gap: 10px; align-items: center; min-height: 44px; padding: 8px 12px; border: 2px dashed var(--grau); border-radius: 12px; background: #fff; font-family: inherit; font-size: 1rem; text-align: left; color: var(--text); cursor: pointer; }
+  .seq .it.full { border-style: solid; border-color: var(--blau); }
+  .seq .it.ok { border-color: var(--gruen); background: var(--hellgruen); }
+  .seq .it.no { border-color: var(--rot); background: #FBE9E7; }
+  .seq .it b { flex: none; width: 1.8em; height: 1.8em; line-height: 1.8em; text-align: center; border-radius: 50%; background: var(--hellgruen); color: var(--blau); }
+  .sortlist { display: grid; gap: 10px; margin: 10px 0; }
+  .sortrow { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; border: 1.5px solid var(--linie); border-radius: 12px; padding: 10px 12px; }
+  .sortrow .bt { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sortrow.ok { border-color: var(--gruen); background: var(--hellgruen); } .sortrow.no { border-color: var(--rot); background: #FBE9E7; }
+  .msg { font-weight: 700; margin: 8px 0 0; }
+  .msg.ok { color: var(--gruen); } .msg.no { color: var(--rot); }
+
+  /* Check */
+  .q { border: 1.5px solid var(--linie); border-radius: 14px; padding: 14px; margin: 0 0 12px; background: #fff; }
+  .q .qt { font-weight: 700; margin-bottom: 10px; }
+  .opts { display: grid; gap: 8px; }
+  .opt { font-family: inherit; font-size: 1rem; text-align: left; min-height: 48px; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--linie); background: #fff; color: var(--text); cursor: pointer; }
+  .opt.ok { border-color: var(--gruen); background: var(--hellgruen); }
+  .opt.no { border-color: var(--rot); background: #FBE9E7; }
+  .why { margin-top: 8px; font-size: .95rem; color: var(--grau); }
+  .banner { border-radius: 14px; padding: 14px 16px; font-weight: 700; font-size: 1.15rem; margin: 6px 0 14px; }
+  .banner.ok { background: var(--hellgruen); color: var(--gruen); border: 1.5px solid var(--gruen); }
+  .banner.no { background: #FBE9E7; color: var(--rot); border: 1.5px solid var(--rot); }
+  .line { margin: 0 0 14px; }
+  .line h4 { margin: 0 0 6px; color: var(--blau); }
+  .built { min-height: 48px; padding: 10px 12px; border: 2px dashed var(--grau); border-radius: 12px; margin: 8px 0; background: #fff; }
+  .built.full { border-style: solid; border-color: var(--gruen); background: var(--hellgruen); }
+
+  /* Gruppenblatt */
+  .tbl { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+  .tbl th, .tbl td { border: 1.5px solid var(--linie); padding: 10px; vertical-align: top; font-size: .95rem; }
+  .tbl th { background: #F1F4EF; color: var(--blau); text-align: left; }
+  .tbl th.rowh { width: 15%; }
+  .tbl td.own, .tbl th.own { background: var(--hellgruen); }
+  .tbl .bank { margin: 6px 0; } .tbl .chip { font-size: .85rem; padding: 6px 10px; min-height: 44px; }
+  .tags { display: flex; flex-direction: column; gap: 6px; margin: 4px 0; }
+  .tag { font-family: inherit; text-align: left; font-size: .9rem; min-height: 44px; padding: 6px 10px; border-radius: 10px; border: 1.5px solid var(--gruen); background: var(--hellgruen); color: var(--text); cursor: pointer; }
+  .zuf { display: grid; gap: 6px; }
+  .zuf .chip { font-size: .85rem; padding: 6px 8px; }
+  .zuf .chip.sel { background: var(--blau); color: #fff; }
+  details.col { border: 1.5px solid var(--linie); border-radius: 14px; margin: 0 0 12px; background: #fff; overflow: hidden; }
+  details.col summary { cursor: pointer; padding: 14px 16px; min-height: 48px; font-weight: 700; color: var(--blau); display: flex; align-items: center; gap: 10px; }
+  details.col.own summary { background: var(--hellgruen); }
+  details.col .body { padding: 0 16px 14px; }
+  details.col .cell { margin: 0 0 14px; }
+  details.col .cell h4 { margin: 0 0 6px; font-size: .95rem; color: var(--grau); }
+
+  /* Übersicht */
+  .sum h3 { margin-top: 6px; } .sum .ans { white-space: pre-wrap; background: #F7F9F5; border: 1px solid var(--linie); border-radius: 10px; padding: 10px 12px; margin: 0 0 12px; }
+
+  .ans-own { white-space: pre-wrap; }
+  #printArea { display: none; }
+  @media print {
+    @page { size: A4; margin: 14mm; }
+    body { font-size: 11pt; color: #000; }
+    #app { display: none !important; }
+    #printArea { display: block; }
+    .pp { page-break-after: always; break-after: page; }
+    .pp:last-child { page-break-after: auto; break-after: auto; }
+    #printArea h1, #printArea h2, #printArea h3, #printArea h4 { color: #000; }
+    #printArea .ans { white-space: pre-wrap; border: 1px solid #000; padding: 6px 8px; margin: 0 0 8px; border-radius: 0; background: none; }
+    #printArea table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    #printArea th, #printArea td { border: 1px solid #000; padding: 6px; vertical-align: top; font-size: 10pt; background: none !important; }
+    #printArea .pn { display: flex; justify-content: space-between; border-bottom: 2px solid #000; margin-bottom: 10px; padding-bottom: 4px; font-weight: bold; }
+  }
+  @media (max-width: 600px) { .wrap { padding: 10px 10px 50px; } h1 { font-size: 1.4rem; } }
+</style>
+</head>
+<body>
+<div id="app" class="wrap"></div>
+<div id="printArea"></div>
+<script>
+/* =====================================================================
+   INHALTE – hier kann die Lehrkraft alles ändern.
+   Symbole der Schüler: "k" = Kreis ●, "q" = Quadrat ■, "t" = Dreieck ▲
+     ● Kreis:    Wortspeicher / Lückentext / Zuordnung zum Antippen  (Feld "kreis" der Aufgabe)
+     ■ Quadrat:  Textfeld mit Satzanfängen                          (Feld "starter")
+     ▲ Dreieck:  leeres Textfeld
+   Aufgabe: { kopf, detail, ref, starter, kreis }
+   kreis-Typen:
+     { typ:"gap",   text:"… {0} … {1} …", words:[…], sol:[…] }   Lückentext (sol = null: offene Lücken, nicht geprüft)
+     { typ:"order", items:[… in richtiger Reihenfolge …] }        Reihenfolge antippen
+     { typ:"pick",  options:[…], correct:[Positionen] }          passende Karten antippen
+     { typ:"sort",  cols:["…","…"], items:[{t:"…", c:0|1}] }    zwei Spalten zuordnen
+   Check: { typ:"mc", q, options:[…], correct:Position, why } oder { typ:"tf", q, correct:true|false, why }
+   Spickzettel: { label, starter, parts:[Bausteine in richtiger Reihenfolge], wrong:"falscher Baustein" }
+   Gruppenblatt-Zellen (cells): { right:[richtige Bausteine], wrong:[falsche Bausteine], starter }
+   ===================================================================== */
+const CONTENT = {
+  titel: "Gruppenpuzzle – Vor der Französischen Revolution",
+  reihenfolge: ["B", "A", "C", "D"],           // Reihenfolge der Spalten im Gruppenblatt
+  zeilen: ["Wie lebt sie/er?", "Lasten oder Vorrechte?", "Was denkt sie/er über König und Ordnung?", "Zufrieden?"],
+  zufrieden: ["zufrieden", "teils", "unzufrieden"],
+  fazit: {
+    vorne: "Viele Menschen in Frankreich waren unzufrieden, weil",
+    kreis: { typ: "gap", text: "Viele Menschen in Frankreich waren unzufrieden, weil {0} und {1} viele {2} hatten und keine {3} zahlten. Die Bauern litten oft {4}. Das fanden sie {5}. Sie wollten {6} und {7} sein.",
+      words: ["Steuern", "Vorrechte", "Adel", "Kirche", "Hunger", "ungerecht", "frei", "gleich"],
+      sol: ["Adel", "Kirche", "Vorrechte", "Steuern", "Hunger", "ungerecht", "frei", "gleich"] }
+  },
+  stammPlus: "Wer von den vier Personen würde 1789 am ehesten mitkämpfen? Begründe.",
+  stammPlusStarter: "Am ehesten würde … mitkämpfen, weil …",
+
+  rollen: {
+    A: { name: "Ein Bauer", seite: "S. 48", material: "Bild [1] (Gemälde von 1642) und Text [2]", icon: "aehre", zufrieden: "unzufrieden",
+      tasks: [
+        { kopf: "Beschreibe die Menschen auf Bild [1].", detail: "Achte auf Gesichtsausdruck (niedergeschlagen / hoffnungsvoll / trotzig), Kleidung, Körperhaltung und Umgebung.", ref: "Bild [1], S. 48",
+          starter: "Die Menschen auf dem Bild sehen … aus.\nIhre Kleidung ist …\nIhre Körperhaltung wirkt …\nUm sie herum sieht man …",
+          kreis: { typ: "gap", text: "Die Menschen auf dem Bild sehen {0} aus. Ihre Kleidung ist {1}. Ihre Körperhaltung wirkt {2}. Um sie herum sieht man {3}.",
+            words: ["niedergeschlagen", "hoffnungsvoll", "trotzig", "müde", "einfach", "zerlumpt", "gebeugt", "aufrecht", "Felder", "ein Haus", "Tiere"], sol: null } },
+        { kopf: "Nenne die Lasten des Bauern.", detail: "Lies Text [2] und finde alle Lasten.", ref: "Text [2], S. 48",
+          starter: "Der Bauer muss …\nAußerdem muss er …\nEr darf nicht …\nSeine Heirat …",
+          kreis: { typ: "pick", options: ["Steuern für den König zahlen", "100 Tage im Jahr Straßen bauen", "Einen Teil der Ernte an den Grundherrn abgeben", "2–3-mal pro Woche auf dem Feld des Grundherrn arbeiten und Holz hacken", "Frösche von den Feldern des Grundherrn verscheuchen", "Nicht jagen dürfen, obwohl Tiere die Felder leer fressen", "Nur mit Erlaubnis und gegen Geld heiraten dürfen", "Keine Steuern zahlen müssen", "Heiraten, wen er will"], correct: [0, 1, 2, 3, 4, 5, 6], hint: "Es gibt sieben Lasten. Zwei Karten passen nicht." } },
+        { kopf: "Erkläre, warum der Bauer unzufrieden ist.", detail: "Nutze deine Antworten aus Aufgabe 2.", ref: "Text [2]",
+          starter: "Der Bauer ist unzufrieden, weil …",
+          kreis: { typ: "gap", text: "Der Bauer ist unzufrieden, weil er viele {0} zahlen muss. Einen Teil der {1} muss er an den {2} abgeben. Außerdem muss er für ihn {3}. Er darf nicht {4}, obwohl Tiere seine Felder leer fressen. Er ist {5} und hat oft {6}.",
+            words: ["Steuern", "Grundherr", "Ernte", "arbeiten", "jagen", "unfrei", "Hunger"], sol: ["Steuern", "Ernte", "Grundherr", "arbeiten", "jagen", "unfrei", "Hunger"] } }
+      ],
+      plus: { text: "Das Bild ist von 1642. Erkläre, warum es trotzdem zur Zeit vor 1789 passt.", starter: "Das Bild passt zur Zeit vor 1789, weil …" },
+      check: [
+        { typ: "mc", q: "Wer durfte auf den Feldern jagen?", options: ["Der Bauer", "Der Grundherr", "Der Pfarrer"], correct: 1, why: "Nur der Grundherr durfte jagen. Der Bauer musste zusehen, wie Tiere seine Felder leer fraßen." },
+        { typ: "mc", q: "Wie viele Tage im Jahr musste der Bauer an Straßen bauen?", options: ["30 Tage", "100 Tage", "200 Tage"], correct: 1, why: "Er musste 100 Tage im Jahr unbezahlt Straßen bauen." },
+        { typ: "mc", q: "Der Bauer gehört zum … Stand.", options: ["Ersten", "Zweiten", "Dritten"], correct: 2, why: "Der Erste Stand ist die Kirche, der Zweite der Adel, der Dritte alle anderen, auch die Bauern." },
+        { typ: "tf", q: "Der Bauer durfte heiraten, wen er wollte.", correct: false, why: "Er durfte nur mit Erlaubnis des Grundherrn und gegen Geld heiraten." }
+      ],
+      spick: [
+        { label: "Wie lebt der Bauer?", starter: "Der Bauer lebt …", parts: ["Der Bauer lebt", "auf dem Land", "und muss hart", "für den Grundherrn arbeiten."], wrong: "in Versailles" },
+        { label: "Welche Lasten hat er?", starter: "Er muss …", parts: ["Er zahlt", "Steuern an den König,", "gibt einen Teil der Ernte ab", "und darf nicht jagen."], wrong: "und zahlt keine Steuern." },
+        { label: "Was denkt er über die Ordnung?", starter: "Er findet die Ordnung …", parts: ["Er findet die Ordnung", "ungerecht,", "weil er", "fast alle Lasten trägt."], wrong: "gerecht," }
+      ],
+      cells: [
+        { right: ["Bauer auf dem Land", "arm, harte Arbeit", "arbeitet für den Grundherrn"], wrong: ["wohnt in Versailles"], starter: "Er lebt …" },
+        { right: ["zahlt Steuern an den König", "gibt Teil der Ernte ab", "Straßenbau und Arbeit auf dem Feld", "darf nicht jagen"], wrong: ["zahlt keine Steuern"], starter: "Er muss … Er darf nicht …" },
+        { right: ["findet die Lasten ungerecht", "ist unfrei"], wrong: ["findet die Ordnung richtig"], starter: "Er findet … weil …" }
+      ] },
+
+    B: { name: "Eine adlige Dame", seite: "S. 50", material: "Text [1], Z. 1–20, Bild [2] (1740) und Bild [3] (1862)", icon: "krone", zufrieden: "zufrieden",
+      tasks: [
+        { kopf: "Beschreibe den Tagesablauf der Adligen.", detail: "Lies Text [1], Z. 3–14.", ref: "Text [1], Z. 3–14",
+          starter: "Zuerst …\nDanach …\nAm Vormittag …\nAm Nachmittag …\nAm Abend …",
+          kreis: { typ: "order", items: ["Dienerinnen frisieren sie", "Sie hilft der Königin beim Ankleiden", "Sie geht in die Kirche", "Sie frühstückt Austern mit Champagner", "Sie geht auf die Jagd", "Sie besucht ein Konzert oder Theater"], hint: "Tippe die Karten in der Reihenfolge des Tages an." } },
+        { kopf: "Nenne die Vorrechte des Adels.", detail: "Lies Text [1], Z. 15–20.", ref: "Text [1], Z. 15–20",
+          starter: "Der Adel muss keine … zahlen.\nAdlige müssen nicht …\nSie sind … geboren.",
+          kreis: { typ: "pick", options: ["Sie zahlen keine Steuern", "Sie müssen nicht arbeiten", "Sie sind zum Herrschen geboren", "Sie zahlen hohe Steuern", "Sie müssen Frondienst leisten", "Sie dürfen nicht jagen"], correct: [0, 1, 2], hint: "Es gibt drei Vorrechte." } },
+        { kopf: "Erkläre, wie die Adlige ihre Vorrechte begründet.", detail: "Schau noch einmal in Text [1], Z. 15–20.", ref: "Text [1]",
+          starter: "Die Adlige sagt, dass …\nSie begründet das damit, dass …",
+          kreis: { typ: "gap", text: "Die Adlige findet ihre Vorrechte richtig, weil {0} die Ordnung so festgelegt hat. Deshalb muss sie keine {1} zahlen und nicht {2}. Sie ist zum {3} geboren.",
+            words: ["Gott", "Steuern", "arbeiten", "Herrschen", "Bauern", "frei"], sol: ["Gott", "Steuern", "arbeiten", "Herrschen"] } }
+      ],
+      plus: { text: "Bild [3] wurde 1862 gemalt. Ist es eine Quelle aus der Zeit oder eine spätere Darstellung? Begründe.", starter: "Bild [3] ist … Ich erkenne das daran, dass …" },
+      check: [
+        { typ: "mc", q: "Wo lebt die Adlige?", options: ["Auf einem Bauernhof", "Am Hof von Versailles", "In einem Mietshaus in Paris"], correct: 1, why: "Sie lebt am Hof von Versailles und hilft der Königin beim Ankleiden." },
+        { typ: "mc", q: "Wer zahlt keine Steuern?", options: ["Der Bauer", "Der Handwerker", "Der Adel"], correct: 2, why: "Zu den Vorrechten des Adels gehört, dass er keine Steuern zahlt." },
+        { typ: "tf", q: "Die Adlige findet, alle Menschen sind gleich.", correct: false, why: "Sie hält die Ordnung für richtig: Adlige sind zum Herrschen geboren." },
+        { typ: "mc", q: "Womit begründet sie die Ordnung?", options: ["Das Volk hat sie gewählt.", "Gott hat sie so festgelegt.", "Die Vernunft sagt es."], correct: 1, why: "Sie sagt: Gott hat die Ordnung so festgelegt." }
+      ],
+      spick: [
+        { label: "Wie lebt die Adlige?", starter: "Die Adlige lebt …", parts: ["Die Adlige lebt", "am Hof von Versailles", "und hat Dienerinnen,", "Feste und Vergnügen."], wrong: "auf dem Land" },
+        { label: "Welche Vorrechte hat sie?", starter: "Sie zahlt …", parts: ["Sie zahlt", "keine Steuern", "und muss", "nicht arbeiten."], wrong: "viele Steuern" },
+        { label: "Was denkt sie über die Ordnung?", starter: "Sie findet die Ordnung …", parts: ["Sie findet die Ordnung richtig,", "weil", "Gott sie", "so festgelegt hat."], wrong: "Sie findet die Ordnung falsch," }
+      ],
+      cells: [
+        { right: ["am Hof von Versailles", "hat Dienerinnen", "Jagd, Konzert und Theater"], wrong: ["lebt auf dem Land und arbeitet hart"], starter: "Sie lebt …" },
+        { right: ["zahlt keine Steuern", "muss nicht arbeiten", "ist zum Herrschen geboren"], wrong: ["zahlt hohe Steuern"], starter: "Sie zahlt … Sie muss …" },
+        { right: ["Ordnung ist von Gott festgelegt", "findet die Ordnung richtig"], wrong: ["alle Menschen sind gleich"], starter: "Sie findet … weil …" }
+      ] },
+
+    C: { name: "Gelehrte Bürger", seite: "S. 51", material: "Bild [1] (Salon, 1755), Infotext „Die alte Ordnung wird in Frage gestellt“ und Gespräch [2]", icon: "buch", zufrieden: "unzufrieden",
+      tasks: [
+        { kopf: "Beschreibe, was in einem Salon geschah.", detail: "Sieh dir Bild [1] an und lies den Infotext.", ref: "Bild [1], S. 51",
+          starter: "In einem Salon treffen sich …\nSie …\nSie verlassen sich auf …",
+          kreis: { typ: "gap", text: "Im Salon treffen sich gebildete {0}. Sie {1} über neue Ideen und stellen {2} Fragen. Sie verlassen sich auf die {3}.",
+            words: ["Bürger", "diskutieren", "kritische", "Vernunft", "Bauern", "beten"], sol: ["Bürger", "diskutieren", "kritische", "Vernunft"] } },
+        { kopf: "Nenne die Ideen von Lefevre und Lambert.", detail: "Lies das Gespräch [2].", ref: "Gespräch [2], S. 51",
+          starter: "Lefevre und Lambert sagen:\nJeder Mensch …\nDer König …\nBürger dürfen …\nJeder darf …",
+          kreis: { typ: "pick", options: ["Jeder Mensch ist frei und gleich geboren", "Der König ist nicht von Gott eingesetzt", "Bürger dürfen einen schlechten Herrscher absetzen", "Es soll keine Sonderrechte geben", "Der König soll nicht zugleich Gesetze machen und Richter sein", "Jeder darf seine Meinung frei sagen, ohne bestraft zu werden", "Der Adel soll seine Vorrechte behalten", "Der König darf alles allein bestimmen"], correct: [0, 1, 2, 3, 4, 5], hint: "Es gibt sechs Ideen. Zwei Karten passen nicht." } },
+        { kopf: "Erkläre den Unterschied zur Sicht Ludwigs XIV.", detail: "Ludwig XIV. sagte: „Der Staat bin ich.“ Vergleiche mit den Gelehrten.", ref: "Infotext, S. 51",
+          starter: "Ludwig XIV. denkt: …\nDie Gelehrten denken dagegen: …",
+          kreis: { typ: "sort", cols: ["Ludwig XIV. denkt …", "Die Gelehrten denken …"], items: [
+            { t: "Der König ist von Gott eingesetzt.", c: 0 }, { t: "Alle Menschen sind frei und gleich geboren.", c: 1 },
+            { t: "Der König bestimmt alles allein („Der Staat bin ich“).", c: 0 }, { t: "Einen schlechten Herrscher darf man absetzen.", c: 1 },
+            { t: "Der König macht die Gesetze und ist zugleich Richter.", c: 0 }, { t: "Jeder darf seine Meinung frei sagen.", c: 1 } ] } }
+      ],
+      plus: { text: "Entwirf eine Überschrift für ein Flugblatt mit einer Forderung der Gelehrten.", starter: "Überschrift: …" },
+      check: [
+        { typ: "mc", q: "Worauf verlassen sich die Gelehrten beim Denken?", options: ["Auf die Tradition", "Auf die Vernunft", "Auf den König"], correct: 1, why: "Die Gelehrten verlassen sich auf ihre Vernunft und stellen kritische Fragen." },
+        { typ: "tf", q: "Die Gelehrten glauben, Gott hat den König eingesetzt.", correct: false, why: "Sie sagen: Der König ist nicht von Gott eingesetzt." },
+        { typ: "mc", q: "Was findet Lambert ungerecht?", options: ["Dass der Adel jagt", "Dass Bauern Steuern zahlen", "Dass bestraft wird, wer den König kritisiert"], correct: 2, why: "Lambert findet es ungerecht, wenn jemand für Kritik am König bestraft wird." },
+        { typ: "mc", q: "Wer soll nicht zugleich Gesetze machen und Richter sein?", options: ["Der Bauer", "Der König", "Der Pfarrer"], correct: 1, why: "Der König soll nicht beides gleichzeitig sein." }
+      ],
+      spick: [
+        { label: "Was geschieht im Salon?", starter: "Die Gelehrten treffen sich …", parts: ["Die Gelehrten treffen sich", "in Salons", "und diskutieren", "über neue Ideen."], wrong: "auf den Feldern" },
+        { label: "Was fordern sie?", starter: "Sie fordern …", parts: ["Sie haben keine", "Vorrechte", "und fordern:", "Alle sollen frei und gleich sein."], wrong: "viele Vorrechte" },
+        { label: "Was denken sie über König und Ordnung?", starter: "Sie glauben, dass der König …", parts: ["Sie glauben,", "der König ist nicht von Gott eingesetzt", "und darf abgesetzt werden,", "wenn er schlecht herrscht."], wrong: "der König ist von Gott eingesetzt" }
+      ],
+      cells: [
+        { right: ["gebildete Bürger", "treffen sich im Salon", "diskutieren über neue Ideen"], wrong: ["Bauern auf den Feldern"], starter: "Sie treffen sich …" },
+        { right: ["fordern: keine Sonderrechte", "Meinungsfreiheit ohne Strafe"], wrong: ["viele Vorrechte für den Adel"], starter: "Sie fordern …" },
+        { right: ["König ist nicht von Gott eingesetzt", "schlechter Herrscher darf abgesetzt werden", "König soll nicht Gesetze machen und Richter sein"], wrong: ["König ist von Gott eingesetzt"], starter: "Sie glauben, dass der König …" }
+      ] },
+
+    D: { name: "Revolutionäre", seite: "S. 49", material: "Bild [1] (Gemälde um 1830) und Text [2]", icon: "schluessel", zufrieden: "unzufrieden",
+      tasks: [
+        { kopf: "Beschreibe Bild [1].", detail: "Was tragen die Menschen? Wer sitzt auf den Schultern?", ref: "Bild [1], S. 49",
+          starter: "Auf dem Bild tragen die Menschen …\nAuf den Schultern sitzt …\nDie Figur hält …",
+          kreis: { typ: "gap", text: "Die Menschen tragen {0} aus der Bastille. Auf den Schultern sitzt eine Figur mit einem {1}. Sie hält den {2} der Bastille und einen {3} des Kommandanten.",
+            words: ["Gegenstände", "Lorbeerkranz", "Schlüssel", "Brief", "Schwert", "Krone"], sol: ["Gegenstände", "Lorbeerkranz", "Schlüssel", "Brief"] } },
+        { kopf: "Nenne, wie der Bürger aus Text [2] lebt.", detail: "Lies Text [2].", ref: "Text [2], S. 49",
+          starter: "Der Bürger ist von Beruf …\nEr wohnt …\nEr arbeitet … und verdient …",
+          kreis: { typ: "gap", text: "Der Bürger ist {0} in Paris. Er wohnt im {1} Stock eines Mietshauses. Er arbeitet {2} und verdient {3} Geld.",
+            words: ["Handwerker", "5.", "hart", "wenig", "reich", "viel"], sol: ["Handwerker", "5.", "hart", "wenig"] } },
+        { kopf: "Erkläre die Ansichten und Forderungen des Bürgers.", detail: "Lies Text [2] noch einmal genau.", ref: "Text [2]",
+          starter: "Der Bürger findet, dass alle Menschen …\nEr fordert, dass …\nWenn der Adel …",
+          kreis: { typ: "pick", options: ["Alle Menschen sind von Geburt an gleich", "Er duzt alle und sagt „Bürger“ statt „Herr“", "Das Volk soll entscheiden", "Die Vorrechte des Adels sollen abgeschafft werden, sonst droht Gewalt", "Der Adel soll seine Vorrechte behalten", "Der König soll allein entscheiden"], correct: [0, 1, 2, 3], hint: "Es gibt vier Ansichten oder Forderungen." } }
+      ],
+      plus: { text: "Beurteile: Ist Gewalt ein richtiger Weg, um etwas zu ändern?", starter: "Ich finde …, weil …" },
+      check: [
+        { typ: "mc", q: "Wo lebt der Bürger?", options: ["In Versailles", "In Paris", "In Lyon"], correct: 1, why: "Er lebt als Handwerker in Paris." },
+        { typ: "mc", q: "Wie sollen sich alle anreden?", options: ["„Herr“", "„Majestät“", "„Bürger“"], correct: 2, why: "Er duzt alle und sagt „Bürger“ statt „Herr“." },
+        { typ: "tf", q: "Er will, dass der Adel seine Vorrechte behält.", correct: false, why: "Er fordert, die Vorrechte des Adels abzuschaffen." },
+        { typ: "mc", q: "Was hält die Figur auf den Schultern der Menschen in der Hand?", options: ["Ein Schwert", "Den Schlüssel der Bastille", "Die Krone"], correct: 1, why: "Sie hält den Schlüssel zur Bastille." }
+      ],
+      spick: [
+        { label: "Wie lebt der Revolutionär?", starter: "Der Revolutionär ist …", parts: ["Der Revolutionär ist", "Handwerker in Paris", "und wohnt im 5. Stock", "eines Mietshauses."], wrong: "Adliger in Versailles" },
+        { label: "Welche Lasten oder Vorrechte hat er?", starter: "Er arbeitet …", parts: ["Er arbeitet hart", "für wenig Geld", "und hat", "keine Vorrechte."], wrong: "für viel Geld" },
+        { label: "Was fordert er?", starter: "Er fordert …", parts: ["Er fordert:", "Alle Menschen sind gleich,", "das Volk soll entscheiden", "und der Adel soll seine Vorrechte verlieren."], wrong: "der Adel soll seine Vorrechte behalten" }
+      ],
+      cells: [
+        { right: ["Handwerker in Paris", "5. Stock eines Mietshauses", "harte Arbeit, wenig Geld"], wrong: ["lebt am Hof von Versailles"], starter: "Er lebt …" },
+        { right: ["hat keine Vorrechte", "fordert Abschaffung der Vorrechte des Adels"], wrong: ["hat viele Vorrechte"], starter: "Er hat …" },
+        { right: ["alle Menschen von Geburt an gleich", "das Volk soll entscheiden", "sagt „Bürger“ statt „Herr“", "Gewalt, wenn der Adel seine Vorrechte behält"], wrong: ["der König soll allein entscheiden"], starter: "Er findet … Er fordert …" }
+      ] }
+  }
+};
+
+/* Symbole der Rollen (schlichte Linien-SVGs) */
+const ICONS = {
+  aehre: '<svg class="icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 60V22"/><path d="M32 22c-6-3-7-9-5-14 6 2 8 8 5 14z"/><path d="M32 30c-7-1-11-6-11-11 6 0 11 5 11 11z"/><path d="M32 30c7-1 11-6 11-11-6 0-11 5-11 11z"/><path d="M32 40c-7-1-11-6-11-11 6 0 11 5 11 11z"/><path d="M32 40c7-1 11-6 11-11-6 0-11 5-11 11z"/><path d="M32 50c-7-1-11-6-11-11 6 0 11 5 11 11z"/><path d="M32 50c7-1 11-6 11-11-6 0-11 5-11 11z"/></svg>',
+  krone: '<svg class="icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 48l-2-26 14 12 12-20 12 20 14-12-2 26z"/><path d="M8 54h48"/><circle cx="6" cy="20" r="2.5"/><circle cx="32" cy="12" r="2.5"/><circle cx="58" cy="20" r="2.5"/></svg>',
+  buch: '<svg class="icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 20c8-4 18-4 26 2 8-6 18-6 26-2v32c-8-4-18-4-26 2-8-6-18-6-26-2z"/><path d="M32 22v32"/><path d="M40 28c6-2 10-2 14 0M40 36c6-2 10-2 14 0"/><path d="M46 4c8 4 10 12 4 18l-6 2c-4-6-4-14 2-20z"/><path d="M44 24L40 30"/></svg>',
+  schluessel: '<svg class="icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="20" cy="22" r="12"/><circle cx="20" cy="22" r="4"/><path d="M29 31l27 27"/><path d="M46 48l6-6M52 54l5-5"/></svg>'
+};
+const SYMBOLE = { k: { z: "●", name: "Kreis" }, q: { z: "■", name: "Quadrat" }, t: { z: "▲", name: "Dreieck" } };
+
+/* =====================================================================
+   Programm
+   ===================================================================== */
+const KEY = "gp-franz-revolution-v1";
+const KURZ = { A: "Bauer", B: "Adlige", C: "Gelehrte", D: "Revolutionär" };
+const $app = document.getElementById("app"), $print = document.getElementById("printArea");
+
+function fresh() { return { name: "", sym: "", role: "", started: false, step: 1, exp: {}, plus: null, chk: {}, spick: [{}, {}, {}], stamm: { cells: {}, zuf: {}, plus: null } }; }
+let st = fresh();
+try { const s = localStorage.getItem(KEY); if (s) st = Object.assign(fresh(), JSON.parse(s)); } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+function done() { save(); render(); }
+
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  Object.keys(props || {}).forEach(k => {
+    const v = props[k];
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (k === "html") e.innerHTML = v;
+    else if (k.startsWith("on")) e[k] = v; else if (v !== undefined && v !== false) e.setAttribute(k, v === true ? "" : v);
+  });
+  kids.flat(9).forEach(c => { if (c !== null && c !== undefined && c !== false) e.append(c.nodeType ? c : document.createTextNode(c)); });
+  return e;
+}
+function slot(o, k, init) { if (o[k] === undefined) o[k] = init; return o[k]; }
+function hash(s) { let x = 7; for (let i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0; return x; }
+function mix(n, salt) { return Array.from({ length: n }, (_, i) => i).sort((a, b) => hash(salt + ":" + a) - hash(salt + ":" + b)); } // stabile Mischung
+function flash(btn) { btn.classList.add("bad"); setTimeout(() => btn.classList.remove("bad"), 450); }
+const R = () => CONTENT.rollen[st.role];
+
+/* ---------- Wiederverwendbare Bausteine ---------- */
+function textBox(value, onChange, short) {
+  const t = h("textarea", { class: short ? "short" : "", "aria-label": "Deine Antwort" });
+  t.value = value; t.oninput = () => onChange(t.value);
+  return t;
+}
+function msg(ok, text) { return h("p", { class: "msg " + (ok ? "ok" : "no") }, text); }
+
+/* Lückentext mit Wortspeicher */
+function gapWidget(store, key, spec) {
+  const a = slot(store, key, { fill: {}, checked: false });
+  const n = (spec.text.split(/\{\d+\}/).length - 1);
+  const parts = spec.text.split(/\{(\d+)\}/);
+  const p = h("p", { class: "gaptext" });
+  parts.forEach((s, i) => {
+    if (i % 2 === 0) { p.append(s); return; }
+    const g = +s, has = g in a.fill;
+    let cls = "gap" + (has ? " full" : "");
+    if (a.checked && spec.sol && has) cls += spec.words[a.fill[g]] === spec.sol[g] ? " ok" : " no";
+    p.append(h("button", { class: cls, type: "button", "aria-label": "Lücke " + (g + 1), onclick: () => { if (has) { delete a.fill[g]; a.checked = false; done(); } } }, has ? spec.words[a.fill[g]] : " "));
+  });
+  const used = Object.values(a.fill);
+  const bank = h("div", { class: "bank" }, mix(spec.words.length, key).map(i =>
+    h("button", { class: "chip" + (used.includes(i) ? " used" : ""), type: "button", onclick: () => {
+      if (used.includes(i)) return;
+      for (let g = 0; g < n; g++) if (!(g in a.fill)) { a.fill[g] = i; a.checked = false; done(); return; }
+    } }, spec.words[i])));
+  const out = h("div", {}, p, bank);
+  if (spec.sol) {
+    const full = Object.keys(a.fill).length === n;
+    out.append(h("button", { class: "btn small", type: "button", disabled: !full, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
+    if (a.checked) {
+      const ok = spec.sol.every((w, g) => spec.words[a.fill[g]] === w);
+      out.append(ok ? msg(true, "Richtig! ✔") : msg(false, "Noch nicht ganz. Tippe auf eine rote Lücke, um sie zu leeren, und probiere es noch einmal."));
+    }
+  }
+  return out;
+}
+
+/* Reihenfolge */
+function orderWidget(store, key, spec) {
+  const a = slot(store, key, { seq: [], checked: false }), n = spec.items.length;
+  const list = h("div", { class: "seq" });
+  for (let pos = 0; pos < n; pos++) {
+    const has = pos < a.seq.length;
+    let cls = "it" + (has ? " full" : "");
+    if (a.checked && has) cls += a.seq[pos] === pos ? " ok" : " no";
+    list.append(h("button", { class: cls, type: "button", onclick: () => { if (has) { a.seq.splice(pos, 1); a.checked = false; done(); } } }, h("b", { text: pos + 1 }), has ? spec.items[a.seq[pos]] : "…"));
+  }
+  const bank = h("div", { class: "bank" }, mix(n, key).map(i =>
+    h("button", { class: "chip" + (a.seq.includes(i) ? " used" : ""), type: "button", onclick: () => { if (!a.seq.includes(i)) { a.seq.push(i); a.checked = false; done(); } } }, spec.items[i])));
+  const out = h("div", {}, h("p", { class: "muted", text: spec.hint || "" }), list, bank,
+    h("button", { class: "btn small", type: "button", disabled: a.seq.length !== n, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
+  if (a.checked) out.append(a.seq.every((v, i) => v === i) ? msg(true, "Richtig! ✔") : msg(false, "Noch nicht ganz. Tippe auf eine rote Karte, um sie zu entfernen."));
+  return out;
+}
+
+/* Auswahl passender Karten */
+function pickWidget(store, key, spec) {
+  const a = slot(store, key, { sel: [], checked: false });
+  const bank = h("div", { class: "bank" }, mix(spec.options.length, key).map(i => {
+    const on = a.sel.includes(i);
+    let cls = "chip" + (on ? " sel" : "");
+    if (a.checked && on) cls += spec.correct.includes(i) ? " ok" : " no";
+    return h("button", { class: cls, type: "button", "aria-pressed": on ? "true" : "false", onclick: () => { a.sel = on ? a.sel.filter(x => x !== i) : a.sel.concat(i); a.checked = false; done(); } }, spec.options[i]);
+  }));
+  const out = h("div", {}, h("p", { class: "muted", text: (spec.hint || "") + " Tippe die passenden Karten an." }), bank,
+    h("button", { class: "btn small", type: "button", disabled: !a.sel.length, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
+  if (a.checked) {
+    const ok = a.sel.length === spec.correct.length && spec.correct.every(i => a.sel.includes(i));
+    out.append(ok ? msg(true, "Richtig! ✔") : msg(false, "Noch nicht ganz. Rote Karten passen nicht. Fehlen noch welche? Schau noch einmal im Buch nach."));
+  }
+  return out;
+}
+
+/* Zuordnung in zwei Spalten */
+function sortWidget(store, key, spec) {
+  const a = slot(store, key, { as: {}, checked: false });
+  const list = h("div", { class: "sortlist" }, mix(spec.items.length, key).map(i => {
+    const it = spec.items[i];
+    let cls = "sortrow";
+    if (a.checked && i in a.as) cls += a.as[i] === it.c ? " ok" : " no";
+    return h("div", { class: cls }, h("span", { text: it.t }), h("div", { class: "bt" }, spec.cols.map((c, ci) =>
+      h("button", { class: "chip" + (a.as[i] === ci ? " sel" : ""), type: "button", "aria-pressed": a.as[i] === ci ? "true" : "false", onclick: () => { a.as[i] = ci; a.checked = false; done(); } }, c))));
+  }));
+  const full = Object.keys(a.as).length === spec.items.length;
+  const out = h("div", {}, h("p", { class: "muted", text: "Tippe bei jeder Karte an, zu wem sie passt." }), list,
+    h("button", { class: "btn small", type: "button", disabled: !full, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
+  if (a.checked) out.append(spec.items.every((it, i) => a.as[i] === it.c) ? msg(true, "Richtig! ✔") : msg(false, "Noch nicht ganz. Rote Karten gehören in die andere Spalte."));
+  return out;
+}
+function kreisWidget(store, key, spec) { return { gap: gapWidget, order: orderWidget, pick: pickWidget, sort: sortWidget }[spec.typ](store, key, spec); }
+
+/* Antworttexte (für Übersicht und Druck) */
+function kreisText(store, key, spec) {
+  const a = store[key] || {};
+  if (spec.typ === "gap") return spec.text.replace(/\{(\d+)\}/g, (_, g) => (a.fill && g in a.fill) ? spec.words[a.fill[g]] : "____");
+  if (spec.typ === "order") return (a.seq || []).map((p, i) => (i + 1) + ". " + spec.items[p]).join("\n");
+  if (spec.typ === "pick") return (a.sel || []).map(i => "• " + spec.options[i]).join("\n");
+  return spec.cols.map((c, ci) => c + "\n" + spec.items.map((it, i) => (a.as && a.as[i] === ci) ? "• " + it.t : null).filter(Boolean).join("\n")).join("\n");
+}
+function taskText(i) {
+  const t = R().tasks[i];
+  if (st.sym === "k") return kreisText(st.exp, "t" + i, t.kreis);
+  return st.exp["t" + i] !== undefined ? st.exp["t" + i] : (st.sym === "q" ? t.starter : "");
+}
+function plusText() { return st.plus !== null ? st.plus : (st.sym === "t" ? "" : R().plus.starter); }
+function spickText(i) {
+  const sp = st.spick[i] || {}, def = R().spick[i];
+  if (st.sym === "k") return (sp.seq || []).map(x => def.parts[x]).join(" ");
+  return sp.text !== undefined ? sp.text : (st.sym === "q" ? def.starter : "");
+}
+function cellText(role, row) {
+  if (role === st.role) return row === 3 ? (st.stamm.zuf[role] || R().zufrieden) : spickText(row);
+  if (row === 3) return st.stamm.zuf[role] || "";
+  const c = st.stamm.cells[role + row] || {}, def = CONTENT.rollen[role].cells[row];
+  if (st.sym === "k") return (c.sel || []).map(i => def.right[i]).join("; ");
+  return c.text !== undefined ? c.text : (st.sym === "q" ? def.starter : "");
+}
+function fazitText() {
+  const f = CONTENT.fazit;
+  if (st.sym === "k") return kreisText(st.stamm, "fazit", f.kreis);
+  const t = st.stamm.fazitText;
+  return t !== undefined ? t : (st.sym === "q" ? f.vorne + " …" : "");
+}
+function stammPlusText() { return st.stamm.plus !== null ? st.stamm.plus : (st.sym === "t" ? "" : CONTENT.stammPlusStarter); }
+
+/* ---------- Anmeldung ---------- */
+function loginView() {
+  const go = h("button", { class: "btn primary", type: "button", onclick: () => { st.started = true; st.step = 1; done(); } }, "Los geht’s");
+  const ready = () => { go.disabled = !(st.name.trim() && st.sym && st.role); };
+  const inp = h("input", { type: "text", id: "vorname", autocomplete: "off", autocapitalize: "words", "aria-label": "Dein Vorname" });
+  inp.value = st.name; inp.oninput = () => { st.name = inp.value; save(); ready(); };
+  const v = h("div", {},
+    h("p", { class: "eyebrow", text: "Anmeldung" }), h("h1", { text: CONTENT.titel }),
+    h("div", { class: "card" }, h("h3", { text: "1  Dein Vorname" }), h("p", { class: "muted", text: "Er erscheint nur auf deinem Ausdruck." }), inp),
+    h("div", { class: "card" }, h("h3", { text: "2  Dein Symbol" }), h("p", { class: "muted", text: "Deine Lehrkraft sagt dir, welches du antippst." }),
+      h("div", { class: "choices" }, Object.keys(SYMBOLE).map(k => h("button", { class: "sym" + (st.sym === k ? " on" : ""), type: "button", "aria-label": SYMBOLE[k].name, "aria-pressed": st.sym === k ? "true" : "false", onclick: () => { st.sym = k; done(); } }, SYMBOLE[k].z)))),
+    h("div", { class: "card" }, h("h3", { text: "3  Deine Rolle" }),
+      h("div", { class: "choices" }, ["A", "B", "C", "D"].map(k => { const r = CONTENT.rollen[k];
+        return h("button", { class: "role" + (st.role === k ? " on" : ""), type: "button", "aria-pressed": st.role === k ? "true" : "false", onclick: () => { st.role = k; done(); } },
+          h("span", { html: ICONS[r.icon] }), h("span", {}, h("b", { text: k + "  " + r.name }), h("span", { class: "s", text: "Buch " + r.seite }))); }))),
+    h("div", { class: "row" }, go, h("span", { class: "muted", text: "Deine Antworten bleiben nur auf diesem iPad." })));
+  ready();
+  return v;
+}
+
+/* ---------- Schritt 1: Expertenphase ---------- */
+function expertenView() {
+  const r = R(), v = h("div", {});
+  v.append(h("div", { class: "card main" }, h("div", { class: "head" }, h("div", { html: ICONS[r.icon] }),
+    h("div", {}, h("p", { class: "eyebrow", text: "Expertenphase" }), h("h1", { text: r.name }),
+      h("p", { class: "info", text: "Buch " + r.seite + " · " + r.material })))));
+  r.tasks.forEach((t, i) => {
+    const body = st.sym === "k" ? kreisWidget(st.exp, "t" + i, t.kreis)
+      : textBox(taskText(i), val => { st.exp["t" + i] = val; save(); });
+    v.append(h("div", { class: "card task" }, h("h3", {}, h("span", { class: "n", text: (i + 1) }), t.kopf), h("span", { class: "ref", text: t.ref }),
+      h("p", { class: "info", text: t.detail }), body));
+  });
+  v.append(h("div", { class: "card" }, h("div", { class: "plus" }, h("div", { class: "dot", text: "+" }), h("div", { style: "flex:1" },
+    h("h3", { text: r.plus.text }), textBox(plusText(), val => { st.plus = val; save(); })))));
+  v.append(checkView(), spickView());
+  return v;
+}
+function score() { const c = R().check; return c.reduce((s, q, i) => s + ((i in st.chk) && st.chk[i] === q.correct ? 1 : 0), 0); }
+function isExpert() { const c = R().check; return c.every((q, i) => i in st.chk) && score() >= 3; }
+function checkView() {
+  const r = R(), card = h("div", { class: "card main" }, h("p", { class: "eyebrow", text: "Experten-Check" }), h("h2", { text: "Bist du fit für deine Gruppe?" }), h("p", { class: "muted", text: "Beantworte 4 Fragen. Ab 3 richtigen Antworten bist du Experte." }));
+  r.check.forEach((q, i) => {
+    const answered = i in st.chk, box = h("div", { class: "q" }, h("div", { class: "qt", text: (i + 1) + ". " + q.q }));
+    const opts = q.typ === "mc" ? q.options.map((o, k) => [o, k]) : [["Richtig", true], ["Falsch", false]];
+    box.append(h("div", { class: "opts" }, opts.map(([label, val]) => {
+      let cls = "opt";
+      if (answered) { if (val === q.correct) cls += " ok"; else if (st.chk[i] === val) cls += " no"; }
+      return h("button", { class: cls, type: "button", disabled: answered, onclick: () => { st.chk[i] = val; done(); } }, label);
+    })));
+    if (answered) box.append(h("p", { class: "why" }, h("b", { text: st.chk[i] === q.correct ? "Richtig. " : "Leider falsch. " }), q.why));
+    card.append(box);
+  });
+  if (r.check.every((q, i) => i in st.chk)) {
+    const s = score();
+    card.append(s >= 3 ? h("div", { class: "banner ok", text: "Du bist Expertin / Experte! (" + s + " von 4 richtig)" })
+      : h("div", { class: "banner no", text: s + " von 4 richtig. Lies noch einmal im Buch nach und versuche es dann erneut." }));
+    if (s < 4) card.append(h("button", { class: "btn small", type: "button", onclick: () => { st.chk = {}; done(); } }, "Nochmal versuchen"));
+  }
+  return card;
+}
+function spickView() {
+  const card = h("div", { class: "card" });
+  if (!isExpert()) return document.createDocumentFragment();
+  card.append(h("p", { class: "eyebrow", text: "Spickzettel" }), h("h2", { text: "Deine 3 Kernaussagen zum Berichten" }), h("p", { class: "muted", text: "Sie werden automatisch in dein Gruppenblatt übernommen." }));
+  R().spick.forEach((def, i) => {
+    const sp = slot(st.spick, i, {}), line = h("div", { class: "line" }, h("h4", { text: (i + 1) + "  " + def.label }));
+    if (st.sym === "k") {
+      const seq = slot(sp, "seq", []), all = def.parts.concat(def.wrong), full = seq.length === def.parts.length;
+      line.append(h("div", { class: "built" + (full ? " full" : "") }, seq.map(x => def.parts[x]).join(" ") || "Tippe die Bausteine in der richtigen Reihenfolge an."));
+      line.append(h("div", { class: "bank" }, mix(all.length, "sp" + st.role + i).map(k =>
+        h("button", { class: "chip" + (k < seq.length ? " used" : ""), type: "button", onclick: ev => { if (k < seq.length) return; if (k === seq.length && k < def.parts.length) { seq.push(k); done(); } else flash(ev.currentTarget); } }, all[k]))));
+      line.append(h("button", { class: "btn small", type: "button", disabled: !seq.length, onclick: () => { seq.pop(); done(); } }, "Zurück"));
+    } else line.append(textBox(spickText(i), val => { sp.text = val; save(); }, true));
+    card.append(line);
+  });
+  return card;
+}
+
+/* ---------- Schritt 2: Stammgruppe ---------- */
+function cellView(role, row) {
+  if (role === st.role) return h("div", { class: "ans-own", text: row === 3 ? (st.stamm.zuf[role] || R().zufrieden) : (spickText(row) || "(noch leer – fülle den Spickzettel aus)") });
+  const def = CONTENT.rollen[role].cells[row];
+  const c = slot(st.stamm.cells, role + row, {});
+  if (st.sym === "k") {
+    const sel = slot(c, "sel", []), all = def.right.concat(def.wrong);
+    return h("div", {},
+      h("div", { class: "tags" }, sel.map((i, pos) => h("button", { class: "tag", type: "button", "aria-label": "Entfernen: " + def.right[i], onclick: () => { sel.splice(pos, 1); done(); } }, def.right[i]))),
+      h("div", { class: "bank" }, mix(all.length, "z" + role + row).filter(i => !sel.includes(i)).map(i => h("button", { class: "chip", type: "button", onclick: ev => { if (i < def.right.length) { sel.push(i); done(); } else flash(ev.currentTarget); } }, all[i]))));
+  }
+  return textBox(cellText(role, row), val => { c.text = val; save(); }, true);
+}
+function zufView(role) {
+  const cur = st.stamm.zuf[role] || (role === st.role ? R().zufrieden : "");
+  return h("div", { class: "zuf" }, CONTENT.zufrieden.map(z => h("button", { class: "chip" + (cur === z ? " sel" : ""), type: "button", "aria-pressed": cur === z ? "true" : "false", onclick: () => { st.stamm.zuf[role] = z; done(); } }, z)));
+}
+function stammView() {
+  const v = h("div", {}), ord = CONTENT.reihenfolge, wide = window.innerWidth > 900;
+  v.append(h("div", { class: "card main" }, h("p", { class: "eyebrow", text: "Stammgruppe" }), h("h1", { text: "Gruppenblatt" }),
+    h("p", { class: "info", html: "<b>Berichtet nacheinander: B → A → C → D.</b> Jede Person hat 3 Minuten. Höre gut zu und fülle die anderen Spalten aus. Deine eigene Spalte (grün) ist schon fertig." })));
+  const head = r => r + " · " + KURZ[r];
+  if (wide) {
+    const t = h("table", { class: "tbl" });
+    t.append(h("tr", {}, h("th", { class: "rowh", text: "" }), ord.map(r => h("th", { class: r === st.role ? "own" : "", text: head(r) }))));
+    CONTENT.zeilen.forEach((z, row) => t.append(h("tr", {}, h("th", { class: "rowh", text: (row + 1) + "  " + z }),
+      ord.map(r => h("td", { class: r === st.role ? "own" : "" }, row === 3 ? zufView(r) : cellView(r, row))))));
+    v.append(h("div", { class: "card" }, t));
+  } else {
+    ord.forEach(r => {
+      const d = h("details", { class: "col" + (r === st.role ? " own" : "") }, h("summary", {}, h("span", { text: head(r) })), h("div", { class: "body" },
+        CONTENT.zeilen.map((z, row) => h("div", { class: "cell" }, h("h4", { text: (row + 1) + "  " + z }), row === 3 ? zufView(r) : cellView(r, row)))));
+      if (r === st.role || (st.openCol || {})[r]) d.open = true;
+      d.ontoggle = () => { st.openCol = st.openCol || {}; st.openCol[r] = d.open; };
+      v.append(d);
+    });
+  }
+  const f = CONTENT.fazit;
+  v.append(h("div", { class: "card main" }, h("h2", { text: "Gemeinsamer Fazit-Satz" }),
+    st.sym === "k" ? gapWidget(st.stamm, "fazit", f.kreis) : h("div", {}, h("p", { class: "info", text: f.vorne + " …" }),
+      textBox(fazitText(), val => { st.stamm.fazitText = val; save(); }))));
+  v.append(h("div", { class: "card" }, h("div", { class: "plus" }, h("div", { class: "dot", text: "+" }), h("div", { style: "flex:1" },
+    h("h3", { text: CONTENT.stammPlus }), textBox(stammPlusText(), val => { st.stamm.plus = val; save(); })))));
+  return v;
+}
+
+/* ---------- Schritt 3: Fertig / Übersicht / Druck ---------- */
+function groupTable(print) {
+  const ord = CONTENT.reihenfolge, t = h("table", { class: "tbl" });
+  t.append(h("tr", {}, h("th", { class: "rowh" }), ord.map(r => h("th", { class: r === st.role && !print ? "own" : "", text: r + " · " + KURZ[r] }))));
+  CONTENT.zeilen.forEach((z, row) => t.append(h("tr", {}, h("th", { class: "rowh", text: z }), ord.map(r => h("td", { class: r === st.role && !print ? "own" : "", style: "white-space:pre-wrap", text: cellText(r, row) })))));
+  return t;
+}
+function pages(print) {
+  const r = R(), out = h("div", { class: "sum" });
+  const pn = (t) => h("div", { class: print ? "pn" : "" }, print ? [h("span", { text: "Vorname: " + st.name }), h("span", { text: t })] : h("h2", { text: t }));
+  const p1 = h("div", { class: print ? "pp" : "card" }, pn("Expertenphase · " + st.role + " – " + r.name), print ? null : h("p", { class: "muted", text: "Buch " + r.seite }));
+  r.tasks.forEach((t, i) => p1.append(h("h3", { text: (i + 1) + "  " + t.kopf }), h("div", { class: "ans", text: taskText(i) || "–" })));
+  p1.append(h("h3", { text: "+  " + r.plus.text }), h("div", { class: "ans", text: plusText() || "–" }));
+  p1.append(h("h3", { text: "Experten-Check: " + score() + " von 4 richtig" }));
+  p1.append(h("h3", { text: "Spickzettel" }), h("div", { class: "ans", text: r.spick.map((d, i) => (i + 1) + ". " + spickText(i)).join("\n") }));
+  const p2 = h("div", { class: print ? "pp" : "card" }, pn("Stammgruppe · Gruppenblatt"), groupTable(print),
+    h("h3", { text: "Fazit" }), h("div", { class: "ans", text: fazitText() || "–" }),
+    h("h3", { text: "+  " + CONTENT.stammPlus }), h("div", { class: "ans", text: stammPlusText() || "–" }));
+  out.append(p1, p2);
+  return out;
+}
+function fertigView() {
+  const v = h("div", {});
+  v.append(h("div", { class: "card main" }, h("p", { class: "eyebrow", text: "Fertig" }), h("h1", { text: "Gut gemacht, " + st.name + "!" }),
+    h("p", { class: "info", text: "Hier siehst du alle deine Antworten. Mit dem Knopf kannst du sie drucken oder als PDF sichern." }),
+    h("button", { class: "btn primary", type: "button", onclick: () => { $print.innerHTML = ""; $print.append(pages(true)); window.print(); } }, "Drucken / als PDF sichern")));
+  v.append(pages(false));
+  return v;
+}
+
+/* ---------- Gerüst ---------- */
+function render() {
+  const y = window.scrollY;
+  $app.innerHTML = "";
+  if (!st.started || !st.name.trim() || !st.sym || !st.role) { $app.append(loginView()); return; }
+  const names = ["Expertenphase", "Stammgruppe", "Fertig"];
+  $app.append(h("div", { class: "top" }, h("span", { class: "titel", text: CONTENT.titel }),
+    h("button", { class: "btn small", type: "button", onclick: () => { if (confirm("Wirklich neu beginnen? Alle deine Antworten auf diesem iPad werden gelöscht.")) { st = fresh(); done(); } } }, "Neu beginnen")),
+    h("nav", { class: "steps", "aria-label": "Schritte" }, names.map((n, i) => h("button", { class: "step" + (st.step === i + 1 ? " on" : ""), type: "button", "aria-current": st.step === i + 1 ? "step" : "false", onclick: () => { st.step = i + 1; save(); render(); window.scrollTo(0, 0); } }, h("b", { text: i + 1 }), n))),
+    st.step === 1 ? expertenView() : st.step === 2 ? stammView() : fertigView());
+  window.scrollTo(0, y);
+}
+let wasWide = window.innerWidth > 900;
+window.addEventListener("resize", () => { const w = window.innerWidth > 900; if (w !== wasWide) { wasWide = w; render(); } });
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="de-DE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QR-Code erzeugen</title>
+<style>
+  :root { --blau: #1F3A5F; --rot: #B7352D; --hellgruen: #E2EFDA; --linie: #C9D3C3; --text: #1F2A37; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Century Gothic", "Avenir Next", "Futura", sans-serif; font-size: 17px; color: var(--text); background: #fff; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 20px 16px 50px; }
+  .eyebrow { color: var(--rot); font-weight: 700; font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 4px; }
+  h1 { color: var(--blau); margin: 0 0 12px; font-size: 1.6rem; }
+  .card { background: var(--hellgruen); border: 1.5px solid var(--linie); border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+  input { width: 100%; font-family: inherit; font-size: 1.05rem; padding: 12px; border: 2px solid var(--linie); border-radius: 12px; min-height: 48px; }
+  button { font-family: inherit; font-weight: 700; font-size: 1rem; min-height: 46px; padding: 10px 20px; border-radius: 12px; border: 2px solid var(--blau); background: var(--blau); color: #fff; cursor: pointer; margin-top: 10px; }
+  #out { text-align: center; }
+  canvas { width: min(100%, 560px); height: auto; image-rendering: pixelated; border: 1.5px solid var(--linie); border-radius: 12px; background: #fff; }
+  #err { color: var(--rot); font-weight: 700; margin-top: 8px; }
+  #url { word-break: break-all; color: var(--blau); font-weight: 700; }
+  @media print { .card, button { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Für die Lehrkraft</p>
+  <h1>QR-Code zur App</h1>
+  <div class="card">
+    <label for="u"><b>Link der App</b> (zum Beispiel von Netlify oder GitHub Pages)</label>
+    <input id="u" type="url" inputmode="url" placeholder="https://…" autocomplete="off">
+    <button id="go" type="button">QR-Code erzeugen</button>
+    <div id="err"></div>
+  </div>
+  <div id="out">
+    <canvas id="cv" width="10" height="10" class="hidden" aria-label="QR-Code"></canvas>
+    <p id="url"></p>
+  </div>
+</div>
+<script>
+/* QR-Code-Erzeugung ohne Bibliothek: Bytemodus, Fehlerkorrektur M, Version 1–10 (bis ca. 210 Zeichen). */
+const ECC_PER_BLOCK = [0, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26];  // Version 1..10, Stufe M
+const NUM_BLOCKS    = [0, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5];
+
+function rawModules(v) { let r = (16 * v + 128) * v + 64; if (v >= 2) { const n = Math.floor(v / 7) + 2; r -= (25 * n - 10) * n - 55; if (v >= 7) r -= 36; } return r; }
+function dataCodewords(v) { return Math.floor(rawModules(v) / 8) - ECC_PER_BLOCK[v] * NUM_BLOCKS[v]; }
+
+/* Reed-Solomon über GF(256) */
+function gfMul(x, y) { let z = 0; for (let i = 7; i >= 0; i--) { z = (z << 1) ^ ((z >>> 7) * 0x11D); z ^= ((y >>> i) & 1) * x; } return z; }
+function rsDivisor(deg) { const r = new Array(deg).fill(0); r[deg - 1] = 1; let root = 1; for (let i = 0; i < deg; i++) { for (let j = 0; j < deg; j++) { r[j] = gfMul(r[j], root); if (j + 1 < deg) r[j] ^= r[j + 1]; } root = gfMul(root, 2); } return r; }
+function rsRemainder(data, div) { const r = new Array(div.length).fill(0); for (const b of data) { const f = b ^ r.shift(); r.push(0); div.forEach((c, i) => { r[i] ^= gfMul(c, f); }); } return r; }
+
+function encodeBytes(bytes) {
+  let v = 1; while (v <= 10 && bytes.length > dataCodewords(v) - (v < 10 ? 2 : 3)) v++;
+  if (v > 10) throw new Error("Der Link ist zu lang (höchstens ca. 210 Zeichen).");
+  const bits = []; const put = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >>> i) & 1); };
+  put(4, 4); put(bytes.length, v < 10 ? 8 : 16); bytes.forEach(b => put(b, 8));
+  const cap = dataCodewords(v) * 8;
+  put(0, Math.min(4, cap - bits.length)); while (bits.length % 8) bits.push(0);
+  for (let pad = 0xEC; bits.length < cap; pad ^= 0xEC ^ 0x11) put(pad, 8);
+  const data = []; for (let i = 0; i < bits.length; i += 8) data.push(parseInt(bits.slice(i, i + 8).join(""), 2));
+  // Blöcke bilden und verschachteln
+  const nb = NUM_BLOCKS[v], ec = ECC_PER_BLOCK[v], total = Math.floor(rawModules(v) / 8);
+  const shortLen = Math.floor(total / nb) - ec, numShort = nb - total % nb, div = rsDivisor(ec);
+  const blocks = []; let k = 0;
+  for (let i = 0; i < nb; i++) { const len = shortLen + (i < numShort ? 0 : 1); const d = data.slice(k, k + len); k += len; const e = rsRemainder(d, div); if (i < numShort) d.push(0); blocks.push(d.concat(e)); }
+  const out = [];
+  for (let i = 0; i < blocks[0].length; i++) blocks.forEach((b, j) => { if (i !== shortLen || j >= numShort) out.push(b[i]); });
+  return { v, codewords: out };
+}
+
+function buildMatrix(v, codewords) {
+  const size = v * 4 + 17, m = Array.from({ length: size }, () => new Array(size).fill(false)), fn = Array.from({ length: size }, () => new Array(size).fill(false));
+  const set = (x, y, d) => { m[y][x] = d; fn[y][x] = true; };
+  for (let i = 0; i < size; i++) { set(6, i, i % 2 === 0); set(i, 6, i % 2 === 0); }
+  const finder = (cx, cy) => { for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) { const d = Math.max(Math.abs(dx), Math.abs(dy)), x = cx + dx, y = cy + dy; if (x >= 0 && x < size && y >= 0 && y < size) set(x, y, d !== 2 && d !== 4); } };
+  finder(3, 3); finder(size - 4, 3); finder(3, size - 4);
+  const n = v === 1 ? 0 : Math.floor(v / 7) + 2, step = v === 1 ? 0 : Math.ceil((v * 4 + 4) / (n * 2 - 2)) * 2, pos = [6];
+  for (let p = size - 7; pos.length < n; p -= step) pos.splice(1, 0, p);
+  pos.forEach((cx, i) => pos.forEach((cy, j) => { if ((i === 0 && j === 0) || (i === 0 && j === n - 1) || (i === n - 1 && j === 0)) return; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) set(cx + dx, cy + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1); }));
+  const format = mask => { // Fehlerkorrektur M = Bits 00
+    const data = (0 << 3) | mask; let r = data; for (let i = 0; i < 10; i++) r = (r << 1) ^ ((r >>> 9) * 0x537);
+    const bits = ((data << 10) | r) ^ 0x5412, bit = i => ((bits >>> i) & 1) !== 0;
+    for (let i = 0; i <= 5; i++) set(8, i, bit(i)); set(8, 7, bit(6)); set(8, 8, bit(7)); set(7, 8, bit(8));
+    for (let i = 9; i < 15; i++) set(14 - i, 8, bit(i));
+    for (let i = 0; i < 8; i++) set(size - 1 - i, 8, bit(i)); for (let i = 8; i < 15; i++) set(8, size - 15 + i, bit(i)); set(8, size - 8, true);
+  };
+  format(0);
+  if (v >= 7) { let r = v; for (let i = 0; i < 12; i++) r = (r << 1) ^ ((r >>> 11) * 0x1F25); const bits = (v << 12) | r;
+    for (let i = 0; i < 18; i++) { const b = ((bits >>> i) & 1) !== 0, a = size - 11 + i % 3, c = Math.floor(i / 3); set(a, c, b); set(c, a, b); } }
+  // Daten platzieren
+  let i = 0;
+  for (let right = size - 1; right >= 1; right -= 2) { if (right === 6) right = 5;
+    for (let vert = 0; vert < size; vert++) for (let j = 0; j < 2; j++) { const x = right - j, up = ((right + 1) & 2) === 0, y = up ? size - 1 - vert : vert;
+      if (!fn[y][x] && i < codewords.length * 8) { m[y][x] = ((codewords[i >>> 3] >>> (7 - (i & 7))) & 1) !== 0; i++; } } }
+  return { m, fn, size, format };
+}
+const MASKS = [(x, y) => (x + y) % 2 === 0, (x, y) => y % 2 === 0, (x, y) => x % 3 === 0, (x, y) => (x + y) % 3 === 0, (x, y) => (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0, (x, y) => x * y % 2 + x * y % 3 === 0, (x, y) => (x * y % 2 + x * y % 3) % 2 === 0, (x, y) => ((x + y) % 2 + x * y % 3) % 2 === 0];
+function penalty(m, size) {
+  let p = 0;
+  const run = line => { let s = 0, c = 1; for (let i = 1; i <= line.length; i++) { if (i < line.length && line[i] === line[i - 1]) c++; else { if (c >= 5) s += c - 2; c = 1; } } return s; };
+  const fin = line => { let s = 0; const pats = [[1,0,1,1,1,0,1,0,0,0,0], [0,0,0,0,1,0,1,1,1,0,1]]; for (let i = 0; i + 11 <= line.length; i++) pats.forEach(pt => { if (pt.every((b, k) => (line[i + k] ? 1 : 0) === b)) s += 40; }); return s; };
+  for (let y = 0; y < size; y++) { p += run(m[y]) + fin(m[y]); }
+  for (let x = 0; x < size; x++) { const col = m.map(r => r[x]); p += run(col) + fin(col); }
+  for (let y = 0; y < size - 1; y++) for (let x = 0; x < size - 1; x++) if (m[y][x] === m[y][x + 1] && m[y][x] === m[y + 1][x] && m[y][x] === m[y + 1][x + 1]) p += 3;
+  let dark = 0; m.forEach(r => r.forEach(c => { if (c) dark++; })); p += Math.floor(Math.abs(dark * 20 - size * size * 10) / (size * size)) * 10 ;
+  return p;
+}
+function makeQr(text) {
+  const { v, codewords } = encodeBytes(Array.from(new TextEncoder().encode(text)));
+  const base = buildMatrix(v, codewords); let best = null, bestP = Infinity;
+  for (let k = 0; k < 8; k++) {
+    const m = base.m.map(r => r.slice());
+    for (let y = 0; y < base.size; y++) for (let x = 0; x < base.size; x++) if (!base.fn[y][x] && MASKS[k](x, y)) m[y][x] = !m[y][x];
+    // Formatbits mit der gewählten Maske schreiben
+    const tmp = { m, fn: base.fn.map(r => r.slice()) }; writeFormat(tmp, base.size, k);
+    const pn = penalty(m, base.size); if (pn < bestP) { bestP = pn; best = m; }
+  }
+  return best;
+}
+function writeFormat(t, size, mask) {
+  const data = mask; let r = data; for (let i = 0; i < 10; i++) r = (r << 1) ^ ((r >>> 9) * 0x537);
+  const bits = ((data << 10) | r) ^ 0x5412, bit = i => ((bits >>> i) & 1) !== 0, m = t.m, set = (x, y, d) => { m[y][x] = d; };
+  for (let i = 0; i <= 5; i++) set(8, i, bit(i)); set(8, 7, bit(6)); set(8, 8, bit(7)); set(7, 8, bit(8));
+  for (let i = 9; i < 15; i++) set(14 - i, 8, bit(i));
+  for (let i = 0; i < 8; i++) set(size - 1 - i, 8, bit(i)); for (let i = 8; i < 15; i++) set(8, size - 15 + i, bit(i)); set(8, size - 8, true);
+}
+function draw(text) {
+  const m = makeQr(text), n = m.length, q = 4, px = Math.max(8, Math.floor(640 / (n + 2 * q))), cv = document.getElementById("cv");
+  cv.width = cv.height = (n + 2 * q) * px; const c = cv.getContext("2d");
+  c.fillStyle = "#fff"; c.fillRect(0, 0, cv.width, cv.height); c.fillStyle = "#000";
+  m.forEach((row, y) => row.forEach((d, x) => { if (d) c.fillRect((x + q) * px, (y + q) * px, px, px); }));
+  cv.classList.remove("hidden");
+}
+document.getElementById("go").onclick = () => {
+  const u = document.getElementById("u").value.trim(), err = document.getElementById("err");
+  err.textContent = "";
+  if (!u) { err.textContent = "Bitte gib zuerst einen Link ein."; return; }
+  try { draw(u); document.getElementById("url").textContent = u; } catch (e) { err.textContent = e.message; }
+};
+document.getElementById("u").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("go").click(); });
+window.__qr = makeQr;
+</script>
+<style>.hidden { display: none; }</style>
+</body>
+</html>
