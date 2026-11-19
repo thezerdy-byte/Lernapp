@@ -481,7 +481,7 @@ function symSvg(k, cls) {
 const KEY = "gp-franz-revolution-v3";
 const $app = document.getElementById("app"), $print = document.getElementById("printArea"), $lb = document.getElementById("lightbox");
 
-function fresh() { return { name: "", sym: "", role: "", started: false, step: 1, unlocked: 1, t: {}, exp: {}, plus: null, chk: {}, spick: [{}, {}, {}], stamm: { cells: {}, zuf: {}, plus: null }, openCol: {} }; }
+function fresh() { return { name: "", sym: "", role: "", started: false, step: 1, unlocked: 1, t: {}, exp: {}, plus: null, chk: {}, spick: [{}, {}, {}], stamm: { cells: {}, zuf: {}, plus: null }, openCol: {}, eff: "", lv: {}, serieF: 0, serieR: 0 }; }
 let st = fresh();
 try { const s = localStorage.getItem(KEY); if (s) st = Object.assign(fresh(), JSON.parse(s)); } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
@@ -502,12 +502,30 @@ function hash(s) { let x = 7; for (let i = 0; i < s.length; i++) x = (x * 31 + s
 function mix(n, salt) { return Array.from({ length: n }, (_, i) => i).sort((a, b) => hash(salt + ":" + a) - hash(salt + ":" + b)); } // stabile Mischung
 function flash(el) { el.classList.add("bad"); setTimeout(() => el.classList.remove("bad"), 450); }
 const R = () => CONTENT.rollen[st.role];
-const K = () => st.sym === "k";                      // ● sofortige Rückmeldung
-const ZAHL = () => st.sym !== "t";                   // ● ■ Anzahl-Hinweise
+/* Hilfen: Startwert ist das Symbol (● viel, ■ mittel, ▲ wenig Hilfe). Die App passt sie still an,
+   höchstens eine Stufe weg vom Symbol: 2 Fehler in Folge → mehr Hilfe, 3 sichere richtige Antworten in Folge → weniger Hilfe.
+   Jede Aufgabe behält die Hilfe, mit der das Kind sie begonnen hat; neue Aufgaben bekommen die aktuelle. */
+const HILFE = ["k", "q", "t"];                       // viel → wenig Hilfe
+let aktLv = null;                                    // Hilfe der Aufgabe, die gerade gezeichnet oder ausgewertet wird
+const lv = () => aktLv || st.eff || st.sym;
+const K = () => lv() === "k";                        // ● sofortige Rückmeldung, Wortspeicher
+const Q = () => lv() === "q";                        // ■ Satzanfänge
+const ZAHL = () => lv() !== "t";                     // ● ■ Anzahl-Hinweise
+function mit(key, fn) { const alt = aktLv; aktLv = st.lv[key] || st.eff || st.sym; try { return fn(); } finally { aktLv = alt; } }
+function fix(key, l) { if (!st.lv[key]) st.lv[key] = l; }
+function signal(ok) {
+  if (ok) { st.serieF = 0; st.serieR = (st.serieR || 0) + 1; } else { st.serieR = 0; st.serieF = (st.serieF || 0) + 1; }
+  const i = HILFE.indexOf(st.eff || st.sym), basis = HILFE.indexOf(st.sym);
+  if (st.serieF >= 2 && i > Math.max(0, basis - 1)) { st.eff = HILFE[i - 1]; st.serieF = 0; }
+  if (st.serieR >= 3 && i < Math.min(2, basis + 1)) { st.eff = HILFE[i + 1]; st.serieR = 0; }
+}
 let tbN = 0;
-function textBox(value, onChange, short) { const t = h("textarea", { class: short ? "short" : "", "aria-label": "Deine Antwort", "data-k": "tb" + (tbN++) }); t.value = value; t.oninput = () => onChange(t.value); return t; }
+function textBox(value, onChange, short, key) {
+  const t = h("textarea", { class: short ? "short" : "", "aria-label": "Deine Antwort", "data-k": "tb" + (tbN++) }), l = lv();
+  t.value = value; t.oninput = () => { if (key) fix(key, l); onChange(t.value); }; return t;
+}
 function msg(ok, text) { return h("p", { class: "msg " + (ok ? "ok" : "no") }, text); }
-function geschrieben(v, starter) { return !!(v && v.trim() && v.trim() !== (starter || "").trim()); }
+function geschrieben(v, starter) { return typeof v === "string" && !!v.trim() && v.trim() !== (starter || "").trim(); }
 const zeileText = z => typeof z === "string" ? z : z.s + ": " + z.t;
 
 /* ---------- Timer ---------- */
@@ -531,9 +549,10 @@ function tick() {
 setInterval(tick, 1000);
 
 /* ---------- Fortschritt und Freischalten ---------- */
-function taskDone(i) {
+function taskDone(i) { return mit("t" + i, () => taskDone0(i)); }
+function taskDone0(i) {
   const t = R().tasks[i], a = st.exp["t" + i];
-  if (t.typ === "bild") return t.felder.every((f, j) => K() ? a && a.ch && j in a.ch : a && a.txt && geschrieben(a.txt[j], st.sym === "q" ? f.starter : ""));
+  if (t.typ === "bild") return t.felder.every((f, j) => K() ? a && a.ch && j in a.ch : a && a.txt && geschrieben(a.txt[j], Q() ? f.starter : ""));
   if (t.typ === "mark") return !!a && (K() ? t.correct.every(i => a.sel.includes(i)) : a.checked);
   if (t.typ === "order") return !!a && a.seq.length === t.items.length && (K() || a.checked);
   if (t.typ === "sort") return !!a && Object.keys(a.as).length === t.items.length && (K() || a.checked);
@@ -542,9 +561,9 @@ function taskDone(i) {
 }
 function checkDone() { return R().check.every((q, i) => i in st.chk); }
 function teil1Fertig() { return R().tasks.every((t, i) => taskDone(i)) && checkDone(); }
-function spickFertig() { return R().spick.every((d, i) => K() ? ((st.spick[i] || {}).seq || []).length === d.parts.length : geschrieben((st.spick[i] || {}).text, st.sym === "q" ? d.starter : "")); }
+function spickFertig() { return R().spick.every((d, i) => mit("s" + i, K) ? ((st.spick[i] || {}).seq || []).length === d.parts.length : geschrieben((st.spick[i] || {}).text, Q() ? d.starter : "")); }
 function stammFertig() {
-  const f = K() ? Object.keys((st.stamm.fazit || {}).fill || {}).length === CONTENT.fazit.kreis.sol.length : geschrieben(st.stamm.fazitText, CONTENT.fazit.vorne + " …");
+  const f = mit("fazit", K) ? Object.keys((st.stamm.fazit || {}).fill || {}).length === CONTENT.fazit.kreis.sol.length : geschrieben(st.stamm.fazitText, CONTENT.fazit.vorne + " …");
   return f && CONTENT.reihenfolge.every(r => r === st.role || st.stamm.zuf[r]);
 }
 function freischalten() {                          // gibt true zurück, wenn sich etwas geändert hat
@@ -560,6 +579,7 @@ function gehe(s) { st.step = s; if (CONTENT.minuten[s] && !st.t[s]) st.t[s] = Da
 
 /* ---------- Aufgaben-Bausteine ---------- */
 function gapWidget(store, key, spec) {
+  const L0 = lv(), fx = () => { fix(key, L0); done(); };
   const a = slot(store, key, { fill: {}, checked: false });
   const n = (spec.text.match(/\{\d+\}/g) || []).length, parts = spec.text.split(/\{(\d+)\}/), p = h("p", { class: "gaptext" });
   parts.forEach((s, i) => {
@@ -567,41 +587,44 @@ function gapWidget(store, key, spec) {
     const g = +s, has = g in a.fill;
     let cls = "gap" + (has ? " full" : "");
     if (a.checked && has) cls += spec.words[a.fill[g]] === spec.sol[g] ? " ok" : " no";
-    p.append(h("button", { class: cls, type: "button", "aria-label": "Lücke " + (g + 1), onclick: () => { if (has) { delete a.fill[g]; a.checked = false; done(); } } }, has ? spec.words[a.fill[g]] : " "));
+    p.append(h("button", { class: cls, type: "button", "aria-label": "Lücke " + (g + 1), onclick: () => { if (has) { delete a.fill[g]; a.checked = false; fx(); } } }, has ? spec.words[a.fill[g]] : " "));
   });
   const used = Object.values(a.fill);
   const bank = h("div", { class: "bank" }, mix(spec.words.length, key).map(i =>
     h("button", { class: "chip" + (used.includes(i) ? " used" : ""), type: "button", onclick: () => {
       if (used.includes(i)) return;
-      for (let g = 0; g < n; g++) if (!(g in a.fill)) { a.fill[g] = i; a.checked = false; done(); return; }
+      for (let g = 0; g < n; g++) if (!(g in a.fill)) { a.fill[g] = i; a.checked = false; fx(); return; }
     } }, spec.words[i])));
   const out = h("div", {}, h("p", { class: "hilfe", text: "Tippe ein Wort an. Es springt in die nächste freie Lücke. Tippe auf eine Lücke, um sie zu leeren." }), p, bank,
-    h("button", { class: "btn small", type: "button", disabled: Object.keys(a.fill).length !== n, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
+    h("button", { class: "btn small", type: "button", disabled: Object.keys(a.fill).length !== n, onclick: () => { a.checked = true; signal(spec.sol.every((w, g) => spec.words[a.fill[g]] === w)); fx(); } }, "Prüfen"));
   if (a.checked) out.append(spec.sol.every((w, g) => spec.words[a.fill[g]] === w) ? msg(true, "Richtig! ✔") : msg(false, "Noch nicht ganz. Tippe auf eine rote Lücke und probiere es noch einmal."));
   return out;
 }
 
 function bildWidget(key, t) {
+  const L0 = lv(), fx = () => { fix(key, L0); done(); };
   const a = slot(st.exp, key, { ch: {}, txt: {} });
   return h("div", {}, h("div", { class: "bilder", style: "margin-bottom:16px" }, R().bilder.map(figure)), t.felder.map((f, j) => {
     const last = j === t.felder.length - 1, box = h("div", { class: "feld" + (last ? " r" : "") }, h("div", { class: "k", text: j + 1 }));
     const inner = h("div", {}, h("h4", { text: f.label }), h("div", { class: "fh", text: f.hint }));
     if (K()) inner.append(h("div", { class: "bank" }, f.options.map((o, k) => h("button", { class: "chip" + (a.ch[j] === k ? " ok" : ""), type: "button", "aria-pressed": a.ch[j] === k ? "true" : "false",
-      onclick: ev => { if (f.correct !== null && f.correct !== undefined && k !== f.correct) { flash(ev.currentTarget); return; } a.ch[j] = k; done(); } }, o))));
-    else inner.append(textBox(a.txt[j] !== undefined ? a.txt[j] : (st.sym === "q" ? f.starter : ""), v => { a.txt[j] = v; save(); freischalten() && done(); }, true));
+      onclick: ev => { if (f.correct !== null && f.correct !== undefined && k !== f.correct) { flash(ev.currentTarget); signal(false); save(); return; }
+        const neu = !(j in a.ch); a.ch[j] = k; if (neu && Object.keys(a.ch).length === t.felder.length) signal(true); fx(); } }, o))));
+    else inner.append(textBox(a.txt[j] !== undefined ? a.txt[j] : (Q() ? f.starter : ""), v => { a.txt[j] = v; save(); freischalten() && done(); }, true, key));
     box.append(inner); return box;
   }));
 }
 
 function markWidget(key, t) {
+  const L0 = lv(), fx = () => { fix(key, L0); done(); };
   const a = slot(st.exp, key, { sel: [], checked: false }), tx = R().texte[t.text];
   const list = h("div", { class: "mlist" }, tx.zeilen.map((z, i) => {
     const on = a.sel.includes(i);
     let cls = "mrow";
     if (K()) cls += on ? " ok" : ""; else if (a.checked && on) cls += t.correct.includes(i) ? " ok" : " no"; else if (on) cls += " sel";
     return h("button", { class: cls, type: "button", "aria-pressed": on ? "true" : "false", onclick: ev => {
-      if (K()) { if (on) return; if (t.correct.includes(i)) { a.sel.push(i); done(); } else flash(ev.currentTarget); return; }
-      a.sel = on ? a.sel.filter(x => x !== i) : a.sel.concat(i); a.checked = false; done();
+      if (K()) { if (on) return; if (t.correct.includes(i)) { a.sel.push(i); if (t.correct.every(c => a.sel.includes(c))) signal(true); fx(); } else { flash(ev.currentTarget); signal(false); save(); } return; }
+      a.sel = on ? a.sel.filter(x => x !== i) : a.sel.concat(i); a.checked = false; fx();
     } }, typeof z === "string" ? z : [h("span", { class: "sp", text: z.s + ": " }), z.t]);
   }));
   const out = h("div", {}, h("div", { class: "qtitel" }, h("img", { src: "bilder/icon-schriftrolle.png", alt: "" }), h("h4", { text: tx.titel, style: "margin:0" })));
@@ -609,7 +632,7 @@ function markWidget(key, t) {
   out.append(list, h("p", { class: "qhin", text: "Verfassertext, frei nacherzählt nach historischen Quellen" }));
   if (K()) { if (t.correct.every(i => a.sel.includes(i))) out.append(msg(true, "Super, du hast alle gefunden! ✔")); }
   else {
-    out.append(h("button", { class: "btn small", type: "button", disabled: !a.sel.length, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
+    out.append(h("button", { class: "btn small", type: "button", disabled: !a.sel.length, onclick: () => { a.checked = true; signal(a.sel.length === t.correct.length && t.correct.every(c => a.sel.includes(c))); fx(); } }, "Prüfen"));
     if (a.checked) {
       const falsch = a.sel.filter(i => !t.correct.includes(i)).length, fehlt = t.correct.filter(i => !a.sel.includes(i)).length;
       out.append(!falsch && !fehlt ? msg(true, "Richtig! ✔") : msg(false, (falsch ? "Rote Sätze passen nicht. " : "") + (fehlt ? (ZAHL() ? "Es fehlen noch " + fehlt + " Sätze." : "Es fehlen noch Sätze.") : "")));
@@ -619,30 +642,32 @@ function markWidget(key, t) {
 }
 
 function orderWidget(key, t) {
+  const L0 = lv(), fx = () => { fix(key, L0); done(); };
   const a = slot(st.exp, key, { seq: [], checked: false }), n = t.items.length;
   const list = h("div", { class: "kette" });
   for (let pos = 0; pos < n; pos++) {
     const has = pos < a.seq.length;
     let cls = "it" + (has ? " full" : "");
     if (has && (K() || a.checked)) cls += a.seq[pos] === pos ? " ok" : " no";
-    list.append(h("button", { class: cls, type: "button", onclick: () => { if (has && !K()) { a.seq.splice(pos, 1); a.checked = false; done(); } } },
+    list.append(h("button", { class: cls, type: "button", onclick: () => { if (has && !K()) { a.seq.splice(pos, 1); a.checked = false; fx(); } } },
       h("span", { class: "lab", text: t.labels ? t.labels[pos] : (pos + 1) + "." }), h("span", { text: has ? t.items[a.seq[pos]] : "…" })));
   }
   const bank = h("div", { class: "bank" }, mix(n, key).filter(i => !a.seq.includes(i)).map(i =>
     h("button", { class: "chip", type: "button", onclick: ev => {
-      if (K() && i !== a.seq.length) { flash(ev.currentTarget); return; }
-      a.seq.push(i); a.checked = false; done();
+      if (K() && i !== a.seq.length) { flash(ev.currentTarget); signal(false); save(); return; }
+      a.seq.push(i); a.checked = false; if (K() && a.seq.length === n) signal(true); fx();
     } }, t.items[i])));
   const out = h("div", {}, ZAHL() ? h("p", { class: "hilfe", text: K() ? "Tippe die Karte an, die als Nächstes kommt." : "Tippe auf eine Karte in der Kette, um sie wieder zu entfernen." }) : null, list, bank);
   if (K()) { if (a.seq.length === n) out.append(msg(true, "Richtig! ✔")); }
   else {
-    out.append(h("button", { class: "btn small", type: "button", disabled: a.seq.length !== n, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
+    out.append(h("button", { class: "btn small", type: "button", disabled: a.seq.length !== n, onclick: () => { a.checked = true; signal(a.seq.every((v, i) => v === i)); fx(); } }, "Prüfen"));
     if (a.checked) out.append(a.seq.every((v, i) => v === i) ? msg(true, "Richtig! ✔") : msg(false, "Noch nicht ganz. Tippe auf eine rote Karte, um sie zu entfernen."));
   }
   return out;
 }
 
 function sortWidget(key, t) {
+  const L0 = lv(), fx = () => { fix(key, L0); done(); };
   const a = slot(st.exp, key, { as: {}, checked: false });
   const list = h("div", { class: "sortlist" }, mix(t.items.length, key).map(i => {
     const it = t.items[i], has = i in a.as;
@@ -650,49 +675,55 @@ function sortWidget(key, t) {
     if (has && (K() || a.checked)) cls += a.as[i] === it.c ? " ok" : " no";
     return h("div", { class: cls }, h("span", { text: it.t }), h("div", { class: "bt" }, t.cols.map((c, ci) =>
       h("button", { class: "chip" + (a.as[i] === ci ? " sel" : ""), type: "button", "aria-pressed": a.as[i] === ci ? "true" : "false", onclick: ev => {
-        if (K() && ci !== it.c) { flash(ev.currentTarget); return; }
-        a.as[i] = ci; a.checked = false; done();
+        if (K() && ci !== it.c) { flash(ev.currentTarget); signal(false); save(); return; }
+        const neu = !(i in a.as); a.as[i] = ci; a.checked = false; if (K() && neu && Object.keys(a.as).length === t.items.length) signal(true); fx();
       } }, c))));
   }));
   const full = Object.keys(a.as).length === t.items.length;
   const out = h("div", {}, list);
   if (K()) { if (full) out.append(msg(true, "Richtig! ✔")); }
   else {
-    out.append(h("button", { class: "btn small", type: "button", disabled: !full, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
+    out.append(h("button", { class: "btn small", type: "button", disabled: !full, onclick: () => { a.checked = true; signal(t.items.every((it, i) => a.as[i] === it.c)); fx(); } }, "Prüfen"));
     if (a.checked) out.append(t.items.every((it, i) => a.as[i] === it.c) ? msg(true, "Richtig! ✔") : msg(false, "Noch nicht ganz. Rote Karten gehören in die andere Spalte."));
   }
   return out;
 }
 
 /* ---------- Antworttexte (Übersicht und Druck) ---------- */
-function taskText(i) {
+function taskText(i) { return mit("t" + i, () => taskText0(i)); }
+function taskText0(i) {
   const t = R().tasks[i], a = st.exp["t" + i];
   if (t.typ === "bild") return t.felder.map((f, j) => f.label + ": " + (K() ? (a && a.ch && j in a.ch ? f.options[a.ch[j]] : "–") : ((a && a.txt && a.txt[j]) || "–"))).join("\n");
   if (t.typ === "mark") return ((a && a.sel) || []).slice().sort((x, y) => x - y).map(i => "• " + zeileText(R().texte[t.text].zeilen[i])).join("\n");
   if (t.typ === "order") return ((a && a.seq) || []).map((p, i) => (t.labels ? t.labels[i] : (i + 1) + ".") + ": " + t.items[p]).join("\n");
   if (t.typ === "sort") return t.cols.map((c, ci) => c + ":\n" + t.items.map((it, i) => (a && a.as && a.as[i] === ci) ? "  • " + it.t : null).filter(Boolean).join("\n")).join("\n");
   if (K()) return (t.kreis.text.replace(/\{(\d+)\}/g, (_, g) => (a && a.fill && g in a.fill) ? t.kreis.words[a.fill[g]] : "____"));
-  return a !== undefined ? a : (st.sym === "q" ? t.starter : "");
+  return typeof a === "string" ? a : (Q() ? t.starter : "");
 }
-function plusText() { return st.plus !== null ? st.plus : (st.sym === "t" ? "" : R().plus.starter); }
-function spickText(i) {
+function plusText() { return mit("plus", () => plusText0()); }
+function plusText0() { return st.plus !== null ? st.plus : (lv() === "t" ? "" : R().plus.starter); }
+function spickText(i) { return mit("s" + i, () => spickText0(i)); }
+function spickText0(i) {
   const sp = st.spick[i] || {}, def = R().spick[i];
   if (K()) return (sp.seq || []).map(x => def.parts[x]).join(" ");
-  return sp.text !== undefined ? sp.text : (st.sym === "q" ? def.starter : "");
+  return sp.text !== undefined ? sp.text : (Q() ? def.starter : "");
 }
-function cellText(role, row) {
+function cellText(role, row) { return mit(role + row, () => cellText0(role, row)); }
+function cellText0(role, row) {
   if (row === 3) return st.stamm.zuf[role] || (role === st.role ? R().zufrieden : "");
   if (role === st.role) return spickText(row);
   const c = st.stamm.cells[role + row] || {}, def = CONTENT.rollen[role].cells[row];
   if (K()) return (c.sel || []).map(i => def.right[i]).join("; ");
-  return c.text !== undefined ? c.text : (st.sym === "q" ? def.starter : "");
+  return c.text !== undefined ? c.text : (Q() ? def.starter : "");
 }
-function fazitText() {
+function fazitText() { return mit("fazit", () => fazitText0()); }
+function fazitText0() {
   const f = CONTENT.fazit;
   if (K()) { const a = st.stamm.fazit || { fill: {} }; return f.kreis.text.replace(/\{(\d+)\}/g, (_, g) => g in a.fill ? f.kreis.words[a.fill[g]] : "____"); }
-  return st.stamm.fazitText !== undefined ? st.stamm.fazitText : (st.sym === "q" ? f.vorne + " …" : "");
+  return st.stamm.fazitText !== undefined ? st.stamm.fazitText : (Q() ? f.vorne + " …" : "");
 }
-function stammPlusText() { return st.stamm.plus !== null ? st.stamm.plus : (st.sym === "t" ? "" : CONTENT.stammPlusStarter); }
+function stammPlusText() { return mit("splus", () => stammPlusText0()); }
+function stammPlusText0() { return st.stamm.plus !== null ? st.stamm.plus : (lv() === "t" ? "" : CONTENT.stammPlusStarter); }
 function score() { return R().check.reduce((s, q, i) => s + ((i in st.chk) && st.chk[i] === q.correct ? 1 : 0), 0); }
 
 /* ---------- Anmeldung ---------- */
@@ -735,15 +766,15 @@ function teil1View() {
     h("p", { class: "info", style: "text-align:center;margin-top:10px", text: "Du bist Expertin oder Experte für diese Person. Sieh dir das Material an und löse die Aufgaben." })));
   r.tasks.forEach((t, i) => {
     const key = "t" + i;
-    const body = t.typ === "bild" ? bildWidget(key, t) : t.typ === "mark" ? markWidget(key, t) : t.typ === "order" ? orderWidget(key, t) : t.typ === "sort" ? sortWidget(key, t)
-      : (K() ? gapWidget(st.exp, key, t.kreis) : textBox(taskText(i), val => { st.exp[key] = val; save(); freischalten() && done(); }));
+    const body = mit(key, () => t.typ === "bild" ? bildWidget(key, t) : t.typ === "mark" ? markWidget(key, t) : t.typ === "order" ? orderWidget(key, t) : t.typ === "sort" ? sortWidget(key, t)
+      : (K() ? gapWidget(st.exp, key, t.kreis) : textBox(taskText(i), val => { st.exp[key] = val; save(); freischalten() && done(); }, false, key)));
     v.append(h("div", { class: "card task" + (i % 2 ? " rot" : "") }, h("h3", {}, h("span", { class: "nr", text: i + 1 }), h("span", { text: t.kopf }), taskDone(i) ? h("span", { class: "erledigt", text: "✔ erledigt" }) : null),
       h("p", { class: "auftrag", text: t.auftrag }), body));
     if (i === 0) r.texte.forEach(tx => { if (!tx.inTask) v.append(textCard(tx)); }); // Lesetexte nach der Bildbetrachtung
   });
   v.append(checkView());
   v.append(h("div", { class: "card" }, h("div", { class: "plus" }, h("div", { class: "dot", text: "+" }), h("div", { style: "flex:1" },
-    h("p", { class: "eyebrow", text: "Für Schnelle" }), h("h3", { text: r.plus.text }), textBox(plusText(), val => { st.plus = val; save(); })))));
+    h("p", { class: "eyebrow", text: "Für Schnelle" }), h("h3", { text: r.plus.text }), mit("plus", () => textBox(plusText(), val => { st.plus = val; save(); }, false, "plus"))))));
   v.append(weiterCard(1));
   return v;
 }
@@ -755,7 +786,7 @@ function checkView() {
     box.append(h("div", { class: "opts" }, opts.map(([label, val]) => {
       let cls = "opt";
       if (answered) { if (val === q.correct) cls += " ok"; else if (st.chk[i] === val) cls += " no"; }
-      return h("button", { class: cls, type: "button", disabled: answered, onclick: () => { st.chk[i] = val; done(); } }, label);
+      return h("button", { class: cls, type: "button", disabled: answered, onclick: () => { st.chk[i] = val; signal(val === q.correct); done(); } }, label);
     })));
     if (answered) box.append(h("p", { class: "why" }, h("b", { text: st.chk[i] === q.correct ? "Richtig. " : "Leider falsch. " }), q.why));
     card.append(box);
@@ -846,31 +877,33 @@ function teil2View() {
 }
 function spickView() {
   const card = h("div", { class: "card rot" }, h("p", { class: "eyebrow", text: "Spickzettel" }), h("h2", { text: "Eure 3 Kernaussagen zum Berichten" }), h("p", { class: "muted", text: "Damit berichtest du gleich in deiner Stammgruppe. Sie werden automatisch in dein Gruppenblatt übernommen." }));
-  R().spick.forEach((def, i) => {
+  R().spick.forEach((def, i) => mit("s" + i, () => {
     const sp = slot(st.spick, i, {}), line = h("div", { class: "line" }, h("h4", { text: (i + 1) + "  " + def.label }));
+    const L0 = lv(), fx = () => { fix("s" + i, L0); done(); };
     if (K()) {
       const seq = slot(sp, "seq", []), all = def.parts.concat(def.wrong), full = seq.length === def.parts.length;
       line.append(h("div", { class: "built" + (full ? " full" : "") }, seq.map(x => def.parts[x]).join(" ") || "Tippe die Bausteine in der richtigen Reihenfolge an."));
       line.append(h("div", { class: "bank" }, mix(all.length, "sp" + st.role + i).filter(k => k >= seq.length).map(k =>
-        h("button", { class: "chip", type: "button", onclick: ev => { if (k === seq.length && k < def.parts.length) { seq.push(k); done(); } else flash(ev.currentTarget); } }, all[k]))));
-      if (seq.length) line.append(h("button", { class: "btn small", type: "button", onclick: () => { seq.pop(); done(); } }, "Zurück"));
-    } else line.append(textBox(spickText(i), val => { sp.text = val; save(); freischalten() && done(); }, true));
+        h("button", { class: "chip", type: "button", onclick: ev => { if (k === seq.length && k < def.parts.length) { seq.push(k); fx(); } else { flash(ev.currentTarget); signal(false); save(); } } }, all[k]))));
+      if (seq.length) line.append(h("button", { class: "btn small", type: "button", onclick: () => { seq.pop(); fx(); } }, "Zurück"));
+    } else line.append(textBox(spickText(i), val => { sp.text = val; save(); freischalten() && done(); }, true, "s" + i));
     card.append(line);
-  });
+  }));
   return card;
 }
 
 /* ---------- Teil 3: Stammgruppe ---------- */
-function cellView(role, row) {
+function cellView(role, row) { return mit(role + row, () => cellView0(role, row)); }
+function cellView0(role, row) {
   if (role === st.role) return h("div", { class: "ownt", text: spickText(row) || "(noch leer)" });
-  const def = CONTENT.rollen[role].cells[row], c = slot(st.stamm.cells, role + row, {});
+  const def = CONTENT.rollen[role].cells[row], c = slot(st.stamm.cells, role + row, {}), L0 = lv(), fx = () => { fix(role + row, L0); done(); };
   if (K()) {
     const sel = slot(c, "sel", []), all = def.right.concat(def.wrong);
     return h("div", {},
-      h("div", { class: "tags" }, sel.map((i, pos) => h("button", { class: "tag", type: "button", "aria-label": "Entfernen: " + def.right[i], onclick: () => { sel.splice(pos, 1); done(); } }, def.right[i]))),
-      h("div", { class: "bank" }, mix(all.length, "z" + role + row).filter(i => !sel.includes(i)).map(i => h("button", { class: "chip", type: "button", onclick: ev => { if (i < def.right.length) { sel.push(i); done(); } else flash(ev.currentTarget); } }, all[i]))));
+      h("div", { class: "tags" }, sel.map((i, pos) => h("button", { class: "tag", type: "button", "aria-label": "Entfernen: " + def.right[i], onclick: () => { sel.splice(pos, 1); fx(); } }, def.right[i]))),
+      h("div", { class: "bank" }, mix(all.length, "z" + role + row).filter(i => !sel.includes(i)).map(i => h("button", { class: "chip", type: "button", onclick: ev => { if (i < def.right.length) { sel.push(i); fx(); } else { flash(ev.currentTarget); signal(false); save(); } } }, all[i]))));
   }
-  return textBox(cellText(role, row), val => { c.text = val; save(); }, true);
+  return textBox(cellText(role, row), val => { c.text = val; save(); }, true, role + row);
 }
 function zufView(role) {
   const cur = cellText(role, 3);
@@ -895,10 +928,10 @@ function teil3View() {
   });
   const f = CONTENT.fazit;
   v.append(h("div", { class: "card gruen" }, h("h2", { text: "Gemeinsamer Fazit-Satz" }),
-    K() ? gapWidget(st.stamm, "fazit", f.kreis) : h("div", {}, h("p", { class: "info", text: f.vorne + " …" }),
-      textBox(fazitText(), val => { st.stamm.fazitText = val; save(); freischalten() && done(); }))));
+    mit("fazit", () => K() ? gapWidget(st.stamm, "fazit", f.kreis) : h("div", {}, h("p", { class: "info", text: f.vorne + " …" }),
+      textBox(fazitText(), val => { st.stamm.fazitText = val; save(); freischalten() && done(); }, false, "fazit")))));
   v.append(h("div", { class: "card" }, h("div", { class: "plus" }, h("div", { class: "dot", text: "+" }), h("div", { style: "flex:1" },
-    h("p", { class: "eyebrow", text: "Für Schnelle" }), h("h3", { text: CONTENT.stammPlus }), textBox(stammPlusText(), val => { st.stamm.plus = val; save(); })))));
+    h("p", { class: "eyebrow", text: "Für Schnelle" }), h("h3", { text: CONTENT.stammPlus }), mit("splus", () => textBox(stammPlusText(), val => { st.stamm.plus = val; save(); }, false, "splus"))))));
   v.append(weiterCard(5));
   return v;
 }

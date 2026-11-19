@@ -39,6 +39,7 @@ Liegt der Ordner im Repository `thezerdy-byte/Lernapp` auf dem Branch `main` und
     - ■ Quadrat: Textfelder mit Satzanfängen
     - ▲ Dreieck: leere Textfelder
   - In der App steht nirgends, was die Symbole bedeuten.
+  - **Automatische Anpassung:** Das Symbol ist der Startwert. Die App passt die Hilfen still an, höchstens eine Stufe weg vom Symbol: nach 2 Fehlern in Folge mehr Hilfe, nach 3 sicheren richtigen Antworten in Folge weniger Hilfe. Eine angefangene Aufgabe behält ihre Hilfe; die Änderung gilt für die nächsten Aufgaben. Die Kinder sehen davon nichts.
   - **Rollen:** A Ein Bauer (S. 48), B Eine adlige Dame (S. 50), C Gelehrte Bürger (S. 51), D Revolutionäre (S. 49).
 - Die App speichert den Stand automatisch auf dem iPad. Wer die Seite schließt, macht danach weiter. „Neu beginnen“ löscht alles (mit Rückfrage).
 - Schritte: 1 Expertenphase (Aufgaben, Experten-Check, Spickzettel) · 2 Stammgruppe (Gruppenblatt, Reihenfolge B → A → C → D) · 3 Fertig (Übersicht, Drucken / PDF).
