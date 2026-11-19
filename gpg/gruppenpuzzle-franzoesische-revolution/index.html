@@ -525,6 +525,8 @@ function textBox(value, onChange, short, key) {
   t.value = value; t.oninput = () => { if (key) fix(key, l); onChange(t.value); }; return t;
 }
 function msg(ok, text) { return h("p", { class: "msg " + (ok ? "ok" : "no") }, text); }
+// Übersichten und Ausdruck: Auslassungspunkte aus Satzanfängen und Beschriftungen entfernen (in den Schreibfeldern bleiben sie)
+function ohne(t) { return (t || "").replace(/[ \t]*…/g, "").replace(/[ \t]+\n/g, "\n").replace(/ +([,.:;!?])/g, "$1").trim(); }
 function geschrieben(v, starter) { return typeof v === "string" && !!v.trim() && v.trim() !== (starter || "").trim(); }
 const zeileText = z => typeof z === "string" ? z : z.s + ": " + z.t;
 
@@ -840,8 +842,8 @@ function druckSeite() {
   const r = R(), pg = h("div", { class: "pp" },
     h("div", { class: "pn" }, h("span", { text: "Vorname: " + st.name }), h("span", { text: "Rolle: " + st.role + " – " + r.name }), h("span", { text: new Date().toLocaleDateString("de-DE") })),
     h("h2", { text: "Vor der Französischen Revolution – Übersicht unserer Stammgruppe" }), groupTable(true),
-    h("h3", { text: "Unser Fazit" }), h("div", { class: "ans", text: fazitText() || "–" }));
-  if (geschrieben(stammPlusText(), CONTENT.stammPlusStarter)) pg.append(h("h3", { text: CONTENT.stammPlus }), h("div", { class: "ans", text: stammPlusText() }));
+    h("h3", { text: "Unser Fazit" }), h("div", { class: "ans", text: ohne(fazitText()) || "–" }));
+  if (geschrieben(stammPlusText(), CONTENT.stammPlusStarter)) pg.append(h("h3", { text: CONTENT.stammPlus }), h("div", { class: "ans", text: ohne(stammPlusText()) }));
   return pg;
 }
 function drucken() {
@@ -869,9 +871,9 @@ function teil2View() {
       h("li", {}, "Diskutiert: ", h("div", { class: "disk", text: r.diskussion })),
       h("li", { text: "Einigt euch auf 3 Kernaussagen für euren Spickzettel." }))));
   const ov = h("div", { class: "card ov" }, h("h2", { text: "Deine Ergebnisse aus Teil 1" }));
-  r.tasks.forEach((t, i) => ov.append(h("h4", { text: (i + 1) + "  " + t.kopf }), h("div", { class: "ans", text: taskText(i) || "–" })));
+  r.tasks.forEach((t, i) => ov.append(h("h4", { text: (i + 1) + "  " + t.kopf }), h("div", { class: "ans", text: ohne(taskText(i)) || "–" })));
   ov.append(h("h4", { text: "Experten-Check" }), h("div", { class: "ans", text: score() + " von 4 richtig" + (checkDone() ? "" : " (noch nicht fertig)") }));
-  if (geschrieben(plusText(), r.plus.starter)) ov.append(h("h4", { text: "+  " + r.plus.text }), h("div", { class: "ans", text: plusText() }));
+  if (geschrieben(plusText(), r.plus.starter)) ov.append(h("h4", { text: "+  " + r.plus.text }), h("div", { class: "ans", text: ohne(plusText()) }));
   v.append(ov, spickView(), weiterCard(3));
   return v;
 }
@@ -895,7 +897,7 @@ function spickView() {
 /* ---------- Teil 3: Stammgruppe ---------- */
 function cellView(role, row) { return mit(role + row, () => cellView0(role, row)); }
 function cellView0(role, row) {
-  if (role === st.role) return h("div", { class: "ownt", text: spickText(row) || "(noch leer)" });
+  if (role === st.role) return h("div", { class: "ownt", text: ohne(spickText(row)) || "(noch leer)" });
   const def = CONTENT.rollen[role].cells[row], c = slot(st.stamm.cells, role + row, {}), L0 = lv(), fx = () => { fix(role + row, L0); done(); };
   if (K()) {
     const sel = slot(c, "sel", []), all = def.right.concat(def.wrong);
@@ -940,20 +942,20 @@ function teil3View() {
 function groupTable(print) {
   const ord = CONTENT.reihenfolge, t = h("table", { class: "tbl" });
   t.append(h("tr", {}, h("th", { class: "rowh" }), ord.map(r => h("th", { class: r === st.role && !print ? "own" : "", text: r + " · " + CONTENT.rollen[r].kurz }))));
-  CONTENT.zeilen.forEach((z, row) => t.append(h("tr", {}, h("th", { class: "rowh", text: z }), ord.map(r => h("td", { class: r === st.role && !print ? "own" : "", style: "white-space:pre-wrap", text: cellText(r, row) })))));
+  CONTENT.zeilen.forEach((z, row) => t.append(h("tr", {}, h("th", { class: "rowh", text: z }), ord.map(r => h("td", { class: r === st.role && !print ? "own" : "", style: "white-space:pre-wrap", text: ohne(cellText(r, row)) })))));
   return t;
 }
 function pages(print) {
   const r = R(), out = h("div", {});
   const pn = t => print ? h("div", { class: "pn" }, h("span", { text: "Vorname: " + st.name }), h("span", { text: t })) : h("h2", { text: t });
   const p1 = h("div", { class: print ? "pp" : "card" }, pn("Expertin/Experte: " + st.role + " – " + r.name));
-  r.tasks.forEach((t, i) => p1.append(h("h3", { text: (i + 1) + "  " + t.kopf }), h("div", { class: "ans", text: taskText(i) || "–" })));
-  p1.append(h("h3", { text: "+  " + r.plus.text }), h("div", { class: "ans", text: plusText() || "–" }));
+  r.tasks.forEach((t, i) => p1.append(h("h3", { text: (i + 1) + "  " + t.kopf }), h("div", { class: "ans", text: ohne(taskText(i)) || "–" })));
+  p1.append(h("h3", { text: "+  " + r.plus.text }), h("div", { class: "ans", text: ohne(plusText()) || "–" }));
   p1.append(h("h3", { text: "Experten-Check: " + score() + " von 4 richtig" }));
-  p1.append(h("h3", { text: "Spickzettel" }), h("div", { class: "ans", text: r.spick.map((d, i) => (i + 1) + ". " + spickText(i)).join("\n") }));
+  p1.append(h("h3", { text: "Spickzettel" }), h("div", { class: "ans", text: r.spick.map((d, i) => (i + 1) + ". " + ohne(spickText(i))).join("\n") }));
   const p2 = h("div", { class: print ? "pp" : "card" }, pn("Stammgruppe · Gruppenblatt"), groupTable(print),
-    h("h3", { text: "Fazit" }), h("div", { class: "ans", text: fazitText() || "–" }),
-    h("h3", { text: "+  " + CONTENT.stammPlus }), h("div", { class: "ans", text: stammPlusText() || "–" }));
+    h("h3", { text: "Fazit" }), h("div", { class: "ans", text: ohne(fazitText()) || "–" }),
+    h("h3", { text: "+  " + CONTENT.stammPlus }), h("div", { class: "ans", text: ohne(stammPlusText()) || "–" }));
   out.append(p1, p2);
   return out;
 }
