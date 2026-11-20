@@ -245,7 +245,23 @@
   .folge .chip { border-radius: 8px; }
   .wspeicher { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
   .wspeicher .chip { font-size: .9rem; padding: 6px 12px; }
-  #printArea .zs th:first-child { width: 18%; } #printArea .zs th:nth-child(2) { width: 34%; }
+  .zeitleiste { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0 18px; padding-top: 6px; }
+  .zeitleiste::before { content: ""; position: absolute; left: 0; right: 0; top: 13px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--blau), var(--rot)); }
+  .zeitleiste::after { content: ""; position: absolute; right: -4px; top: 6px; border: 10px solid transparent; border-left: 14px solid var(--rot); border-right: 0; }
+  .station { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+  .station .punkt { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 5px solid var(--blau); position: relative; z-index: 1; }
+  .station:nth-child(n+3) .punkt { border-color: var(--rot); }
+  .station .datum { font-weight: 700; color: var(--blau); }
+  .station img, .station .leer { width: 100%; height: 110px; object-fit: cover; border-radius: 6px; border: 2px solid var(--blau); background: var(--hellgrau); }
+  .station .ereignis { font-weight: 700; font-size: .95rem; line-height: 1.3; }
+  .station .folgt { font-size: .85rem; color: var(--grau); line-height: 1.35; }
+  @media (max-width: 700px) { .zeitleiste { grid-template-columns: repeat(2, 1fr); } .zeitleiste::before, .zeitleiste::after { display: none; } }
+  #printArea .zeitleiste { margin: 8px 0 10px; gap: 4mm; }
+  #printArea .zeitleiste::before { background: none; height: 0; border-top: 1mm solid #000; top: 3.1mm; }   /* Linie als Rahmen: Hintergründe werden beim Drucken oft weggelassen */ #printArea .zeitleiste::after { border-left-color: #000; top: 1mm; }
+  #printArea .station .punkt { border-color: #000; width: 4mm; height: 4mm; border-width: 1mm; }
+  #printArea .station .datum { color: #000; }
+  #printArea .station img, #printArea .station .leer { height: 28mm; border: 1px solid #000; border-radius: 0; }
+  #printArea .station .ereignis { font-size: .95em; } #printArea .station .folgt { font-size: .85em; color: #000; }
 </style>
 </head>
 <body>
@@ -280,6 +296,7 @@ const CONTENT = {
   // Stammgruppe: Zeitstrahl 1789 (für alle gleich)
   zeitstrahl: {
     daten: ["5. Mai 1789", "20. Juni 1789", "14. Juli 1789", "4. August 1789"],
+    bilder: ["bilder/generalstaende.jpg", "bilder/ballhaus.jpg", "bilder/bastille.jpg", "bilder/bauernaufstand.jpg"],   // kleine Bilder im Zeitstrahl der Übersicht (gleiche Reihenfolge wie ereignisse)
     ereignisse: ["Die Generalstände treffen sich in Versailles.", "Ballhausschwur der Nationalversammlung", "Sturm auf die Bastille in Paris", "Aufstände auf dem Land: Die Bauern werden frei."],
     folgen: [
       { frage: "Was folgte aus der Versammlung in Versailles?", options: ["Der Dritte Stand wurde überstimmt und erklärte sich zur Nationalversammlung.", "Der König senkte sofort die Steuern.", "Der Adel verzichtete freiwillig auf seine Vorrechte."], correct: 0 },
@@ -288,7 +305,11 @@ const CONTENT = {
       { frage: "Was folgte aus den Aufständen auf dem Land?", options: ["Die Vorrechte von Adel und Klerus endeten, alle Stände mussten Steuern zahlen.", "Die Bauern mussten noch mehr Abgaben zahlen.", "Der König wurde sofort abgesetzt."], correct: 0 }
     ]
   },
-  fazit: { vorne: "Aus Protest wurde Revolution, weil ", woerter: ["der Dritte Stand", "Nationalversammlung", "Verfassung", "Bastille", "Gewalt", "die Bauern", "frei", "Steuern"] },
+  fazit: {
+    frage: "Wie wurde aus dem Protest des Dritten Standes eine Revolution? Erklärt es in zwei bis drei Sätzen.",
+    begriffe: ["der Dritte Stand", "die Generalstände", "überstimmt", "die Nationalversammlung", "der Ballhausschwur", "eine Verfassung", "der Sturm auf die Bastille", "die Bauern", "Gewalt", "die Vorrechte", "frei"],
+    verbinder: ["Zuerst", "Weil", "Deshalb", "Danach", "Schließlich"]
+  },
 
   rollen: {
     A: { name: "Eine Versammlung in Versailles", gruppe: "Versailles", icon: "bilder/icon-schloss.png", figur: "Pierre, Vertreter des Dritten Standes",
@@ -430,7 +451,17 @@ function h(tag, props, ...kids) {
 }
 function slot(o, k, init) { if (o[k] === undefined || o[k] === null) o[k] = init; return o[k]; }
 function hash(s) { let x = 7; for (let i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0; return x; }
-function mix(n, salt) { return Array.from({ length: n }, (_, i) => i).sort((a, b) => hash(salt + ":" + a) - hash(salt + ":" + b)); } // stabile Mischung
+function mix(n, salt, nieGleich) {                  // stabile, echte Mischung (gleich bei jedem Neuzeichnen); nieGleich: nie die Originalreihenfolge (für Reihenfolge-Aufgaben)
+  let x = 2166136261;                               // FNV-1a über den Schlüssel, damit ähnliche Schlüssel ganz verschieden mischen
+  for (let i = 0; i < salt.length; i++) { x ^= salt.charCodeAt(i); x = Math.imul(x, 16777619) >>> 0; }
+  x = x || 1;
+  const rnd = () => { x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return x / 4294967296; };
+  for (let i = 0; i < 8; i++) rnd();
+  const a = Array.from({ length: n }, (_, i) => i);
+  for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  if (nieGleich && n > 1 && a.every((v, i) => v === i)) a.push(a.shift());
+  return a;
+}
 function flash(el) { el.classList.add("bad"); setTimeout(() => el.classList.remove("bad"), 450); }
 const R = () => CONTENT.rollen[st.role];
 function geschrieben(v, starter) { return typeof v === "string" && !!v.trim() && v.trim() !== (starter || "").trim(); }
@@ -472,7 +503,7 @@ function teil1Fertig() { return R().tasks.every((t, i) => taskDone(i)); }
 function kernOk() { const c = R().kern.correct; return st.kern.checked && st.kern.sel.length === c.length && c.every(i => st.kern.sel.includes(i)); }
 function zsOk() { return st.zs.checked && st.zs.seq.length === 4 && st.zs.seq.every((v, i) => v === i); }
 function folgenOk() { return st.folgen.checked && CONTENT.zeitstrahl.folgen.every((f, i) => st.folgen.ch[i] === f.correct); }
-function stammFertig() { return zsOk() && folgenOk() && geschrieben(st.fazit, CONTENT.fazit.vorne); }
+function stammFertig() { return zsOk() && folgenOk() && geschrieben(st.fazit, ""); }
 function freischalten() {
   const alt = st.unlocked;
   if (st.unlocked === 1 && (teil1Fertig() || zeitFrei(1))) st.unlocked = 2;
@@ -518,7 +549,7 @@ function felderWidget(key, t) {
   return h("div", {}, t.felder.map((f, j) => {
     const box = h("div", { class: "feld" + (j === t.felder.length - 1 ? " r" : "") }, h("div", { class: "k", text: j + 1 }));
     const inner = h("div", {}, h("h4", { text: f.label }), h("div", { class: "fh", text: f.hint }));
-    if (K()) inner.append(h("div", { class: "bank" }, mix(f.options.length, key + j).map(k => h("button", { class: "chip" + (a.ch[j] === k ? " ok" : ""), type: "button", "aria-pressed": a.ch[j] === k ? "true" : "false",
+    if (K()) inner.append(h("div", { class: "bank" }, mix(f.options.length, key + st.role + j).map(k => h("button", { class: "chip" + (a.ch[j] === k ? " ok" : ""), type: "button", "aria-pressed": a.ch[j] === k ? "true" : "false",
       onclick: ev => { if (k !== f.correct) { flash(ev.currentTarget); signal(false); save(); return; }
         const neu = !(j in a.ch); a.ch[j] = k; if (neu && Object.keys(a.ch).length === t.felder.length) signal(true); fx(); } }, f.options[k]))));
     else inner.append(textBox(a.txt[j] !== undefined ? a.txt[j] : (Q() ? f.starter : ""), v => { a.txt[j] = v; save(); freischalten() && done(); }, true, key));
@@ -581,7 +612,7 @@ function weiterCard(s) {
     c.append(h("h2", { text: fertig ? "Geschafft!" : "Du kannst jetzt weitergehen." }));
     if (!fertig && s === 1) c.append(h("p", { class: "muted", text: "Noch offen: " + R().tasks.map((t, i) => taskDone(i) ? null : "Aufgabe " + (i + 1)).filter(Boolean).join(", ") + ". Du kannst sie in der Expertengruppe ergänzen." }));
     c.append(h("button", { class: "btn primary", type: "button", onclick: () => gehe(naechster) }, "Weiter: " + (naechster === 2 ? "Finde deine Expertengruppe" : naechster === 4 ? "Finde deine Stammgruppe" : CONTENT.schritte[naechster - 1])));
-  } else c.append(h("p", { class: "info", text: s === 1 ? "Es geht weiter, wenn du beide Aufgaben bearbeitet hast." : s === 3 ? "Es geht weiter, wenn eure drei Kernpunkte stimmen." : "Es geht weiter, wenn Zeitstrahl, Folgen und Fazit-Satz fertig sind." }));
+  } else c.append(h("p", { class: "info", text: s === 1 ? "Es geht weiter, wenn du beide Aufgaben bearbeitet hast." : s === 3 ? "Es geht weiter, wenn eure drei Kernpunkte stimmen." : "Es geht weiter, wenn Zeitstrahl, Folgen und Fazit fertig sind." }));
   return c;
 }
 
@@ -649,7 +680,7 @@ function zeitstrahlWidget() {
     list.append(h("button", { class: cls, type: "button", onclick: () => { if (has) { a.seq.splice(pos, 1); a.checked = false; done(); } } },
       h("span", { class: "lab", text: z.daten[pos] }), h("span", { text: has ? z.ereignisse[a.seq[pos]] : "" })));
   }
-  const bank = h("div", { class: "bank" }, mix(n, "zs").filter(i => !a.seq.includes(i)).map(i =>
+  const bank = h("div", { class: "bank" }, mix(n, "zs", true).filter(i => !a.seq.includes(i)).map(i =>
     h("button", { class: "chip", type: "button", onclick: () => { a.seq.push(i); a.checked = false; done(); } }, z.ereignisse[i])));
   const out = h("div", {}, h("p", { class: "muted", text: "Tippt die Ereignisse in der richtigen Reihenfolge an. Antippen in der Liste entfernt ein Ereignis wieder." }), list, bank,
     h("button", { class: "btn small", type: "button", disabled: a.seq.length !== n, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
@@ -670,12 +701,20 @@ function folgenWidget() {
   return out;
 }
 function fazitWidget() {
-  const f = CONTENT.fazit, ta = textBox(st.fazit !== null ? st.fazit : f.vorne, val => { st.fazit = val; save(); freischalten() && done(); });
-  const ins = w => { const p = ta.selectionStart ?? ta.value.length, v = ta.value, vor = v.slice(0, p), lz = vor && !/\s$/.test(vor) ? " " : "";
-    ta.value = vor + lz + w + " " + v.slice(p); ta.focus(); const q = (vor + lz + w + " ").length; ta.setSelectionRange(q, q); st.fazit = ta.value; save(); freischalten() && done(); };
-  return h("div", {}, h("p", { class: "muted", text: "Wortspeicher: Tippe ein Wort an, um es einzufügen." }),
-    h("div", { class: "wspeicher" }, f.woerter.map(w => h("button", { class: "chip", type: "button", onclick: () => ins(w) }, w))), ta);
+  const f = CONTENT.fazit, ta = textBox(st.fazit !== null ? st.fazit : "", val => { st.fazit = val; save(); freischalten() && done(); });
+  ta.setAttribute("placeholder", "Schreibt hier euer Fazit.");
+  const ins = w => {                                 // Wort an der Schreibstelle einfügen
+    const p = ta.selectionStart ?? ta.value.length, v = ta.value, vor = v.slice(0, p), lz = vor && !/\s$/.test(vor) ? " " : "";
+    ta.value = vor + lz + w + " " + v.slice(p); ta.focus(); const q = (vor + lz + w + " ").length; ta.setSelectionRange(q, q);
+    st.fazit = ta.value; save(); freischalten() && done();
+  };
+  const gruppe = (titel, woerter) => h("div", {}, h("h4", { text: titel, style: "margin:8px 0 4px" }),
+    h("div", { class: "wspeicher" }, woerter.map(w => h("button", { class: "chip", type: "button", onclick: () => ins(w) }, w))));
+  return h("div", {}, h("p", { class: "auftrag", text: f.frage }),
+    h("p", { class: "muted", text: "Wortspeicher: Tippt ein Wort an, dann wird es an der Schreibstelle eingefügt." }),
+    gruppe("Wichtige Begriffe", f.begriffe), gruppe("Satzanfänge und Verbindungswörter", f.verbinder), ta);
 }
+
 function teil3View() {
   const r = R(), v = h("div", {});
   v.append(h("div", { class: "card" }, h("p", { class: "eyebrow", text: "Teil 3 · Stammgruppe" }), h("h1", { text: "Zeitstrahl 1789" }),
@@ -691,22 +730,23 @@ function teil3View() {
 function kernText() { const k = R().kern; return st.kern.sel.filter(i => k.correct.includes(i)).map(i => "• " + k.options[i]).join("\n"); }
 
 /* ---------- Teil 4: Fertig, Übersicht und Druck (eine Seite) ---------- */
-function zeitstrahlTabelle() {
-  const z = CONTENT.zeitstrahl, t = h("table", { class: "tbl zs" });
-  t.append(h("tr", {}, h("th", { text: "Datum" }), h("th", { text: "Ereignis" }), h("th", { text: "Was folgte daraus?" })));
-  z.daten.forEach((d, i) => {
-    const ev = st.zs.seq[i] !== undefined ? z.ereignisse[st.zs.seq[i]] : "–", f = z.folgen[i], ch = st.folgen.ch[i];
-    t.append(h("tr", {}, h("td", { text: d }), h("td", { text: ev }), h("td", { text: ch !== undefined ? f.options[ch] : "–" })));
-  });
-  return t;
+function zeitleiste() {                             // echter Zeitstrahl mit kleinen Bildern (Übersicht und Ausdruck)
+  const z = CONTENT.zeitstrahl;
+  return h("div", { class: "zeitleiste" }, z.daten.map((d, i) => {
+    const e = st.zs.seq[i], ch = st.folgen.ch[i];
+    return h("div", { class: "station" }, h("div", { class: "punkt" }), h("div", { class: "datum", text: d }),
+      e !== undefined ? h("img", { src: z.bilder[e], alt: "" }) : h("div", { class: "leer" }),
+      h("div", { class: "ereignis", text: e !== undefined ? z.ereignisse[e] : "–" }),
+      h("div", { class: "folgt", text: "→ " + (ch !== undefined ? z.folgen[i].options[ch] : "–") }));
+  }));
 }
 function uebersicht(print) {
   const r = R(), box = h("div", { class: print ? "pp" : "card" });
   if (print) box.append(h("div", { class: "pn" }, h("span", { text: "Vorname: " + st.name }), h("span", { text: "Thema: " + st.role + " – " + r.name }), h("span", { text: new Date().toLocaleDateString("de-DE") })));
-  box.append(h("h2", { text: CONTENT.thema + ": " + CONTENT.frage }), zeitstrahlTabelle(),
+  box.append(h("h2", { text: CONTENT.thema + ": " + CONTENT.frage }), zeitleiste(),
     h("h3", { text: "Meine Kernpunkte (" + r.name + ")" }), h("div", { class: "ans", text: kernText() || "–" }));
   if (geschrieben(st.vermutung, "Wir vermuten, dass ")) box.append(h("h3", { text: "Unsere Vermutung" }), h("div", { class: "ans", text: st.vermutung.trim() }));
-  box.append(h("h3", { text: "Unser Fazit" }), h("div", { class: "ans", text: geschrieben(st.fazit, CONTENT.fazit.vorne) ? st.fazit.trim() : "–" }));
+  box.append(h("h3", { text: "Unser Fazit: Wie wurde aus Protest eine Revolution?" }), h("div", { class: "ans", text: geschrieben(st.fazit, "") ? st.fazit.trim() : "–" }));
   if (geschrieben(st.zusatz, r.zusatz.starter)) box.append(h("h3", { text: r.zusatz.text }), h("div", { class: "ans", text: st.zusatz.trim() }));
   return box;
 }
@@ -718,7 +758,8 @@ function drucken() {
   const passt = () => pg.getBoundingClientRect().height / (pg.getBoundingClientRect().width / 186) <= 262;
   for (let pt = 10.5; pt >= 5; pt -= 0.25) { pg.style.fontSize = pt + "pt"; if (passt()) break; }
   $print.classList.remove("mess");
-  setTimeout(() => window.print(), 50);
+  const bilder = [...pg.querySelectorAll("img")].map(i => i.complete ? null : new Promise(r => { i.onload = i.onerror = r; })).filter(Boolean);
+  Promise.race([Promise.all(bilder), new Promise(r => setTimeout(r, 2500))]).then(() => setTimeout(() => window.print(), 50));
 }
 function teil4View() {
   return h("div", {}, h("div", { class: "card gruen", style: "text-align:center" }, h("p", { class: "eyebrow", text: "Teil 4 · Fertig" }), h("h1", { text: "Gut gemacht, " + st.name + "!" }),

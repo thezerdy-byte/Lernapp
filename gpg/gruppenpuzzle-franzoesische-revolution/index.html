@@ -500,7 +500,17 @@ function h(tag, props, ...kids) {
 }
 function slot(o, k, init) { if (o[k] === undefined || o[k] === null) o[k] = init; return o[k]; }
 function hash(s) { let x = 7; for (let i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0; return x; }
-function mix(n, salt) { return Array.from({ length: n }, (_, i) => i).sort((a, b) => hash(salt + ":" + a) - hash(salt + ":" + b)); } // stabile Mischung
+function mix(n, salt, nieGleich) {                  // stabile, echte Mischung (gleich bei jedem Neuzeichnen); nieGleich: nie die Originalreihenfolge (für Reihenfolge-Aufgaben)
+  let x = 2166136261;                               // FNV-1a über den Schlüssel, damit ähnliche Schlüssel ganz verschieden mischen
+  for (let i = 0; i < salt.length; i++) { x ^= salt.charCodeAt(i); x = Math.imul(x, 16777619) >>> 0; }
+  x = x || 1;
+  const rnd = () => { x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; return x / 4294967296; };
+  for (let i = 0; i < 8; i++) rnd();
+  const a = Array.from({ length: n }, (_, i) => i);
+  for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  if (nieGleich && n > 1 && a.every((v, i) => v === i)) a.push(a.shift());
+  return a;
+}
 function flash(el) { el.classList.add("bad"); setTimeout(() => el.classList.remove("bad"), 450); }
 const R = () => CONTENT.rollen[st.role];
 /* Hilfen: Startwert ist das Symbol (● viel, ■ mittel, ▲ wenig Hilfe). Die App passt sie still an,
@@ -601,7 +611,7 @@ function bildWidget(key, t) {
   return h("div", {}, h("div", { class: "bilder", style: "margin-bottom:16px" }, R().bilder.map(figure)), t.felder.map((f, j) => {
     const last = j === t.felder.length - 1, box = h("div", { class: "feld" + (last ? " r" : "") }, h("div", { class: "k", text: j + 1 }));
     const inner = h("div", {}, h("h4", { text: f.label }), h("div", { class: "fh", text: f.hint }));
-    if (K()) inner.append(h("div", { class: "bank" }, f.options.map((o, k) => h("button", { class: "chip" + (a.ch[j] === k ? " ok" : ""), type: "button", "aria-pressed": a.ch[j] === k ? "true" : "false",
+    if (K()) inner.append(h("div", { class: "bank" }, mix(f.options.length, key + st.role + j).map(k => [f.options[k], k]).map(([o, k]) => h("button", { class: "chip" + (a.ch[j] === k ? " ok" : ""), type: "button", "aria-pressed": a.ch[j] === k ? "true" : "false",
       onclick: ev => { if (f.correct !== null && f.correct !== undefined && k !== f.correct) { flash(ev.currentTarget); signal(false); save(); return; }
         const neu = !(j in a.ch); a.ch[j] = k; if (neu && Object.keys(a.ch).length === t.felder.length) signal(true); fx(); } }, o))));
     else inner.append(textBox(a.txt[j] !== undefined ? a.txt[j] : (Q() ? f.starter : ""), v => { a.txt[j] = v; save(); freischalten() && done(); }, true, key));
@@ -646,7 +656,7 @@ function orderWidget(key, t) {
     list.append(h("button", { class: cls, type: "button", onclick: () => { if (has && !K()) { a.seq.splice(pos, 1); a.checked = false; fx(); } } },
       h("span", { class: "lab", text: t.labels ? t.labels[pos] : (pos + 1) + "." }), h("span", { text: has ? t.items[a.seq[pos]] : "" })));
   }
-  const bank = h("div", { class: "bank" }, mix(n, key).filter(i => !a.seq.includes(i)).map(i =>
+  const bank = h("div", { class: "bank" }, mix(n, key, true).filter(i => !a.seq.includes(i)).map(i =>
     h("button", { class: "chip", type: "button", onclick: ev => {
       if (K() && i !== a.seq.length) { flash(ev.currentTarget); signal(false); save(); return; }
       a.seq.push(i); a.checked = false; if (K() && a.seq.length === n) signal(true); fx();
@@ -877,7 +887,7 @@ function spickView() {
     if (K()) {
       const seq = slot(sp, "seq", []), all = def.parts.concat(def.wrong), full = seq.length === def.parts.length;
       line.append(h("div", { class: "built" + (full ? " full" : "") }, seq.map(x => def.parts[x]).join(" ") || "Tippe die Bausteine in der richtigen Reihenfolge an."));
-      line.append(h("div", { class: "bank" }, mix(all.length, "sp" + st.role + i).filter(k => k >= seq.length).map(k =>
+      line.append(h("div", { class: "bank" }, mix(all.length, "sp" + st.role + i, true).filter(k => k >= seq.length).map(k =>
         h("button", { class: "chip", type: "button", onclick: ev => { if (k === seq.length && k < def.parts.length) { seq.push(k); fx(); } else { flash(ev.currentTarget); signal(false); save(); } } }, all[k]))));
       if (seq.length) line.append(h("button", { class: "btn small", type: "button", onclick: () => { seq.pop(); fx(); } }, "Zurück"));
     } else line.append(textBox(spickText(i), val => { sp.text = val; save(); freischalten() && done(); }, true, "s" + i));

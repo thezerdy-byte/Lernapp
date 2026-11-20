@@ -15,7 +15,7 @@ Die Artikulation sieht drei Expertengruppen (A–C) vor. Wenn du D nicht nutzt, 
 ## So hängen die Themen zusammen
 - Jedes Thema beginnt mit „Was bisher geschah“.
 - In der Expertengruppe vermuten die Kinder, wie es weitergeht. Die nächste Person in der Stammgruppe bestätigt oder widerlegt die Vermutung.
-- In der Stammgruppe wird **A → B → C → D** berichtet. Gemeinsam ordnen die Kinder die Ereignisse auf einem Zeitstrahl, wählen zu jedem Ereignis die Folge aus und schreiben den Fazit-Satz „Aus Protest wurde Revolution, weil“.
+- In der Stammgruppe wird **A → B → C → D** berichtet. Gemeinsam ordnen die Kinder die Ereignisse auf einem Zeitstrahl, wählen zu jedem Ereignis die Folge aus und schreiben ein freies Fazit (zwei bis drei Sätze) mit Wortspeicher. Auf der Übersicht erscheint ein Zeitstrahl mit kleinen Bildern.
 
 ## Ablauf in der App
 1. **Einzelarbeit:** Text lesen und Wichtiges markieren, Stichworte notieren (Wann? Wo? Wer? Was?).
