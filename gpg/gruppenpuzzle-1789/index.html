@@ -241,6 +241,21 @@
   .leitfigur { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; color: var(--grau); }
   .leitfigur img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid var(--blau); }
   .leitfigur p { margin: 0; }
+  .szene { display: grid; grid-template-columns: 170px 1fr; align-items: center; gap: 18px; background: var(--hellblau); border-color: var(--blau); overflow: hidden; }
+  .szene-figur img { width: 100%; height: auto; border-radius: 10px; border: 3px solid var(--blau); display: block; }
+  .szene .blase { position: relative; background: #fff; border: 3px solid var(--blau); border-radius: 22px; padding: 16px 20px; font-size: 1.25rem; line-height: 1.45; }
+  .szene .blase::before { content: ""; position: absolute; left: -22px; top: 40%; border: 12px solid transparent; border-right: 20px solid var(--blau); border-left: 0; }
+  .szene .blase::after { content: ""; position: absolute; left: -15px; top: calc(40% + 3px); border: 9px solid transparent; border-right: 15px solid #fff; border-left: 0; }
+  .szene .blase p { margin: 4px 0 0; font-weight: 700; color: var(--blau); }
+  .szene.anim .szene-figur { animation: hinein .7s ease-out both, schwur 1.6s ease-in-out .7s 2; transform-origin: bottom center; }
+  .szene.anim .blase { animation: blase .5s cubic-bezier(.2,1.6,.4,1) .9s both; }
+  .szene:not(.anim) .szene-figur { animation: atmen 4s ease-in-out infinite; transform-origin: bottom center; }
+  @keyframes hinein { from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: none; } }
+  @keyframes schwur { 0%, 100% { transform: none; } 30% { transform: translateY(-10px) rotate(-3deg); } 60% { transform: translateY(-4px) rotate(2deg); } }
+  @keyframes blase { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
+  @keyframes atmen { 0%, 100% { transform: none; } 50% { transform: translateY(-3px) scale(1.01); } }
+  @media (prefers-reduced-motion: reduce) { .szene .szene-figur, .szene .blase { animation: none !important; } }
+  @media (max-width: 600px) { .szene { grid-template-columns: 110px 1fr; } .szene .blase { font-size: 1.05rem; } }
   .zu-aufgabe { border-style: dashed; border-color: var(--grau); background: var(--hellgrau); color: var(--grau); text-align: center; }
   .zu-aufgabe p { margin: 0; }
   .kern .chip { width: 100%; border-radius: 8px; }
@@ -385,6 +400,7 @@ const CONTENT = {
       bisher: "Am 5. Mai 1789 trafen sich in Versailles die Generalstände. Der König wollte neue Steuern. Der Dritte Stand forderte: Jede Stimme soll gleich viel zählen.",
       bilder: [{ src: "bilder/ballhaus.jpg", titel: "[1] Der Schwur im Ballhaus am 20. Juni 1789. Gemälde nach Jacques-Louis David, um 1791", alt: "Gemälde: In einer großen Halle strecken viele Männer begeistert die Arme zum Schwur aus, in der Mitte steht ein Mann auf einem Tisch." }],
       begriffe: ["Nationalversammlung", "Ballhaus", "Eid", "Verfassung", "Bürgerrechte", "anerkennen"],
+      szene: { nach: 0, bild: "bilder/figur-pierre-ganz.jpg", name: "Pierre", text: "Ich schwöre: Wir gehen erst nach Hause, wenn wir eine Verfassung für Frankreich erarbeitet haben!" },   // erscheint nach Aufgabe 1
       woerter: [{ w: "Eid", e: "Schwur, ein feierliches Versprechen" }, { w: "Verfassung", e: "die wichtigsten Regeln und Gesetze eines Staates" }, { w: "Nationalversammlung", e: "Versammlung, die das ganze Volk vertritt" }],
       texte: [{ titel: "[2] So könnte Pierre erzählt haben", zeilen: [
         "Wochenlang stritten wir in Versailles, wie abgestimmt werden soll.",
@@ -688,6 +704,12 @@ function textCard(tx) {
   return h("div", { class: "card quelle" }, h("div", { class: "qtitel" }, h("img", { src: "bilder/icon-schriftrolle.png", alt: "" }), h("h3", { text: tx.titel, style: "margin:0" })),
     h("div", { class: "quelltext" }, tx.zeilen.map(z => h("p", {}, typeof z === "string" ? hervor(z) : [h("span", { class: "sp", text: z.s + ": " }), hervor(z.t)]))), h("p", { class: "qhin", text: "Verfassertext, frei nacherzählt nach dem Schulbuch" }));
 }
+function szeneView(z) {                             // Leitfigur mit Sprechblase; die Animation läuft nur beim ersten Erscheinen
+  const neu = !st.szeneGesehen;
+  if (neu) setTimeout(() => { st.szeneGesehen = true; save(); }, 50);
+  return h("div", { class: "card szene" + (neu ? " anim" : "") }, h("div", { class: "szene-figur" }, h("img", { src: z.bild, alt: "Pierre steht aufrecht und hebt die Hand zum Schwur." })),
+    h("div", { class: "blase" }, h("b", { text: z.name + ":" }), h("p", { text: "„" + z.text + "“" })));
+}
 function teil1View() {
   const r = R(), v = h("div", {});
   if (!st.tStart.t0) { st.lv.t0 = st.lv.t0 || st.eff || "q"; st.tStart.t0 = Date.now(); save(); }
@@ -701,10 +723,12 @@ function teil1View() {
   r.tasks.forEach((t, i) => {
     if (i >= st.offen) { if (i === st.offen) v.append(h("div", { class: "card zu-aufgabe" }, h("p", { text: "🔒 Aufgabe " + (i + 1) + " erscheint, wenn du Aufgabe " + i + " geschafft hast." }))); return; }
     const key = "t" + i, body = mit(key, () => t.typ === "mark" ? markWidget(key, t) : t.typ === "abstimmung" ? h("div", {}, abstimmungGrafik(t), felderWidget(key, t)) : t.typ === "schreiben" ? schreibWidget(key, t) : felderWidget(key, t));
+    const szeneHier = r.szene && r.szene.nach === i && taskDone(i);
     const naechsteKnopf = i === st.offen - 1 && i < r.tasks.length - 1 && taskDone(i)
       ? h("div", { class: "weiter", style: "margin-top:14px" }, h("button", { class: "btn primary", type: "button", onclick: () => aufdecken(i) }, "Weiter zu Aufgabe " + (i + 2))) : null;
     v.append(h("div", { class: "card task" + (i % 2 ? " rot" : ""), id: "aufgabe-" + i }, h("h3", {}, h("span", { class: "nr", text: i + 1 }), h("span", { text: t.kopf }), taskDone(i) ? h("span", { class: "erledigt", text: "✔ erledigt" }) : null),
-      h("p", { class: "auftrag", text: t.auftrag }), body, naechsteKnopf));
+      h("p", { class: "auftrag", text: t.auftrag }), body, szeneHier ? null : naechsteKnopf));
+    if (szeneHier) v.append(szeneView(r.szene), naechsteKnopf || "");   // Szene vor dem Weiter-Knopf
   });
   if (st.offen >= r.tasks.length || st.unlocked >= 2) v.append(weiterCard(1));
   return v;
