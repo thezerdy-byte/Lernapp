@@ -245,14 +245,33 @@
   .folge .chip { border-radius: 8px; }
   .wspeicher { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
   .wspeicher .chip { font-size: .9rem; padding: 6px 12px; }
+  .beispiel { background: var(--creme); border: 2px solid var(--braun); border-radius: 8px; padding: 10px 14px; font-size: 1.02rem; }
+  .abstgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0 6px; }
+  .abst { border: 2px solid var(--hellblau); border-radius: 8px; padding: 12px; background: #fff; display: flex; flex-direction: column; gap: 8px; }
+  .abst h4 { margin: 0; } .abst p { margin: 0; }
+  .staende { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stand { border: 2px solid var(--grau); border-radius: 8px; padding: 8px 6px; text-align: center; display: flex; flex-direction: column; gap: 4px; font-size: .9rem; }
+  .stand .stimme { font-weight: 700; color: var(--blau); }
+  .stand.ja { border-color: var(--dgruen); background: var(--hellgruen); } .stand.ja .stimme { color: var(--dgruen); }
+  .stand.nein { border-color: var(--rot); background: var(--hellrot); } .stand.nein .stimme { color: var(--rot); }
+  .koepfe { display: grid; gap: 6px; } .kgruppe { font-size: .9rem; }
+  .punkte { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+  .pk { display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: var(--hellblau); border: 2px solid var(--blau); vertical-align: middle; }
+  .pk.ja { background: var(--dgruen); border-color: var(--dgruen); } .pk.nein { background: var(--rot); border-color: var(--rot); }
+  .ergebnis { font-weight: 700; border-radius: 6px; padding: 8px 10px; }
+  .ergebnis.ja { background: var(--hellgruen); color: var(--dgruen); } .ergebnis.nein { background: var(--hellrot); color: var(--rot); }
+  .legende { font-size: .9rem; color: var(--grau); }
+  @media (max-width: 760px) { .abstgrid { grid-template-columns: 1fr; } }
   .zeitleiste { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0 18px; padding-top: 6px; }
   .zeitleiste::before { content: ""; position: absolute; left: 0; right: 0; top: 13px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--blau), var(--rot)); }
-  .zeitleiste::after { content: ""; position: absolute; right: -4px; top: 6px; border: 10px solid transparent; border-left: 14px solid var(--rot); border-right: 0; }
-  .station { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+  .zeitleiste::after { content: ""; position: absolute; right: 0; top: 6px; border: 10px solid transparent; border-left: 14px solid var(--rot); border-right: 0; }
+  .station { min-width: 0; position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
   .station .punkt { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 5px solid var(--blau); position: relative; z-index: 1; }
   .station:nth-child(n+3) .punkt { border-color: var(--rot); }
   .station .datum { font-weight: 700; color: var(--blau); }
   .station img, .station .leer { width: 100%; height: 110px; object-fit: cover; border-radius: 6px; border: 2px solid var(--blau); background: var(--hellgrau); }
+  .station .ereignis, .station .folgt { overflow-wrap: anywhere; hyphens: auto; -webkit-hyphens: auto; }
+  .chip { max-width: 100%; white-space: normal; }
   .station .ereignis { font-weight: 700; font-size: .95rem; line-height: 1.3; }
   .station .folgt { font-size: .85rem; color: var(--grau); line-height: 1.35; }
   @media (max-width: 700px) { .zeitleiste { grid-template-columns: repeat(2, 1fr); } .zeitleiste::before, .zeitleiste::after { display: none; } }
@@ -280,6 +299,8 @@
    Expertengruppe, Stammgruppe und Übersicht sehen für alle gleich aus.
    Aufgabentypen in Teil 1:
      "mark"   Sätze im Text antippen. text: Nummer des Textes, correct: [Satznummern ab 0]
+              oder mit aussagen: [..] statt text: richtige Aussagen antippen
+     "abstimmung" Grafik „nach Ständen / nach Köpfen“ zum Antippen, darunter Fragen wie bei "felder"
      "felder" Stichworte (Wann? Wo? Wer? Was?): [{ label, hint, starter, options:[..], correct: Position }]
    Bilder: gemeinfreie Gemälde/Stiche, Texte frei nacherzählt nach dem Schulbuch S. 54/55.
    ===================================================================== */
@@ -315,7 +336,8 @@ const CONTENT = {
     A: { name: "Eine Versammlung in Versailles", gruppe: "Versailles", icon: "bilder/icon-schloss.png", figur: "Pierre, Vertreter des Dritten Standes",
       bisher: "Frankreich ist pleite: Der Staat hat riesige Schulden. Nach einer schlechten Ernte ist das Brot sehr teuer, viele Menschen hungern.",
       bilder: [{ src: "bilder/generalstaende.jpg", titel: "[1] Eröffnung der Generalstände in Versailles am 5. Mai 1789. Kupferstich nach Jean-Michel Moreau", alt: "Kupferstich: Ein riesiger Saal mit Säulen, hinten sitzt der König, davor sitzen hunderte Vertreter in Reihen." }],
-      woerter: [{ w: "Generalstände", e: "Versammlung von Vertretern aller drei Stände" }, { w: "Beschwerdeheft", e: "Heft, in dem die Menschen ihre Klagen aufschrieben" }],
+      woerter: [{ w: "Generalstände", e: "Versammlung von Vertretern aller drei Stände" }, { w: "Beschwerdeheft", e: "Heft, in dem die Menschen ihre Klagen aufschrieben" },
+        { w: "Abstimmung nach Ständen", e: "Jeder Stand hat eine Stimme, zusammen 3 Stimmen." }, { w: "Abstimmung nach Köpfen", e: "Jeder Vertreter hat eine Stimme, zusammen 1200 Stimmen." }],
       texte: [{ titel: "[2] So könnte Pierre erzählt haben", zeilen: [
         "Ich bin Pierre, Anwalt aus einer kleinen Stadt.",
         "Im Frühjahr 1789 wählten mich die Bürger zum Vertreter des Dritten Standes.",
@@ -325,15 +347,22 @@ const CONTENT = {
         "Wir hatten 40 000 Beschwerdehefte aus ganz Frankreich dabei.",
         "Darin klagten die Menschen über hohe Steuern und Abgaben und über die ungerechte Verteilung des Landes.",
         "Doch der Finanzminister des Königs wollte unsere Beschwerden nicht hören.",
-        "Dann gab es Streit: Jeder Stand sollte nur eine Stimme haben. So hätten Klerus und Adel uns immer zwei zu eins überstimmt.",
-        "Wir forderten: Jeder Vertreter bekommt eine Stimme. Abstimmung nach Köpfen!"] }],
+        "Dann gab es Streit darüber, wie abgestimmt wird.",
+        "Bisher galt die Abstimmung nach Ständen: Jeder Stand berät für sich und hat am Ende nur eine Stimme. Klerus und Adel halten meistens zusammen. So steht es fast immer 2 zu 1 gegen uns, obwohl wir fast das ganze Volk vertreten.",
+        "Wir forderten deshalb die Abstimmung nach Köpfen: Jeder der 1200 Vertreter hat eine eigene Stimme. Dann hätten wir 600 Stimmen, genauso viele wie Klerus und Adel zusammen. Wenn uns nur ein paar Priester und Adlige unterstützen, haben wir die Mehrheit.",
+        "Der König, die meisten Adligen und viele hohe Geistliche wollten das nicht."] }],
       tasks: [
-        { typ: "mark", kopf: "Markiere das Wichtigste.", auftrag: "Lies den Text. Tippe die Sätze an, in denen steht, was der König wollte oder was der Dritte Stand wollte.", text: 0, correct: [4, 6, 9] },
-        { typ: "felder", kopf: "Notiere Stichworte.", auftrag: "Beantworte die Fragen kurz.", felder: [
-          { label: "Wann?", hint: "Datum der Versammlung", starter: "Am ", options: ["am 5. Mai 1789", "am 14. Juli 1789"], correct: 0 },
-          { label: "Wo?", hint: "Ort der Versammlung", starter: "In ", options: ["in Versailles", "in Paris"], correct: 0 },
-          { label: "Wer?", hint: "Wer kam zusammen?", starter: "Es kamen ", options: ["Vertreter aller drei Stände", "nur Vertreter des Adels"], correct: 0 },
-          { label: "Worum ging der Streit?", hint: "Wie sollte abgestimmt werden?", starter: "Der Streit ging um ", options: ["um die Abstimmung: nach Ständen oder nach Köpfen", "um den Bau eines neuen Schlosses"], correct: 0 } ] }
+        { typ: "abstimmung", kopf: "Untersuche, wie abgestimmt wird.", auftrag: "Tippe in beiden Kästen auf „Abstimmen“. Beantworte dann die Fragen.",
+          beispiel: "Beispiel: Die Versammlung stimmt ab: „Sollen auch Adel und Klerus Steuern zahlen?“ Der Dritte Stand ist dafür, Klerus und Adel sind dagegen. Nur 50 Priester und 50 Adlige stimmen mit dem Dritten Stand.",
+          felder: [
+          { label: "Nach Ständen: Wie viele Stimmen hat der Dritte Stand?", hint: "Schau in den linken Kasten.", starter: "Der Dritte Stand hat ", options: ["1 von 3 Stimmen", "600 von 1200 Stimmen"], correct: 0 },
+          { label: "Nach Ständen: Wie geht die Abstimmung aus?", hint: "Wer gewinnt?", starter: "Es steht ", options: ["2 zu 1 gegen den Dritten Stand", "1 zu 2 für den Dritten Stand"], correct: 0 },
+          { label: "Nach Köpfen: Wie viele Stimmen hat der Dritte Stand?", hint: "Schau in den rechten Kasten.", starter: "Der Dritte Stand hat ", options: ["600 von 1200 Stimmen", "1 von 3 Stimmen"], correct: 0 },
+          { label: "Warum fordert der Dritte Stand die Abstimmung nach Köpfen?", hint: "Was ändert sich für ihn?", starter: "Weil ", options: ["Weil er dann so viele Stimmen hat wie Klerus und Adel zusammen und mit etwas Hilfe gewinnen kann.", "Weil er dann keine Steuern mehr zahlen muss."], correct: 0 } ] },
+        { typ: "mark", kopf: "Wähle die richtigen Aussagen.", auftrag: "Tippe alle Aussagen an, die stimmen.", correct: [0, 2, 3, 5, 6],
+          aussagen: ["Am 5. Mai 1789 rief der König die Generalstände nach Versailles.", "Der König wollte die Steuern senken.", "Der König brauchte Geld und wollte neue Steuern.",
+            "Bei der Abstimmung nach Ständen hat jeder Stand nur eine Stimme.", "Bei der Abstimmung nach Köpfen hat jeder Stand nur eine Stimme.",
+            "Klerus und Adel konnten den Dritten Stand nach Ständen immer 2 zu 1 überstimmen.", "Der Dritte Stand forderte eine Abstimmung nach Köpfen.", "Der Dritte Stand hatte weniger Vertreter als der Adel."] }
       ],
       kern: { options: ["Am 5. Mai 1789 trafen sich die Generalstände in Versailles.", "Der König brauchte Geld und wollte neue Steuern.", "Der Dritte Stand forderte eine Abstimmung nach Köpfen.", "Der König wollte die Steuern senken.", "Die Generalstände trafen sich in Paris.", "Adel und Klerus unterstützten den Dritten Stand."], correct: [0, 1, 2] },
       vermutung: "Der Dritte Stand wird immer überstimmt. Was wird er wohl als Nächstes tun?",
@@ -520,9 +549,9 @@ function gehe(s) {
 
 /* ---------- Teil 1: Aufgaben-Bausteine (mit Hilfen je Symbol) ---------- */
 function markWidget(key, t) {
-  const a = slot(st.exp, key, { sel: [], checked: false }), tx = R().texte[t.text];
+  const a = slot(st.exp, key, { sel: [], checked: false }), tx = t.aussagen ? null : R().texte[t.text], zeilen = t.aussagen || tx.zeilen, wort = t.aussagen ? "Aussagen" : "Sätze";
   const L0 = lv(), fx = () => { fix(key, L0); done(); };
-  const list = h("div", { class: "mlist" }, tx.zeilen.map((z, i) => {
+  const list = h("div", { class: "mlist" }, (t.aussagen ? mix(zeilen.length, key + st.role) : zeilen.map((_, i) => i)).map(i => { const z = zeilen[i];
     const on = a.sel.includes(i);
     let cls = "mrow";
     if (K()) cls += on ? " ok" : ""; else if (a.checked && on) cls += t.correct.includes(i) ? " ok" : " no"; else if (on) cls += " sel";
@@ -531,15 +560,15 @@ function markWidget(key, t) {
       a.sel = on ? a.sel.filter(x => x !== i) : a.sel.concat(i); a.checked = false; fx();
     } }, typeof z === "string" ? z : [h("span", { class: "sp", text: z.s + ": " }), z.t]);
   }));
-  const out = h("div", {}, h("div", { class: "qtitel" }, h("img", { src: "bilder/icon-schriftrolle.png", alt: "" }), h("h4", { text: tx.titel, style: "margin:0" })));
-  if (ZAHL()) out.append(h("p", { class: "hilfe", text: "Es sind " + t.correct.length + " Sätze." + (K() ? " Richtige Sätze werden grün." : "") }));
-  out.append(list, h("p", { class: "qhin", text: "Verfassertext, frei nacherzählt nach dem Schulbuch" }));
+  const out = h("div", {}, tx ? h("div", { class: "qtitel" }, h("img", { src: "bilder/icon-schriftrolle.png", alt: "" }), h("h4", { text: tx.titel, style: "margin:0" })) : null);
+  if (ZAHL()) out.append(h("p", { class: "hilfe", text: "Es sind " + t.correct.length + " " + wort + "." + (K() ? " Richtige " + wort + " werden grün." : "") }));
+  out.append(list, tx ? h("p", { class: "qhin", text: "Verfassertext, frei nacherzählt nach dem Schulbuch" }) : null);
   if (K()) { if (t.correct.every(c => a.sel.includes(c))) out.append(msg(true, "Super, du hast alle gefunden! ✔")); }
   else {
     out.append(h("button", { class: "btn small", type: "button", disabled: !a.sel.length, onclick: () => { a.checked = true; signal(a.sel.length === t.correct.length && t.correct.every(c => a.sel.includes(c))); fx(); } }, "Prüfen"));
     if (a.checked) {
       const falsch = a.sel.filter(i => !t.correct.includes(i)).length, fehlt = t.correct.filter(i => !a.sel.includes(i)).length;
-      out.append(!falsch && !fehlt ? msg(true, "Richtig! ✔") : msg(false, (falsch ? "Rote Sätze passen nicht. " : "") + (fehlt ? (ZAHL() ? "Es fehlen noch " + fehlt + " Sätze." : "Es fehlen noch Sätze.") : "")));
+      out.append(!falsch && !fehlt ? msg(true, "Richtig! ✔") : msg(false, (falsch ? "Rote " + wort + " passen nicht. " : "") + (fehlt ? (ZAHL() ? "Es fehlen noch " + fehlt + " " + wort + "." : "Es fehlen noch " + wort + ".") : "")));
     }
   }
   return out;
@@ -556,9 +585,28 @@ function felderWidget(key, t) {
     box.append(inner); return box;
   }));
 }
+/* Grafik zur Abstimmung (für alle gleich). Beispielzahlen: 50 Priester und 50 Adlige stimmen mit dem Dritten Stand. */
+const ABST = { staende: [{ n: "Klerus", v: 300, ja: false }, { n: "Adel", v: 300, ja: false }, { n: "Dritter Stand", v: 600, ja: true }],
+  koepfe: [{ n: "Klerus", v: 300, ja: 50 }, { n: "Adel", v: 300, ja: 50 }, { n: "Dritter Stand", v: 600, ja: 600 }], proPunkt: 50 };
+function abstimmungGrafik(t) {
+  const g = slot(st, "abst", {}), stand = !!g.staende, kopf = !!g.koepfe;
+  const links = h("div", { class: "abst" }, h("h4", { text: "Abstimmung nach Ständen" }), h("p", { class: "muted", text: "Jeder Stand hat 1 Stimme." }),
+    h("div", { class: "staende" }, ABST.staende.map(x => h("div", { class: "stand" + (stand ? (x.ja ? " ja" : " nein") : "") },
+      h("b", { text: x.n }), h("span", { text: x.v + " Vertreter" }), h("div", { class: "stimme", text: stand ? (x.ja ? "1 Stimme: JA" : "1 Stimme: NEIN") : "1 Stimme" })))),
+    stand ? h("div", { class: "ergebnis nein", text: "Ergebnis: 1 Ja gegen 2 Nein. Abgelehnt! Der Dritte Stand verliert." })
+      : h("button", { class: "btn small", type: "button", onclick: () => { g.staende = true; done(); } }, "Abstimmen"));
+  const ja = ABST.koepfe.reduce((s, x) => s + x.ja, 0), alle = ABST.koepfe.reduce((s, x) => s + x.v, 0);
+  const rechts = h("div", { class: "abst" }, h("h4", { text: "Abstimmung nach Köpfen" }), h("p", { class: "muted", text: "Jeder Vertreter hat 1 Stimme. Ein Punkt = " + ABST.proPunkt + " Vertreter." }),
+    h("div", { class: "koepfe" }, ABST.koepfe.map(x => h("div", { class: "kgruppe" }, h("b", { text: x.n + " (" + x.v + ")" }),
+      h("div", { class: "punkte" }, Array.from({ length: x.v / ABST.proPunkt }, (_, i) => h("span", { class: "pk" + (kopf ? (i < x.ja / ABST.proPunkt ? " ja" : " nein") : "") })))))),
+    kopf ? h("div", { class: "ergebnis ja", text: "Ergebnis: " + ja + " Ja gegen " + (alle - ja) + " Nein. Angenommen! Der Dritte Stand gewinnt." })
+      : h("button", { class: "btn small", type: "button", onclick: () => { g.koepfe = true; done(); } }, "Abstimmen"));
+  return h("div", {}, h("p", { class: "beispiel", text: t.beispiel }), h("div", { class: "abstgrid" }, links, rechts),
+    h("p", { class: "legende" }, h("span", { class: "pk ja" }), " Ja   ", h("span", { class: "pk nein" }), " Nein"));
+}
 function taskText(i) { return mit("t" + i, () => {
   const t = R().tasks[i], a = st.exp["t" + i];
-  if (t.typ === "mark") return ((a && a.sel) || []).slice().sort((x, y) => x - y).map(n => "• " + zeileText(R().texte[t.text].zeilen[n])).join("\n");
+  if (t.typ === "mark") return ((a && a.sel) || []).slice().sort((x, y) => x - y).map(n => "• " + (t.aussagen ? t.aussagen[n] : zeileText(R().texte[t.text].zeilen[n]))).join("\n");
   return t.felder.map((f, j) => f.label + " " + (K() ? (a && a.ch && j in a.ch ? f.options[a.ch[j]] : "–") : ((a && a.txt && a.txt[j] && a.txt[j].trim()) || "–"))).join("\n");
 }); }
 
@@ -589,6 +637,10 @@ function figure(b) {
     h("img", { src: b.src, alt: b.alt, loading: "lazy" })),
     h("figcaption", {}, b.titel, h("span", { class: "lupe", text: "  · antippen zum Vergrößern" })));
 }
+function textCard(tx) {
+  return h("div", { class: "card quelle" }, h("div", { class: "qtitel" }, h("img", { src: "bilder/icon-schriftrolle.png", alt: "" }), h("h3", { text: tx.titel, style: "margin:0" })),
+    h("div", { class: "quelltext" }, tx.zeilen.map(z => h("p", { text: zeileText(z) }))), h("p", { class: "qhin", text: "Verfassertext, frei nacherzählt nach dem Schulbuch" }));
+}
 function teil1View() {
   const r = R(), v = h("div", {});
   v.append(h("div", { class: "card" }, h("div", { class: "head" }, h("img", { class: "icon", src: r.icon, alt: "" }),
@@ -597,8 +649,9 @@ function teil1View() {
   v.append(h("div", { class: "bisher" }, h("b", { text: "Was bisher geschah" }), h("p", { text: r.bisher })));
   v.append(h("div", { class: "card" }, h("div", { class: "bilder" }, r.bilder.map(figure)),
     r.woerter.length ? h("div", { class: "woerter" }, r.woerter.map(w => h("div", {}, h("b", { text: w.w + ": " }), w.e))) : null));
+  r.texte.forEach(tx => { if (!r.tasks.some(t => t.typ === "mark" && !t.aussagen && r.texte[t.text] === tx)) v.append(textCard(tx)); });   // Text ohne Markier-Aufgabe als Lesekarte
   r.tasks.forEach((t, i) => {
-    const key = "t" + i, body = mit(key, () => t.typ === "mark" ? markWidget(key, t) : felderWidget(key, t));
+    const key = "t" + i, body = mit(key, () => t.typ === "mark" ? markWidget(key, t) : t.typ === "abstimmung" ? h("div", {}, abstimmungGrafik(t), felderWidget(key, t)) : felderWidget(key, t));
     v.append(h("div", { class: "card task" + (i % 2 ? " rot" : "") }, h("h3", {}, h("span", { class: "nr", text: i + 1 }), h("span", { text: t.kopf }), taskDone(i) ? h("span", { class: "erledigt", text: "✔ erledigt" }) : null),
       h("p", { class: "auftrag", text: t.auftrag }), body));
   });
@@ -612,7 +665,7 @@ function weiterCard(s) {
     c.append(h("h2", { text: fertig ? "Geschafft!" : "Du kannst jetzt weitergehen." }));
     if (!fertig && s === 1) c.append(h("p", { class: "muted", text: "Noch offen: " + R().tasks.map((t, i) => taskDone(i) ? null : "Aufgabe " + (i + 1)).filter(Boolean).join(", ") + ". Du kannst sie in der Expertengruppe ergänzen." }));
     c.append(h("button", { class: "btn primary", type: "button", onclick: () => gehe(naechster) }, "Weiter: " + (naechster === 2 ? "Finde deine Expertengruppe" : naechster === 4 ? "Finde deine Stammgruppe" : CONTENT.schritte[naechster - 1])));
-  } else c.append(h("p", { class: "info", text: s === 1 ? "Es geht weiter, wenn du beide Aufgaben bearbeitet hast." : s === 3 ? "Es geht weiter, wenn eure drei Kernpunkte stimmen." : "Es geht weiter, wenn Zeitstrahl, Folgen und Fazit fertig sind." }));
+  } else c.append(h("p", { class: "info", text: s === 1 ? "Es geht weiter, wenn du alle Aufgaben bearbeitet hast." : s === 3 ? "Es geht weiter, wenn eure drei Kernpunkte stimmen." : "Es geht weiter, wenn Zeitstrahl, Folgen und Fazit fertig sind." }));
   return c;
 }
 

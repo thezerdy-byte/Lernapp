@@ -5,7 +5,7 @@ Gleiche Technik und Optik wie das Gruppenpuzzle „Vor der Französischen Revolu
 > **Bitte prüfen:** Texte, Aufgaben und Lösungen stehen im Objekt `CONTENT` am Anfang des Skripts in `index.html`. Die Texte sind frei nacherzählt nach dem Schulbuch S. 54/55 und an einigen Stellen ergänzt (z. B. Soldaten um Paris, Brotpreis, Waffen in der Bastille).
 
 ## Themen (Expertengruppen)
-- **A Eine Versammlung in Versailles** (5. Mai 1789), erzählt von Pierre
+- **A Eine Versammlung in Versailles** (5. Mai 1789), erzählt von Pierre. Statt Markieren: Grafik „Abstimmung nach Ständen / nach Köpfen“ mit Beispiel und Fragen, danach richtige Aussagen auswählen
 - **B Der Ballhausschwur** (17./20. Juni 1789), erzählt von Pierre
 - **C Der Sturm auf die Bastille** (14. Juli 1789), erzählt von Anne
 - **D Die Revolution auf dem Land** (Juli/August 1789), erzählt von Jacques
