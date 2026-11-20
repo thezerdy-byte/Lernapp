@@ -238,6 +238,11 @@
   .woerter { display: grid; gap: 6px; margin-top: 10px; font-size: .95rem; }
   .woerter div { background: var(--hellgrau); border-left: 4px solid var(--blau); padding: 6px 10px; border-radius: 4px; }
   .figur { text-align: center; color: var(--grau); margin: 6px 0 0; }
+  .leitfigur { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; color: var(--grau); }
+  .leitfigur img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid var(--blau); }
+  .leitfigur p { margin: 0; }
+  .zu-aufgabe { border-style: dashed; border-color: var(--grau); background: var(--hellgrau); color: var(--grau); text-align: center; }
+  .zu-aufgabe p { margin: 0; }
   .kern .chip { width: 100%; border-radius: 8px; }
   .folge { border: 2px solid var(--hellblau); border-radius: 8px; padding: 12px; margin: 0 0 10px; background: #fff; }
   .folge h4 { margin: 0 0 6px; }
@@ -295,10 +300,11 @@
 /* =====================================================================
    INHALTE – hier kann die Lehrkraft alles ändern.
    Stunde „Der Sturm bricht los – die Ereignisse des Jahres 1789“ (GPG 7aM, 50 Min.), Erarbeitung als Gruppenpuzzle.
-   Hilfen je Symbol (nur in Teil 1, Einzelarbeit):
-     "k" = Kreis ●   Antippen mit sofortiger Rückmeldung, Auswahl
-     "q" = Quadrat ■ Satzanfänge, Anzahl-Hinweise, Prüfen-Knopf
-     "t" = Dreieck ▲ leere Felder, keine Anzahl-Hinweise, Prüfen-Knopf
+   Hilfen in Teil 1 (Einzelarbeit), still angepasst (Stufe 1 = "k", 2 = "q", 3 = "t"):
+     Stufe 1: Antippen mit sofortiger Rückmeldung, Auswahl, Wortspeicher
+     Stufe 2: Satzanfänge, Anzahl-Hinweise, Prüfen-Knopf (Start für alle)
+     Stufe 3: leere Felder, keine Anzahl-Hinweise, Prüfen-Knopf
+   Das Symbol ● ■ ▲ dient nur noch zum Finden der Stammgruppe.
    Expertengruppe, Stammgruppe und Übersicht sehen für alle gleich aus.
    Aufgabentypen in Teil 1:
      "mark"   Sätze im Text antippen. text: Nummer des Textes, correct: [Satznummern ab 0]
@@ -313,6 +319,9 @@ const CONTENT = {
   frage: "Wie wurde aus dem Protest des Dritten Standes eine Revolution?",
   minuten: { 1: 5, 3: 4, 5: 9 },                     // stiller Timer: geplante Arbeitszeit je Phase (Minuten), wird nicht angezeigt
   freiAb: 0.4,                                       // nach 40 % dieser Zeit darf man weiter, auch wenn noch nicht alles fertig ist
+  // Einzelarbeit: Die Aufgaben erscheinen nacheinander. Alle starten mit mittlerer Hilfe (Stufe 2, Link-Parameter ?stufe=1|2|3 möglich).
+  // Nach jeder Aufgabe wird die Hilfe für die nächste still angepasst:
+  anpassung: { fehler: 2, langSek: 120, kurzSek: 45 },   // ≥ 2 Fehlversuche oder > 120 s → mehr Hilfe; 0 Fehler und < 45 s → weniger Hilfe
   // Ablauf: 1 Einzelarbeit · 2 Finde deine Expertengruppe · 3 Expertengruppe · 4 Finde deine Stammgruppe · 5 Stammgruppe · 6 Fertig
   schritte: ["Einzelarbeit", "Expertengruppe finden", "Expertengruppe", "Stammgruppe finden", "Stammgruppe", "Fertig"],
   navi: [1, 3, 5, 6],
@@ -337,14 +346,14 @@ const CONTENT = {
   },
 
   rollen: {
-    A: { name: "Eine Versammlung in Versailles", gruppe: "Versailles", icon: "bilder/icon-schloss.png", figur: "Pierre, Vertreter des Dritten Standes",
+    A: { name: "Eine Versammlung in Versailles", gruppe: "Versailles", icon: "bilder/icon-schloss.png", figur: "Pierre, Vertreter des Dritten Standes", figurBild: "bilder/figur-pierre.jpg",
       bisher: "Frankreich ist pleite: Der Staat hat riesige Schulden. Nach einer schlechten Ernte ist das Brot sehr teuer, viele Menschen hungern.",
       bilder: [{ src: "bilder/generalstaende.jpg", titel: "[1] Eröffnung der Generalstände in Versailles am 5. Mai 1789. Kupferstich nach Jean-Michel Moreau", alt: "Kupferstich: Ein riesiger Saal mit Säulen, hinten sitzt der König, davor sitzen hunderte Vertreter in Reihen." }],
       begriffe: ["Generalstände", "Beschwerdehefte", "Abstimmung nach Ständen", "Abstimmung nach Köpfen", "nach Ständen", "nach Köpfen", "Nach Ständen", "Nach Köpfen"],   // im Text hervorgehoben
       woerter: [{ w: "Generalstände", e: "Versammlung von Vertretern aller drei Stände" }, { w: "Beschwerdeheft", e: "Heft, in dem die Menschen ihre Klagen aufschrieben" },
         { w: "Abstimmung nach Ständen", e: "Jeder Stand hat eine Stimme, zusammen 3 Stimmen." }, { w: "Abstimmung nach Köpfen", e: "Jeder Vertreter hat eine Stimme, zusammen 1200 Stimmen." }],
       texte: [{ titel: "[2] So könnte Pierre erzählt haben", zeilen: [
-        "Ich bin Pierre, ein Anwalt. Im Frühjahr 1789 wählten mich die Bürger zum Vertreter des Dritten Standes.",
+        "Ich bin Pierre, ein Bürger aus einer kleinen Stadt. Im Frühjahr 1789 wählten mich die Menschen dort zum Vertreter des Dritten Standes.",
         "Am 5. Mai 1789 rief König Ludwig XVI. die Generalstände nach Versailles: 300 Vertreter des Ersten Standes, 300 des Zweiten und 600 des Dritten Standes.",
         "Der König hatte kein Geld mehr. Wir sollten neuen Steuern zustimmen.",
         "Wir brachten 40 000 Beschwerdehefte mit. Darin klagten die Menschen über hohe Steuern und Abgaben. Doch niemand wollte uns zuhören.",
@@ -372,7 +381,7 @@ const CONTENT = {
       vermutung: "Der Dritte Stand wird immer überstimmt. Was wird er wohl als Nächstes tun?",
       zusatz: { text: "Stell dir vor, du schreibst in ein Beschwerdeheft. Worüber beschwerst du dich?", starter: "Ich beschwere mich, weil " } },
 
-    B: { name: "Der Ballhausschwur", gruppe: "Ballhaus", icon: "bilder/icon-schriftrolle.png", figur: "Pierre, Vertreter des Dritten Standes",
+    B: { name: "Der Ballhausschwur", gruppe: "Ballhaus", icon: "bilder/icon-schriftrolle.png", figur: "Pierre, Vertreter des Dritten Standes", figurBild: "bilder/figur-pierre.jpg",
       bisher: "Am 5. Mai 1789 trafen sich in Versailles die Generalstände. Der König wollte neue Steuern. Der Dritte Stand forderte: Jede Stimme soll gleich viel zählen.",
       bilder: [{ src: "bilder/ballhaus.jpg", titel: "[1] Der Schwur im Ballhaus am 20. Juni 1789. Gemälde nach Jacques-Louis David, um 1791", alt: "Gemälde: In einer großen Halle strecken viele Männer begeistert die Arme zum Schwur aus, in der Mitte steht ein Mann auf einem Tisch." }],
       begriffe: ["Nationalversammlung", "Ballhaus", "Eid", "Verfassung", "Bürgerrechte", "anerkennen"],
@@ -400,7 +409,7 @@ const CONTENT = {
       vermutung: "Die Nachricht vom Ballhausschwur erreicht Paris. Der König zieht Soldaten zusammen. Was werden die Menschen in Paris tun?",
       zusatz: { text: "Erkläre, warum der Ballhausschwur für den König gefährlich war.", starter: "Der Schwur war für den König gefährlich, weil " } },
 
-    C: { name: "Der Sturm auf die Bastille", gruppe: "Bastille", icon: "bilder/icon-burg.png", figur: "Anne, Tochter eines Handwerkers in Paris",
+    C: { name: "Der Sturm auf die Bastille", gruppe: "Bastille", icon: "bilder/icon-burg.png", figur: "Anne, Tochter eines Handwerkers in Paris", figurBild: "bilder/figur-anne.jpg",
       bisher: "Der Dritte Stand hat sich zur Nationalversammlung erklärt. Im Ballhaus hat er geschworen: Wir bleiben zusammen, bis Frankreich eine Verfassung hat.",
       bilder: [{ src: "bilder/bastille.jpg", titel: "[1] Die Sieger der Bastille ziehen zum Rathaus von Paris. Gemälde von Paul Delaroche, um 1830", alt: "Gemälde: Eine jubelnde Menschenmenge trägt Gegenstände aus der Bastille, eine Figur mit Lorbeerkranz sitzt auf den Schultern der Menschen." }],
       begriffe: ["Nationalversammlung", "Soldaten", "Brot", "14. Juli 1789", "Bastille", "Macht des Königs", "Beginn der Französischen Revolution"],
@@ -427,7 +436,7 @@ const CONTENT = {
       vermutung: "Die Nachricht vom Sturm auf die Bastille erreicht die Dörfer. Was werden die Bauern tun?",
       zusatz: { text: "Warum war die Bastille ein Zeichen für die Macht des Königs?", starter: "Die Bastille war ein Zeichen für die Macht des Königs, weil " } },
 
-    D: { name: "Die Revolution auf dem Land", gruppe: "Land", icon: "bilder/icon-brot.png", figur: "Jacques, Bauer in einem Dorf",
+    D: { name: "Die Revolution auf dem Land", gruppe: "Land", icon: "bilder/icon-brot.png", figur: "Jacques, Bauer in einem Dorf", figurBild: "bilder/figur-jacques.jpg",
       bisher: "Am 14. Juli 1789 haben die Bürger von Paris die Bastille gestürmt. Die Nachricht verbreitet sich schnell im ganzen Land.",
       bilder: [{ src: "bilder/bauernaufstand.jpg", titel: "[1] Aufständische Bauern. Bild von Louis-Charles Bombled (1862–1927)", alt: "Bild: Bauern mit Fahne, Axt, Sense und Heugabel ziehen wütend los, vorne ein Mann mit roter Fahne." }],
       begriffe: ["Steuern und Abgaben", "Grundherrn", "Unfreiheit", "Nationalversammlung", "4. August 1789", "frei", "Richter", "alle Stände Steuern zahlen"],
@@ -465,11 +474,11 @@ function symSvg(k, cls) {
 /* =====================================================================
    Programm
    ===================================================================== */
-const KEY = "gp-1789-v2";   // bei geänderten Aufgaben hochzählen, damit alte Speicherstände nicht stören
+const KEY = "gp-1789-v3";   // bei geänderten Aufgaben hochzählen, damit alte Speicherstände nicht stören
 const $app = document.getElementById("app"), $print = document.getElementById("printArea"), $lb = document.getElementById("lightbox");
 
 function fresh() { return { name: "", sym: "", role: "", started: false, step: 1, unlocked: 1, t: {}, exp: {}, kern: { sel: [], checked: false }, vermutung: null, zusatz: null,
-  zs: { seq: [], checked: false }, folgen: { ch: {}, checked: false }, fazit: null, eff: "", lv: {}, serieF: 0, serieR: 0 }; }
+  zs: { seq: [], checked: false }, folgen: { ch: {}, checked: false }, fazit: null, eff: "", lv: {}, offen: 1, tStart: {}, fehler: {} }; }
 let st = fresh();
 try { const s = localStorage.getItem(KEY); if (s) st = Object.assign(fresh(), JSON.parse(s)); } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
@@ -504,24 +513,33 @@ function geschrieben(v, starter) { return typeof v === "string" && !!v.trim() &&
 function msg(ok, text) { return h("p", { class: "msg " + (ok ? "ok" : "no") }, text); }
 const zeileText = z => typeof z === "string" ? z : z.s + ": " + z.t;
 
-/* Hilfen (nur Teil 1): Startwert ist das Symbol. Die App passt sie still an, höchstens eine Stufe weg vom Symbol:
-   2 Fehler in Folge → mehr Hilfe, 3 sichere richtige Antworten in Folge → weniger Hilfe. Eine begonnene Aufgabe behält ihre Hilfe. */
+/* Hilfen (nur Teil 1): Alle starten mit Stufe 2. Jede Aufgabe bekommt beim Aufdecken die aktuelle Stufe und behält sie.
+   Beim Wechsel zur nächsten Aufgabe zählt: Fehlversuche und benötigte Zeit (siehe CONTENT.anpassung). */
 const HILFE = ["k", "q", "t"];
 let aktLv = null;
-const lv = () => aktLv || st.eff || st.sym;
+const lv = () => aktLv || st.eff || "q";
 const K = () => lv() === "k", Q = () => lv() === "q", ZAHL = () => lv() !== "t";
-function mit(key, fn) { const alt = aktLv; aktLv = st.lv[key] || st.eff || st.sym; try { return fn(); } finally { aktLv = alt; } }
+function mit(key, fn) { const alt = aktLv; aktLv = st.lv[key] || st.eff || "q"; try { return fn(); } finally { aktLv = alt; } }
 function fix(key, l) { if (!st.lv[key]) st.lv[key] = l; }
-function signal(ok) {
-  if (ok) { st.serieF = 0; st.serieR = (st.serieR || 0) + 1; } else { st.serieR = 0; st.serieF = (st.serieF || 0) + 1; }
-  const i = HILFE.indexOf(st.eff || st.sym), basis = HILFE.indexOf(st.sym);
-  if (st.serieF >= 2 && i > Math.max(0, basis - 1)) { st.eff = HILFE[i - 1]; st.serieF = 0; }
-  if (st.serieR >= 3 && i < Math.min(2, basis + 1)) { st.eff = HILFE[i + 1]; st.serieR = 0; }
+function signal(ok, key) { if (!ok && key) { st.fehler[key] = (st.fehler[key] || 0) + 1; } }   // zählt Fehlversuche je Aufgabe
+function startStufe() { let n = 2; try { n = +new URLSearchParams(location.search).get("stufe") || 2; } catch (e) {} return HILFE[Math.min(3, Math.max(1, n)) - 1]; }
+function aufdecken(i) {                              // Aufgabe i ist fertig: Hilfe anpassen, Aufgabe i+1 aufdecken
+  const a = CONTENT.anpassung, key = "t" + i, sek = (Date.now() - (st.tStart[key] || Date.now())) / 1000, f = st.fehler[key] || 0;
+  let n = HILFE.indexOf(st.eff || "q");
+  if (f >= a.fehler || sek > a.langSek) n = Math.max(0, n - 1);
+  else if (f === 0 && sek < a.kurzSek) n = Math.min(2, n + 1);
+  st.eff = HILFE[n];
+  const nk = "t" + (i + 1);
+  st.offen = i + 2; st.lv[nk] = st.eff; st.tStart[nk] = Date.now();
+  done();
+  const el = document.getElementById("aufgabe-" + (i + 1)); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
+let letzteFertig = "";
+function fortschritt() { const z = st.started && st.role ? R().tasks.map((t, i) => taskDone(i) ? 1 : 0).join("") : ""; if (z !== letzteFertig) { letzteFertig = z; return true; } return false; }
 let tbN = 0;
 function textBox(value, onChange, short, key) {
   const t = h("textarea", { class: short ? "short" : "", "aria-label": "Deine Antwort", "data-k": "tb" + (tbN++) }), l = lv();
-  t.value = value; t.oninput = () => { if (key) fix(key, l); onChange(t.value); }; return t;
+  t.value = value; t.oninput = () => { if (key) fix(key, l); onChange(t.value); if (fortschritt()) done(); }; return t;
 }
 
 /* ---------- Stiller Timer und Freischalten ---------- */
@@ -564,7 +582,7 @@ function markWidget(key, t) {
     let cls = "mrow";
     if (K()) cls += on ? " ok" : ""; else if (a.checked && on) cls += t.correct.includes(i) ? " ok" : " no"; else if (on) cls += " sel";
     return h("button", { class: cls, type: "button", "aria-pressed": on ? "true" : "false", onclick: ev => {
-      if (K()) { if (on) return; if (t.correct.includes(i)) { a.sel.push(i); if (t.correct.every(c => a.sel.includes(c))) signal(true); fx(); } else { flash(ev.currentTarget); signal(false); save(); } return; }
+      if (K()) { if (on) return; if (t.correct.includes(i)) { a.sel.push(i); fx(); } else { flash(ev.currentTarget); signal(false, key); save(); } return; }
       a.sel = on ? a.sel.filter(x => x !== i) : a.sel.concat(i); a.checked = false; fx();
     } }, t.aussagen ? z : typeof z === "string" ? hervor(z) : [h("span", { class: "sp", text: z.s + ": " }), hervor(z.t)]);
   }));
@@ -574,7 +592,7 @@ function markWidget(key, t) {
   if (tx) out.append(h("p", { class: "qhin", text: "Verfassertext, frei nacherzählt nach dem Schulbuch" }));
   if (K()) { if (t.correct.every(c => a.sel.includes(c))) out.append(msg(true, "Super, du hast alle gefunden! ✔")); }
   else {
-    out.append(h("button", { class: "btn small", type: "button", disabled: !a.sel.length, onclick: () => { a.checked = true; signal(a.sel.length === t.correct.length && t.correct.every(c => a.sel.includes(c))); fx(); } }, "Prüfen"));
+    out.append(h("button", { class: "btn small", type: "button", disabled: !a.sel.length, onclick: () => { a.checked = true; signal(a.sel.length === t.correct.length && t.correct.every(c => a.sel.includes(c)), key); fx(); } }, "Prüfen"));
     if (a.checked) {
       const falsch = a.sel.filter(i => !t.correct.includes(i)).length, fehlt = t.correct.filter(i => !a.sel.includes(i)).length;
       out.append(!falsch && !fehlt ? msg(true, "Richtig! ✔") : msg(false, (falsch ? "Rote " + wort + " passen nicht. " : "") + (fehlt ? (ZAHL() ? "Es fehlen noch " + fehlt + " " + wort + "." : "Es fehlen noch " + wort + ".") : "")));
@@ -588,8 +606,8 @@ function felderWidget(key, t) {
     const box = h("div", { class: "feld" + (j === t.felder.length - 1 ? " r" : "") }, h("div", { class: "k", text: j + 1 }));
     const inner = h("div", {}, h("h4", { text: f.label }), h("div", { class: "fh", text: f.hint }));
     if (K()) inner.append(h("div", { class: "bank" }, mix(f.options.length, key + st.role + j).map(k => h("button", { class: "chip" + (a.ch[j] === k ? " ok" : ""), type: "button", "aria-pressed": a.ch[j] === k ? "true" : "false",
-      onclick: ev => { if (k !== f.correct) { flash(ev.currentTarget); signal(false); save(); return; }
-        const neu = !(j in a.ch); a.ch[j] = k; if (neu && Object.keys(a.ch).length === t.felder.length) signal(true); fx(); } }, f.options[k]))));
+      onclick: ev => { if (k !== f.correct) { flash(ev.currentTarget); signal(false, key); save(); return; }
+        a.ch[j] = k; fx(); } }, f.options[k]))));
     else inner.append(textBox(a.txt[j] !== undefined ? a.txt[j] : (Q() ? f.starter : ""), v => { a.txt[j] = v; save(); freischalten() && done(); }, true, key));
     box.append(inner); return box;
   }));
@@ -602,7 +620,7 @@ function schreibWidget(key, t) {                    // ● Satzanfänge + Wortsp
   const l = lv(), ins = w => {
     const p = ta.selectionStart ?? ta.value.length, v = ta.value, vor = v.slice(0, p), lz = vor && !/\s$/.test(vor) ? " " : "";
     ta.value = vor + lz + w + " " + v.slice(p); ta.focus(); const q = (vor + lz + w + " ").length; ta.setSelectionRange(q, q);
-    fix(key, l); st.exp[key] = ta.value; save(); freischalten() && done();
+    fix(key, l); st.exp[key] = ta.value; save(); if (freischalten() | fortschritt()) done();
   };
   return h("div", {}, kopf, h("p", { class: "hilfe", text: "Wortspeicher: Tippe ein Wort an, dann wird es an der Schreibstelle eingefügt." }),
     h("div", { class: "wspeicher" }, t.woerter.map(w => h("button", { class: "chip", type: "button", onclick: () => ins(w) }, w))), ta);
@@ -635,7 +653,7 @@ function taskText(i) { return mit("t" + i, () => {
 
 /* ---------- Anmeldung ---------- */
 function loginView() {
-  const go = h("button", { class: "btn primary", type: "button", onclick: () => { st.started = true; gehe(1); } }, "Los geht’s");
+  const go = h("button", { class: "btn primary", type: "button", onclick: () => { st.started = true; st.eff = startStufe(); gehe(1); } }, "Los geht’s");
   const ready = () => { go.disabled = !(st.name.trim() && st.sym && st.role); };
   const inp = h("input", { type: "text", autocomplete: "off", autocapitalize: "words", "aria-label": "Dein Vorname" });
   inp.value = st.name; inp.oninput = () => { st.name = inp.value; save(); ready(); };
@@ -672,19 +690,23 @@ function textCard(tx) {
 }
 function teil1View() {
   const r = R(), v = h("div", {});
+  if (!st.tStart.t0) { st.lv.t0 = st.lv.t0 || st.eff || "q"; st.tStart.t0 = Date.now(); save(); }
   v.append(h("div", { class: "card" }, h("div", { class: "head" }, h("img", { class: "icon", src: r.icon, alt: "" }),
     h("div", {}, h("p", { class: "eyebrow", text: "Teil 1 · Einzelarbeit" }), h("h1", { text: r.name }))),
-    h("p", { class: "figur", text: "Erzählt von " + r.figur })));
+    h("div", { class: "leitfigur" }, h("img", { src: r.figurBild, alt: "Leitfigur " + r.figur.split(",")[0] }), h("p", {}, "Erzählt von ", h("b", { text: r.figur })))));
   v.append(h("div", { class: "bisher" }, h("b", { text: "Was bisher geschah" }), h("p", { text: r.bisher })));
   v.append(h("div", { class: "card" }, h("div", { class: "bilder" }, r.bilder.map(figure)),
     r.woerter.length ? h("div", { class: "woerter" }, r.woerter.map(w => h("div", {}, h("b", { text: w.w + ": " }), w.e))) : null));
   r.texte.forEach(tx => { if (!r.tasks.some(t => t.typ === "mark" && !t.aussagen && r.texte[t.text] === tx)) v.append(textCard(tx)); });   // Text ohne Markier-Aufgabe als Lesekarte
   r.tasks.forEach((t, i) => {
+    if (i >= st.offen) { if (i === st.offen) v.append(h("div", { class: "card zu-aufgabe" }, h("p", { text: "🔒 Aufgabe " + (i + 1) + " erscheint, wenn du Aufgabe " + i + " geschafft hast." }))); return; }
     const key = "t" + i, body = mit(key, () => t.typ === "mark" ? markWidget(key, t) : t.typ === "abstimmung" ? h("div", {}, abstimmungGrafik(t), felderWidget(key, t)) : t.typ === "schreiben" ? schreibWidget(key, t) : felderWidget(key, t));
-    v.append(h("div", { class: "card task" + (i % 2 ? " rot" : "") }, h("h3", {}, h("span", { class: "nr", text: i + 1 }), h("span", { text: t.kopf }), taskDone(i) ? h("span", { class: "erledigt", text: "✔ erledigt" }) : null),
-      h("p", { class: "auftrag", text: t.auftrag }), body));
+    const naechsteKnopf = i === st.offen - 1 && i < r.tasks.length - 1 && taskDone(i)
+      ? h("div", { class: "weiter", style: "margin-top:14px" }, h("button", { class: "btn primary", type: "button", onclick: () => aufdecken(i) }, "Weiter zu Aufgabe " + (i + 2))) : null;
+    v.append(h("div", { class: "card task" + (i % 2 ? " rot" : ""), id: "aufgabe-" + i }, h("h3", {}, h("span", { class: "nr", text: i + 1 }), h("span", { text: t.kopf }), taskDone(i) ? h("span", { class: "erledigt", text: "✔ erledigt" }) : null),
+      h("p", { class: "auftrag", text: t.auftrag }), body, naechsteKnopf));
   });
-  v.append(weiterCard(1));
+  if (st.offen >= r.tasks.length || st.unlocked >= 2) v.append(weiterCard(1));
   return v;
 }
 function weiterCard(s) {

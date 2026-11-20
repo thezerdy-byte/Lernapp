@@ -25,7 +25,15 @@ Die Artikulation sieht drei Expertengruppen (A–C) vor. Wenn du D nicht nutzt, 
 5. **Stammgruppe:** Zeitstrahl, Folgen, Fazit.
 6. **Fertig:** Übersicht und Ausdruck auf einer Seite.
 
-- **Differenzierung** gibt es nur in der Einzelarbeit (Symbol plus stille Anpassung wie im ersten Puzzle). Expertengruppe, Stammgruppe und Übersicht sehen für alle gleich aus.
+- **Einzelarbeit:** Die Aufgaben erscheinen nacheinander. Aufgabe 2 kommt erst, wenn Aufgabe 1 geschafft ist und das Kind auf „Weiter zu Aufgabe 2“ tippt.
+- **Differenzierung (nur Einzelarbeit):** Alle starten mit Stufe 2 (Satzanfänge, Anzahl-Hinweise). Vor jeder neuen Aufgabe passt die App die Hilfe still an:
+  - 2 oder mehr Fehlversuche **oder** länger als 2 Minuten → eine Stufe mehr Hilfe (Stufe 1: Antippen, Wortspeicher, sofortige Rückmeldung)
+  - keine Fehler **und** schneller als 45 Sekunden → eine Stufe weniger Hilfe (Stufe 3: leere Felder, keine Hinweise)
+  - Die Startstufe kann per Link festgelegt werden: `…/gruppenpuzzle-1789/?stufe=1` (oder 2, 3).
+  - Die Werte stehen in `CONTENT.anpassung`.
+- **Symbol ● ■ ▲:** dient nur noch zum Finden der Stammgruppe.
+- Expertengruppe, Stammgruppe und Übersicht sehen für alle gleich aus.
+- **Leitfiguren:** Pierre, Anne und Jacques erscheinen mit Bild oben in der Einzelarbeit.
 - **Stiller Timer:** keine sichtbare Uhr. Die nächste Phase öffnet sich, wenn alles erledigt ist, oder nach 40 % der geplanten Zeit (Zeiten in `CONTENT.minuten`).
 
 ## Bilder
