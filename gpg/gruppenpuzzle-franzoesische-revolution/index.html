@@ -971,7 +971,16 @@ function teil4View() {
 }
 
 /* ---------- Gerüst ---------- */
-function render() {
+function render() {                                // Schutz: Passt ein gespeicherter Stand nicht mehr zur App, erscheint ein Hinweis statt einer leeren Seite
+  try { zeichne(); } catch (e) {
+    console.error(e);
+    $app.innerHTML = "";
+    $app.append(h("div", { class: "card rot", style: "margin-top:24px;text-align:center" }, h("h2", { text: "Die gespeicherten Antworten passen nicht mehr zu dieser Version." }),
+      h("p", { class: "info", text: "Tippe auf „Neu beginnen“. Danach funktioniert alles wieder." }),
+      h("button", { class: "btn primary", type: "button", onclick: () => { st = fresh(); try { localStorage.removeItem(KEY); } catch (e2) {} render(); } }, "Neu beginnen")));
+  }
+}
+function zeichne() {
   const y = window.scrollY, ae = document.activeElement;
   const fokus = ae && ae.dataset && ae.dataset.k ? { k: ae.dataset.k, a: ae.selectionStart, b: ae.selectionEnd } : null; // Schreibfokus über das Neuzeichnen retten
   tbN = 0;
