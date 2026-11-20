@@ -245,6 +245,8 @@
   .folge .chip { border-radius: 8px; }
   .wspeicher { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
   .wspeicher .chip { font-size: .9rem; padding: 6px 12px; }
+  textarea.lang { min-height: 170px; }
+  ol.fragen { margin: 8px 0 10px; padding-left: 24px; font-size: 1.05rem; } ol.fragen li { margin-bottom: 4px; }
   .beispiel { background: var(--creme); border: 2px solid var(--braun); border-radius: 8px; padding: 10px 14px; font-size: 1.02rem; }
   .abstgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0 6px; }
   .abst { border: 2px solid var(--hellblau); border-radius: 8px; padding: 12px; background: #fff; display: flex; flex-direction: column; gap: 8px; }
@@ -301,6 +303,7 @@
      "mark"   Sätze im Text antippen. text: Nummer des Textes, correct: [Satznummern ab 0]
               oder mit aussagen: [..] statt text: richtige Aussagen antippen
      "abstimmung" Grafik „nach Ständen / nach Köpfen“ zum Antippen, darunter Fragen wie bei "felder"
+     "schreiben" freier Text: ● Satzanfänge und Wortspeicher, ■ Satzanfänge, ▲ leeres Feld
      "felder" Stichworte (Wann? Wo? Wer? Was?): [{ label, hint, starter, options:[..], correct: Position }]
    Bilder: gemeinfreie Gemälde/Stiche, Texte frei nacherzählt nach dem Schulbuch S. 54/55.
    ===================================================================== */
@@ -339,18 +342,12 @@ const CONTENT = {
       woerter: [{ w: "Generalstände", e: "Versammlung von Vertretern aller drei Stände" }, { w: "Beschwerdeheft", e: "Heft, in dem die Menschen ihre Klagen aufschrieben" },
         { w: "Abstimmung nach Ständen", e: "Jeder Stand hat eine Stimme, zusammen 3 Stimmen." }, { w: "Abstimmung nach Köpfen", e: "Jeder Vertreter hat eine Stimme, zusammen 1200 Stimmen." }],
       texte: [{ titel: "[2] So könnte Pierre erzählt haben", zeilen: [
-        "Ich bin Pierre, Anwalt aus einer kleinen Stadt.",
-        "Im Frühjahr 1789 wählten mich die Bürger zum Vertreter des Dritten Standes.",
-        "Am 5. Mai 1789 rief König Ludwig XVI. Vertreter aller drei Stände nach Versailles. Diese Versammlung nennt man Generalstände.",
-        "Es kamen 300 Vertreter des Ersten Standes, 300 des Zweiten Standes und 600 des Dritten Standes.",
+        "Ich bin Pierre, ein Anwalt. Im Frühjahr 1789 wählten mich die Bürger zum Vertreter des Dritten Standes.",
+        "Am 5. Mai 1789 rief König Ludwig XVI. die Generalstände nach Versailles: 300 Vertreter des Ersten Standes, 300 des Zweiten und 600 des Dritten Standes.",
         "Der König hatte kein Geld mehr. Wir sollten neuen Steuern zustimmen.",
-        "Wir hatten 40 000 Beschwerdehefte aus ganz Frankreich dabei.",
-        "Darin klagten die Menschen über hohe Steuern und Abgaben und über die ungerechte Verteilung des Landes.",
-        "Doch der Finanzminister des Königs wollte unsere Beschwerden nicht hören.",
-        "Dann gab es Streit darüber, wie abgestimmt wird.",
-        "Bisher galt die Abstimmung nach Ständen: Jeder Stand berät für sich und hat am Ende nur eine Stimme. Klerus und Adel halten meistens zusammen. So steht es fast immer 2 zu 1 gegen uns, obwohl wir fast das ganze Volk vertreten.",
-        "Wir forderten deshalb die Abstimmung nach Köpfen: Jeder der 1200 Vertreter hat eine eigene Stimme. Dann hätten wir 600 Stimmen, genauso viele wie Klerus und Adel zusammen. Wenn uns nur ein paar Priester und Adlige unterstützen, haben wir die Mehrheit.",
-        "Der König, die meisten Adligen und viele hohe Geistliche wollten das nicht."] }],
+        "Wir brachten 40 000 Beschwerdehefte mit. Darin klagten die Menschen über hohe Steuern und Abgaben. Doch niemand wollte uns zuhören.",
+        "Dann gab es Streit darüber, wie abgestimmt wird: nach Ständen oder nach Köpfen?",
+        "Nach Ständen hätten Klerus und Adel uns immer 2 zu 1 überstimmt. Wir forderten deshalb: Abstimmung nach Köpfen!"] }],
       tasks: [
         { typ: "abstimmung", kopf: "Untersuche, wie abgestimmt wird.", auftrag: "Tippe in beiden Kästen auf „Abstimmen“. Beantworte dann die Fragen.",
           beispiel: "Beispiel: Die Versammlung stimmt ab: „Sollen auch Adel und Klerus Steuern zahlen?“ Der Dritte Stand ist dafür, Klerus und Adel sind dagegen. Nur 50 Priester und 50 Adlige stimmen mit dem Dritten Stand.",
@@ -362,7 +359,12 @@ const CONTENT = {
         { typ: "mark", kopf: "Wähle die richtigen Aussagen.", auftrag: "Tippe alle Aussagen an, die stimmen.", correct: [0, 2, 3, 5, 6],
           aussagen: ["Am 5. Mai 1789 rief der König die Generalstände nach Versailles.", "Der König wollte die Steuern senken.", "Der König brauchte Geld und wollte neue Steuern.",
             "Bei der Abstimmung nach Ständen hat jeder Stand nur eine Stimme.", "Bei der Abstimmung nach Köpfen hat jeder Stand nur eine Stimme.",
-            "Klerus und Adel konnten den Dritten Stand nach Ständen immer 2 zu 1 überstimmen.", "Der Dritte Stand forderte eine Abstimmung nach Köpfen.", "Der Dritte Stand hatte weniger Vertreter als der Adel."] }
+            "Klerus und Adel konnten den Dritten Stand nach Ständen immer 2 zu 1 überstimmen.", "Der Dritte Stand forderte eine Abstimmung nach Köpfen.", "Der Dritte Stand hatte weniger Vertreter als der Adel."] },
+        { typ: "schreiben", kopf: "Übertrage auf heute und beurteile.", auftrag: "Lies das Beispiel und schreibe deine Antwort.",
+          fall: "Deine Schule stimmt über ein Handyverbot in den Pausen ab. Es gibt drei Gruppen: 20 Lehrkräfte, 20 Elternvertreter und 300 Schülerinnen und Schüler. Lehrkräfte und Eltern sind für das Verbot, die Schüler dagegen.",
+          fragen: ["Wie geht die Abstimmung nach Gruppen aus (jede Gruppe 1 Stimme)?", "Wie geht sie nach Köpfen aus (jede Person 1 Stimme)?", "Welche Abstimmung findest du gerechter? Begründe."],
+          starter: "Nach Gruppen steht es\nNach Köpfen steht es\nGerechter finde ich die Abstimmung nach\nweil ",
+          woerter: ["2 zu 1", "300 zu 40", "nach Gruppen", "nach Köpfen", "gewinnen", "verlieren", "gerecht", "ungerecht", "Jede Stimme zählt gleich.", "die meisten Menschen"] }
       ],
       kern: { options: ["Am 5. Mai 1789 trafen sich die Generalstände in Versailles.", "Der König brauchte Geld und wollte neue Steuern.", "Der Dritte Stand forderte eine Abstimmung nach Köpfen.", "Der König wollte die Steuern senken.", "Die Generalstände trafen sich in Paris.", "Adel und Klerus unterstützten den Dritten Stand."], correct: [0, 1, 2] },
       vermutung: "Der Dritte Stand wird immer überstimmt. Was wird er wohl als Nächstes tun?",
@@ -526,6 +528,7 @@ setInterval(tick, 1000);
 function taskDone(i) { return mit("t" + i, () => {
   const t = R().tasks[i], a = st.exp["t" + i];
   if (t.typ === "mark") return !!a && (K() ? t.correct.every(c => a.sel.includes(c)) : a.checked);
+  if (t.typ === "schreiben") return geschrieben(a, lv() === "t" ? "" : t.starter);
   return t.felder.every((f, j) => K() ? a && a.ch && j in a.ch : a && a.txt && geschrieben(a.txt[j], Q() ? f.starter : ""));
 }); }
 function teil1Fertig() { return R().tasks.every((t, i) => taskDone(i)); }
@@ -562,7 +565,8 @@ function markWidget(key, t) {
   }));
   const out = h("div", {}, tx ? h("div", { class: "qtitel" }, h("img", { src: "bilder/icon-schriftrolle.png", alt: "" }), h("h4", { text: tx.titel, style: "margin:0" })) : null);
   if (ZAHL()) out.append(h("p", { class: "hilfe", text: "Es sind " + t.correct.length + " " + wort + "." + (K() ? " Richtige " + wort + " werden grün." : "") }));
-  out.append(list, tx ? h("p", { class: "qhin", text: "Verfassertext, frei nacherzählt nach dem Schulbuch" }) : null);
+  out.append(list);
+  if (tx) out.append(h("p", { class: "qhin", text: "Verfassertext, frei nacherzählt nach dem Schulbuch" }));
   if (K()) { if (t.correct.every(c => a.sel.includes(c))) out.append(msg(true, "Super, du hast alle gefunden! ✔")); }
   else {
     out.append(h("button", { class: "btn small", type: "button", disabled: !a.sel.length, onclick: () => { a.checked = true; signal(a.sel.length === t.correct.length && t.correct.every(c => a.sel.includes(c))); fx(); } }, "Prüfen"));
@@ -585,6 +589,19 @@ function felderWidget(key, t) {
     box.append(inner); return box;
   }));
 }
+function schreibWidget(key, t) {                    // ● Satzanfänge + Wortspeicher, ■ Satzanfänge, ▲ leeres Feld
+  const ta = textBox(typeof st.exp[key] === "string" ? st.exp[key] : (lv() === "t" ? "" : t.starter), val => { st.exp[key] = val; save(); freischalten() && done(); }, false, key);
+  ta.classList.add("lang");
+  const kopf = h("div", {}, t.fall ? h("p", { class: "beispiel", text: t.fall }) : null, t.fragen ? h("ol", { class: "fragen" }, t.fragen.map(f => h("li", { text: f }))) : null);
+  if (!K()) return h("div", {}, kopf, ta);
+  const l = lv(), ins = w => {
+    const p = ta.selectionStart ?? ta.value.length, v = ta.value, vor = v.slice(0, p), lz = vor && !/\s$/.test(vor) ? " " : "";
+    ta.value = vor + lz + w + " " + v.slice(p); ta.focus(); const q = (vor + lz + w + " ").length; ta.setSelectionRange(q, q);
+    fix(key, l); st.exp[key] = ta.value; save(); freischalten() && done();
+  };
+  return h("div", {}, kopf, h("p", { class: "hilfe", text: "Wortspeicher: Tippe ein Wort an, dann wird es an der Schreibstelle eingefügt." }),
+    h("div", { class: "wspeicher" }, t.woerter.map(w => h("button", { class: "chip", type: "button", onclick: () => ins(w) }, w))), ta);
+}
 /* Grafik zur Abstimmung (für alle gleich). Beispielzahlen: 50 Priester und 50 Adlige stimmen mit dem Dritten Stand. */
 const ABST = { staende: [{ n: "Klerus", v: 300, ja: false }, { n: "Adel", v: 300, ja: false }, { n: "Dritter Stand", v: 600, ja: true }],
   koepfe: [{ n: "Klerus", v: 300, ja: 50 }, { n: "Adel", v: 300, ja: 50 }, { n: "Dritter Stand", v: 600, ja: 600 }], proPunkt: 50 };
@@ -606,6 +623,7 @@ function abstimmungGrafik(t) {
 }
 function taskText(i) { return mit("t" + i, () => {
   const t = R().tasks[i], a = st.exp["t" + i];
+  if (t.typ === "schreiben") return typeof a === "string" && a.trim() ? a.trim() : "–";
   if (t.typ === "mark") return ((a && a.sel) || []).slice().sort((x, y) => x - y).map(n => "• " + (t.aussagen ? t.aussagen[n] : zeileText(R().texte[t.text].zeilen[n]))).join("\n");
   return t.felder.map((f, j) => f.label + " " + (K() ? (a && a.ch && j in a.ch ? f.options[a.ch[j]] : "–") : ((a && a.txt && a.txt[j] && a.txt[j].trim()) || "–"))).join("\n");
 }); }
@@ -651,7 +669,7 @@ function teil1View() {
     r.woerter.length ? h("div", { class: "woerter" }, r.woerter.map(w => h("div", {}, h("b", { text: w.w + ": " }), w.e))) : null));
   r.texte.forEach(tx => { if (!r.tasks.some(t => t.typ === "mark" && !t.aussagen && r.texte[t.text] === tx)) v.append(textCard(tx)); });   // Text ohne Markier-Aufgabe als Lesekarte
   r.tasks.forEach((t, i) => {
-    const key = "t" + i, body = mit(key, () => t.typ === "mark" ? markWidget(key, t) : t.typ === "abstimmung" ? h("div", {}, abstimmungGrafik(t), felderWidget(key, t)) : felderWidget(key, t));
+    const key = "t" + i, body = mit(key, () => t.typ === "mark" ? markWidget(key, t) : t.typ === "abstimmung" ? h("div", {}, abstimmungGrafik(t), felderWidget(key, t)) : t.typ === "schreiben" ? schreibWidget(key, t) : felderWidget(key, t));
     v.append(h("div", { class: "card task" + (i % 2 ? " rot" : "") }, h("h3", {}, h("span", { class: "nr", text: i + 1 }), h("span", { text: t.kopf }), taskDone(i) ? h("span", { class: "erledigt", text: "✔ erledigt" }) : null),
       h("p", { class: "auftrag", text: t.auftrag }), body));
   });
