@@ -400,7 +400,7 @@ const CONTENT = {
       bisher: "Am 5. Mai 1789 trafen sich in Versailles die Generalstände. Der König wollte neue Steuern. Der Dritte Stand forderte: Jede Stimme soll gleich viel zählen.",
       bilder: [{ src: "bilder/ballhaus.jpg", titel: "[1] Der Schwur im Ballhaus am 20. Juni 1789. Gemälde nach Jacques-Louis David, um 1791", alt: "Gemälde: In einer großen Halle strecken viele Männer begeistert die Arme zum Schwur aus, in der Mitte steht ein Mann auf einem Tisch." }],
       begriffe: ["Nationalversammlung", "Ballhaus", "Eid", "Verfassung", "Bürgerrechte", "anerkennen"],
-      szene: { nach: 0, bild: "bilder/figur-pierre-ganz.jpg", name: "Pierre", text: "Ich schwöre: Wir gehen erst nach Hause, wenn wir eine Verfassung für Frankreich erarbeitet haben!" },   // erscheint nach Aufgabe 1
+      szene: { nach: 0, bild: "bilder/figur-pierre-ganz.jpg", name: "Pierre", alt: "Pierre steht aufrecht und hebt die Hand zum Schwur.", text: "Ich schwöre: Wir gehen erst nach Hause, wenn wir eine Verfassung für Frankreich erarbeitet haben!" },   // erscheint nach Aufgabe 1
       woerter: [{ w: "Eid", e: "Schwur, ein feierliches Versprechen" }, { w: "Verfassung", e: "die wichtigsten Regeln und Gesetze eines Staates" }, { w: "Nationalversammlung", e: "Versammlung, die das ganze Volk vertritt" }],
       texte: [{ titel: "[2] So könnte Pierre erzählt haben", zeilen: [
         "Wochenlang stritten wir in Versailles, wie abgestimmt werden soll.",
@@ -415,11 +415,11 @@ const CONTENT = {
         "Der König musste die Nationalversammlung schließlich anerkennen."] }],
       tasks: [
         { typ: "mark", kopf: "Markiere das Wichtigste.", auftrag: "Lies den Text. Tippe die Sätze an, in denen steht, wie sich der Dritte Stand gegen den König und die anderen Stände wehrte.", text: 0, correct: [3, 6, 7] },
-        { typ: "felder", kopf: "Notiere Stichworte.", auftrag: "Beantworte die Fragen kurz.", felder: [
-          { label: "Wann?", hint: "Datum des Schwurs", starter: "Am ", options: ["am 20. Juni 1789", "am 4. August 1789"], correct: 0 },
-          { label: "Wo?", hint: "Ort des Schwurs", starter: "Im ", options: ["im Ballhaus, einer Turnhalle in Versailles", "in einer Kirche in Paris"], correct: 0 },
-          { label: "Wer?", hint: "Wer schwor?", starter: "Die ", options: ["die Vertreter des Dritten Standes (Nationalversammlung)", "die Soldaten des Königs"], correct: 0 },
-          { label: "Was schworen sie?", hint: "Was versprachen sie?", starter: "Sie schworen, ", options: ["zusammenzubleiben, bis Frankreich eine Verfassung hat", "dem König immer zu gehorchen"], correct: 0 } ] }
+        { typ: "felder", kopf: "Beantworte die Fragen.", auftrag: "Antworte kurz mit Hilfe des Textes.", felder: [
+          { label: "Wann leisteten die Vertreter den Schwur?", hint: "", starter: "Am ", options: ["am 20. Juni 1789", "am 4. August 1789"], correct: 0 },
+          { label: "Wo schworen sie?", hint: "", starter: "Im ", options: ["im Ballhaus, einer Turnhalle in Versailles", "in einer Kirche in Paris"], correct: 0 },
+          { label: "Wer leistete den Schwur?", hint: "", starter: "Die ", options: ["die Vertreter des Dritten Standes (Nationalversammlung)", "die Soldaten des Königs"], correct: 0 },
+          { label: "Was versprachen sie mit ihrem Schwur?", hint: "", starter: "Sie schworen, ", options: ["zusammenzubleiben, bis Frankreich eine Verfassung hat", "dem König immer zu gehorchen"], correct: 0 } ] }
       ],
       kern: { options: ["Der Dritte Stand erklärte sich zur Nationalversammlung.", "Im Ballhaus schworen sie, zusammenzubleiben, bis Frankreich eine Verfassung hat.", "Der König musste die Nationalversammlung anerkennen.", "Der König öffnete ihnen freiwillig den Sitzungssaal.", "Im Ballhaus wurde der König abgesetzt.", "Alle Adligen unterstützten den Dritten Stand."], correct: [0, 1, 2] },
       vermutung: "Die Nachricht vom Ballhausschwur erreicht Paris. Der König zieht Soldaten zusammen. Was werden die Menschen in Paris tun?",
@@ -429,6 +429,8 @@ const CONTENT = {
       bisher: "Der Dritte Stand hat sich zur Nationalversammlung erklärt. Im Ballhaus hat er geschworen: Wir bleiben zusammen, bis Frankreich eine Verfassung hat.",
       bilder: [{ src: "bilder/bastille.jpg", titel: "[1] Die Sieger der Bastille ziehen zum Rathaus von Paris. Gemälde von Paul Delaroche, um 1830", alt: "Gemälde: Eine jubelnde Menschenmenge trägt Gegenstände aus der Bastille, eine Figur mit Lorbeerkranz sitzt auf den Schultern der Menschen." }],
       begriffe: ["Nationalversammlung", "Soldaten", "Brot", "14. Juli 1789", "Bastille", "Macht des Königs", "Beginn der Französischen Revolution"],
+      szene: { nach: 0, bild: "bilder/figur-anne-ganz.jpg", name: "Anne", alt: "Anne steht da und stemmt eine Hand in die Hüfte.",
+        text: "Wir hatten Hunger, das Brot war viel zu teuer. Und der König ließ Soldaten rund um Paris aufmarschieren. Wir hatten Angst, dass er die Nationalversammlung mit Gewalt auflöst. In der Bastille lagen Waffen und Schießpulver. Damit wollten wir uns wehren!" },
       woerter: [{ w: "Bastille", e: "alte Festung und Gefängnis in Paris" }],
       texte: [{ titel: "[2] So könnte Anne erzählt haben", zeilen: [
         "Ich bin Anne und wohne mit meiner Familie in Paris.",
@@ -442,11 +444,11 @@ const CONTENT = {
         "Dieser Tag gilt als der eigentliche Beginn der Französischen Revolution."] }],
       tasks: [
         { typ: "mark", kopf: "Markiere das Wichtigste.", auftrag: "Lies den Text. Tippe die Sätze an, die erklären, warum die Menschen die Bastille stürmten.", text: 0, correct: [2, 3, 5, 7] },
-        { typ: "felder", kopf: "Notiere Stichworte.", auftrag: "Beantworte die Fragen kurz.", felder: [
-          { label: "Wann?", hint: "Datum des Sturms", starter: "Am ", options: ["am 14. Juli 1789", "am 5. Mai 1789"], correct: 0 },
-          { label: "Wo?", hint: "Ort", starter: "In ", options: ["in Paris, an der Bastille", "in Versailles, im Schloss"], correct: 0 },
-          { label: "Wer?", hint: "Wer stürmte?", starter: "Es stürmten ", options: ["Bürger von Paris", "die Soldaten des Königs"], correct: 0 },
-          { label: "Was geschah?", hint: "Was passierte an diesem Tag?", starter: "Die Bürger ", options: ["Sie eroberten die Bastille.", "Sie wählten einen neuen König."], correct: 0 } ] }
+        { typ: "felder", kopf: "Beantworte die Fragen.", auftrag: "Antworte kurz mit Hilfe des Textes.", felder: [
+          { label: "Wann wurde die Bastille gestürmt?", hint: "", starter: "Am ", options: ["am 14. Juli 1789", "am 5. Mai 1789"], correct: 0 },
+          { label: "Wo stand die Bastille?", hint: "", starter: "In ", options: ["in Paris, an der Bastille", "in Versailles, im Schloss"], correct: 0 },
+          { label: "Wer stürmte die Bastille?", hint: "", starter: "Es stürmten ", options: ["Bürger von Paris", "die Soldaten des Königs"], correct: 0 },
+          { label: "Was geschah an diesem Tag?", hint: "", starter: "Die Bürger ", options: ["Sie eroberten die Bastille.", "Sie wählten einen neuen König."], correct: 0 } ] }
       ],
       kern: { options: ["Am 14. Juli 1789 stürmten Bürger von Paris die Bastille.", "Die Menschen hatten Hunger und Angst vor den Soldaten des Königs.", "Der Sturm auf die Bastille gilt als Beginn der Revolution.", "Die Bastille war das Schloss des Königs.", "Der König führte die Bürger zur Bastille.", "Nach dem Sturm gaben die Bürger ihre Waffen sofort ab."], correct: [0, 1, 2] },
       vermutung: "Die Nachricht vom Sturm auf die Bastille erreicht die Dörfer. Was werden die Bauern tun?",
@@ -470,11 +472,11 @@ const CONTENT = {
         "Die Grundherren waren nicht mehr die Richter auf dem Land. Und ab jetzt mussten alle Stände Steuern zahlen."] }],
       tasks: [
         { typ: "mark", kopf: "Markiere das Wichtigste.", auftrag: "Lies den Text. Tippe die Sätze an, in denen steht, was die Bauern taten und was sie erreichten.", text: 0, correct: [3, 4, 5, 8, 9] },
-        { typ: "felder", kopf: "Notiere Stichworte.", auftrag: "Beantworte die Fragen kurz.", felder: [
-          { label: "Wann?", hint: "Zeitraum", starter: "Im ", options: ["im Juli und August 1789", "im Mai 1789"], correct: 0 },
-          { label: "Wo?", hint: "Ort", starter: "Auf ", options: ["auf dem Land, bei den Schlössern der Grundherren", "im Ballhaus in Versailles"], correct: 0 },
-          { label: "Wer?", hint: "Wer erhob sich?", starter: "Die ", options: ["die Bauern", "die Bürger von Paris"], correct: 0 },
-          { label: "Was erreichten sie?", hint: "Was beschloss die Nationalversammlung am 4. August?", starter: "Am 4. August 1789 ", options: ["Alle Bauern wurden frei, alle Stände mussten Steuern zahlen.", "Sie bekamen einen eigenen König."], correct: 0 } ] }
+        { typ: "felder", kopf: "Beantworte die Fragen.", auftrag: "Antworte kurz mit Hilfe des Textes.", felder: [
+          { label: "Wann kam es zu den Aufständen auf dem Land?", hint: "", starter: "Im ", options: ["im Juli und August 1789", "im Mai 1789"], correct: 0 },
+          { label: "Wo kämpften die Bauern?", hint: "", starter: "Auf ", options: ["auf dem Land, bei den Schlössern der Grundherren", "im Ballhaus in Versailles"], correct: 0 },
+          { label: "Wer erhob sich gegen die Grundherren?", hint: "", starter: "Die ", options: ["die Bauern", "die Bürger von Paris"], correct: 0 },
+          { label: "Was erreichten die Bauern?", hint: "Was beschloss die Nationalversammlung am 4. August?", starter: "Am 4. August 1789 ", options: ["Alle Bauern wurden frei, alle Stände mussten Steuern zahlen.", "Sie bekamen einen eigenen König."], correct: 0 } ] }
       ],
       kern: { options: ["Die Bauern weigerten sich, Steuern und Abgaben zu zahlen.", "Sie stürmten die Schlösser und verbrannten die Bücher mit ihren Abgaben.", "Am 4. August 1789 wurden alle Bauern frei.", "Die Bauern blieben ruhig und warteten ab.", "Nach dem 4. August mussten nur noch die Bauern Steuern zahlen.", "Die Grundherren wurden die Richter in Paris."], correct: [0, 1, 2] },
       vermutung: "Die Bauern sind jetzt frei. Was muss die Nationalversammlung als Nächstes tun?",
@@ -620,7 +622,7 @@ function felderWidget(key, t) {
   const a = slot(st.exp, key, { ch: {}, txt: {} }), L0 = lv(), fx = () => { fix(key, L0); done(); };
   return h("div", {}, t.felder.map((f, j) => {
     const box = h("div", { class: "feld" + (j === t.felder.length - 1 ? " r" : "") }, h("div", { class: "k", text: j + 1 }));
-    const inner = h("div", {}, h("h4", { text: f.label }), h("div", { class: "fh", text: f.hint }));
+    const inner = h("div", {}, h("h4", { text: f.label }), f.hint ? h("div", { class: "fh", text: f.hint }) : null);
     if (K()) inner.append(h("div", { class: "bank" }, mix(f.options.length, key + st.role + j).map(k => h("button", { class: "chip" + (a.ch[j] === k ? " ok" : ""), type: "button", "aria-pressed": a.ch[j] === k ? "true" : "false",
       onclick: ev => { if (k !== f.correct) { flash(ev.currentTarget); signal(false, key); save(); return; }
         a.ch[j] = k; fx(); } }, f.options[k]))));
@@ -707,7 +709,7 @@ function textCard(tx) {
 function szeneView(z) {                             // Leitfigur mit Sprechblase; die Animation läuft nur beim ersten Erscheinen
   const neu = !st.szeneGesehen;
   if (neu) setTimeout(() => { st.szeneGesehen = true; save(); }, 50);
-  return h("div", { class: "card szene" + (neu ? " anim" : "") }, h("div", { class: "szene-figur" }, h("img", { src: z.bild, alt: "Pierre steht aufrecht und hebt die Hand zum Schwur." })),
+  return h("div", { class: "card szene" + (neu ? " anim" : "") }, h("div", { class: "szene-figur" }, h("img", { src: z.bild, alt: z.alt || z.name })),
     h("div", { class: "blase" }, h("b", { text: z.name + ":" }), h("p", { text: "„" + z.text + "“" })));
 }
 function teil1View() {
