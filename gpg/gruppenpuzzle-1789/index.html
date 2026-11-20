@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="de-DE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Puzzle 1789">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="bilder/icon-fackel.png">
+<title>Gruppenpuzzle – Der Sturm bricht los 1789</title>
+<style>
+  /* Farben und Schrift aus der PowerPoint-Vorlage „Die Französische Revolution“ */
+  :root {
+    --blau: #0B3C7D; --rot: #C8312B; --text: #1F2937; --grau: #7A8699; --dgruen: #2F5233; --hellgruen: #E2EFDA;
+    --creme: #FBF5E6; --braun: #8A6D3B; --hellblau: #DCE6F5; --hellgrau: #F3F5F9; --hellrot: #F9E1DF;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; touch-action: manipulation; }   /* iPad: kein Doppeltipp-Zoom */
+  button, summary { -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+  img { -webkit-user-drag: none; }
+  body { margin: 0; background: #fff; color: var(--text); font-family: "Century Gothic", "Avenir Next", "Futura", sans-serif; font-size: 17px; line-height: 1.5; }
+  #bg { position: fixed; inset: 0; z-index: -1; background: #fff url("bilder/hintergrund.png") center / cover no-repeat; }
+  #bg::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: linear-gradient(90deg, var(--blau) 0 33.3%, transparent 33.3% 66.6%, var(--rot) 66.6%); }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right)) calc(70px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  .hidden { display: none !important; }
+  h1, h2, h3, h4 { color: var(--blau); margin: 0 0 8px; line-height: 1.25; }
+  h1 { font-size: 1.75rem; text-align: center; } h2 { font-size: 1.35rem; } h3 { font-size: 1.12rem; }
+  p { margin: 0 0 10px; }
+  .info { font-size: 20px; }
+  .muted { color: var(--grau); }
+  .thema { display: inline-block; background: var(--hellgruen); color: var(--dgruen); font-weight: 700; font-size: .85rem; padding: 4px 12px; border-radius: 4px; }
+  .eyebrow { color: var(--rot); font-weight: 700; font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 4px; }
+  .card { background: rgba(255,255,255,.97); border: 2px solid var(--blau); border-radius: 8px; padding: 18px; margin: 0 0 16px; box-shadow: 0 4px 14px rgba(11,60,125,.08); }
+  .card.rot { border-color: var(--rot); }
+  .card.gruen { background: var(--hellgruen); border-color: var(--dgruen); }
+  .card.quelle { background: var(--creme); border-color: var(--braun); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+  .btn { font-family: inherit; font-size: 1rem; font-weight: 700; min-height: 48px; padding: 10px 22px; border-radius: 8px; border: 2px solid var(--blau); background: #fff; color: var(--blau); cursor: pointer; }
+  .btn.primary { background: var(--blau); color: #fff; }
+  .btn.rotbtn { background: var(--rot); border-color: var(--rot); color: #fff; }
+  .btn.small { min-height: 44px; font-size: .92rem; padding: 8px 16px; }
+  .btn:disabled { opacity: .4; cursor: default; }
+  :focus-visible { outline: 3px solid #E8A33D; outline-offset: 2px; }
+
+  /* Kopfleiste mit Timer */
+  .top { position: sticky; top: 0; z-index: 20; padding-top: max(10px, env(safe-area-inset-top)) !important; background: rgba(255,255,255,.96); border-bottom: 2px solid var(--hellblau); margin: 0 -16px 14px; padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+  .timer { display: flex; align-items: center; gap: 10px; min-width: 230px; }
+  .timer .lbl { font-size: .85rem; font-weight: 700; color: var(--grau); }
+  .timer b { font-size: 1.5rem; color: var(--blau); font-variant-numeric: tabular-nums; min-width: 3.2em; }
+  .timer .tbar { width: 120px; height: 10px; border-radius: 5px; background: var(--hellblau); overflow: hidden; }
+  .timer .tbar div { height: 100%; background: var(--blau); transition: width 1s linear; }
+  .timer.knapp b { color: var(--rot); } .timer.knapp .tbar div { background: var(--rot); }
+  .timer.aus b { color: var(--rot); animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .3; } }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+  .step { font-family: inherit; font-size: .9rem; font-weight: 700; min-height: 50px; padding: 6px 8px; border-radius: 8px; border: 2px solid var(--blau); background: #fff; color: var(--blau); cursor: pointer; }
+  .step.on { background: var(--blau); color: #fff; }
+  .step.zu { border-style: dashed; border-color: var(--grau); color: var(--grau); background: var(--hellgrau); cursor: default; }
+  .step .n { display: inline-block; width: 1.7em; height: 1.7em; line-height: 1.7em; border-radius: 50%; background: var(--hellblau); color: var(--blau); margin-right: 6px; }
+
+  /* Anmeldung */
+  .choices { display: flex; flex-wrap: wrap; gap: 12px; }
+  .sym { font-family: inherit; font-size: 2.4rem; width: 86px; height: 86px; border-radius: 10px; border: 2px solid var(--grau); background: #fff; color: var(--blau); cursor: pointer; }
+  .sym.on, .role.on { border-color: var(--blau); background: var(--hellblau); box-shadow: 0 0 0 3px var(--blau) inset; }
+  .role { font-family: inherit; text-align: left; flex: 1 1 210px; min-height: 92px; display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 10px; border: 2px solid var(--grau); background: #fff; color: var(--text); cursor: pointer; }
+  .role b { display: block; color: var(--blau); font-size: 1.05rem; }
+  .role .s { color: var(--grau); font-size: .9rem; }
+  img.icon { width: 52px; height: 52px; flex: none; }
+  input[type=text] { font-family: inherit; font-size: 1.2rem; padding: 12px 14px; border-radius: 8px; border: 2px solid var(--grau); width: min(100%, 360px); min-height: 50px; color: var(--text); }
+
+  /* Material */
+  .head { display: flex; gap: 16px; align-items: center; justify-content: center; text-align: left; }
+  .head img.icon { width: 70px; height: 70px; }
+  .head h1 { text-align: left; margin: 0; }
+  .bilder { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 560px)); justify-content: center; align-items: start; gap: 14px; }
+  figure { margin: 0; }
+  figure button { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+  figure img { display: block; width: 100%; height: auto; border-radius: 6px; border: 2px solid var(--blau); }
+  figure img.oval { border-radius: 50%; border: 0; width: auto; max-width: 100%; max-height: 420px; margin: 0 auto; }
+  figcaption { font-size: .9rem; color: var(--text); margin-top: 6px; }
+  figcaption .lupe { color: var(--grau); }
+  details.bildinfo { margin-top: 6px; font-size: .95rem; }
+  details.bildinfo summary { cursor: pointer; color: var(--blau); font-weight: 700; min-height: 44px; display: flex; align-items: center; }
+  .quelltext { font-size: 20px; line-height: 1.6; }
+  .quelltext p { margin: 0 0 8px; }
+  .quelltext .sp { font-weight: 700; color: var(--braun); }
+  .qtitel { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+  .qtitel img { width: 36px; height: 36px; }
+  .qhin { font-size: .85rem; color: var(--grau); margin-top: 6px; }
+  #lightbox { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.88); display: flex; align-items: center; justify-content: center; padding: 16px; cursor: zoom-out; }
+  #lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; }
+
+  /* Aufgaben */
+  .task h3 { display: flex; gap: 10px; align-items: flex-start; }
+  .nr { flex: none; width: 34px; height: 34px; line-height: 34px; text-align: center; border-radius: 50%; background: var(--blau); color: #fff; font-size: 1rem; }
+  .card.rot .nr { background: var(--rot); }
+  .auftrag { font-size: 20px; margin: 0 0 8px; }
+  .hilfe { font-size: .95rem; color: var(--dgruen); background: var(--hellgruen); border-radius: 6px; padding: 6px 10px; display: inline-block; margin-bottom: 8px; }
+  .erledigt { color: var(--dgruen); font-weight: 700; font-size: .9rem; margin-left: auto; white-space: nowrap; }
+  .plus { display: flex; gap: 12px; align-items: flex-start; }
+  .plus .dot { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--rot); color: #fff; font-weight: 700; font-size: 1.5rem; line-height: 40px; text-align: center; }
+  textarea { width: 100%; min-height: 110px; font-family: inherit; font-size: 1rem; line-height: 1.5; padding: 12px; border-radius: 8px; border: 2px solid var(--grau); color: var(--text); resize: vertical; background: #fff; }
+  textarea.short { min-height: 80px; }
+
+  .feld { display: grid; grid-template-columns: 44px 1fr; gap: 10px; margin: 0 0 14px; }
+  .feld .k { width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 50%; background: var(--blau); color: #fff; font-weight: 700; }
+  .feld.r .k { background: var(--rot); }
+  .feld h4 { margin: 2px 0 2px; } .feld .fh { font-size: .92rem; color: var(--grau); margin-bottom: 6px; }
+
+  .bank { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .chip { font-family: inherit; font-size: 1rem; min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 2px solid var(--blau); background: #fff; color: var(--blau); cursor: pointer; font-weight: 700; text-align: left; }
+  .chip.used { opacity: .3; }
+  .chip.bad { border-color: var(--rot) !important; color: var(--rot) !important; background: var(--hellrot) !important; animation: shake .35s; }
+  .chip.sel { background: var(--hellblau); }
+  .chip.ok { background: var(--hellgruen); border-color: var(--dgruen); color: var(--dgruen); }
+  .chip.no { background: var(--hellrot); border-color: var(--rot); color: var(--rot); }
+  @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  .gaptext { font-size: 1.05rem; line-height: 2.6; }
+  .gap { font-family: inherit; font-size: 1rem; font-weight: 700; min-width: 110px; min-height: 42px; padding: 2px 10px; margin: 0 3px; border-radius: 6px; border: 2px dashed var(--grau); background: #fff; color: var(--blau); cursor: pointer; vertical-align: middle; }
+  .gap.full { border-style: solid; border-color: var(--blau); background: var(--hellblau); }
+  .gap.ok { border-color: var(--dgruen); background: var(--hellgruen); color: var(--dgruen); }
+  .gap.no { border-color: var(--rot); background: var(--hellrot); color: var(--rot); }
+
+  .mlist { display: grid; gap: 8px; margin: 10px 0; }
+  .mrow { font-family: inherit; font-size: 1.05rem; line-height: 1.5; text-align: left; min-height: 48px; padding: 10px 14px; border-radius: 8px; border: 2px solid transparent; background: var(--creme); color: var(--text); cursor: pointer; }
+  .mrow .sp { font-weight: 700; color: var(--braun); }
+  .mrow.sel { background: #FFF1A8; border-color: #E0B800; }
+  .mrow.ok { background: var(--hellgruen); border-color: var(--dgruen); }
+  .mrow.no { background: var(--hellrot); border-color: var(--rot); }
+  .mrow.bad { animation: shake .35s; border-color: var(--rot); }
+
+  .kette { display: grid; gap: 8px; margin: 10px 0; }
+  .kette .it { display: grid; grid-template-columns: 100px 1fr; gap: 10px; align-items: center; min-height: 52px; padding: 8px 12px; border: 2px dashed var(--grau); border-radius: 8px; background: #fff; font-family: inherit; font-size: 1rem; text-align: left; color: var(--text); cursor: pointer; }
+  .kette .it .lab { font-weight: 700; color: var(--blau); font-size: .9rem; }
+  .kette .it.full { border-style: solid; border-color: var(--blau); }
+  .kette .it.ok { border-color: var(--dgruen); background: var(--hellgruen); }
+  .kette .it.no { border-color: var(--rot); background: var(--hellrot); }
+  .sortlist { display: grid; gap: 10px; margin: 10px 0; }
+  .sortrow { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; border: 2px solid var(--hellblau); border-radius: 8px; padding: 10px 12px; background: #fff; }
+  .sortrow .bt { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+  .sortrow .chip { font-size: .9rem; padding: 6px 12px; }
+  .sortrow.ok { border-color: var(--dgruen); background: var(--hellgruen); } .sortrow.no { border-color: var(--rot); background: var(--hellrot); }
+  .msg { font-weight: 700; margin: 8px 0 0; }
+  .msg.ok { color: var(--dgruen); } .msg.no { color: var(--rot); }
+
+  /* Check */
+  .q { border: 2px solid var(--hellblau); border-radius: 8px; padding: 14px; margin: 0 0 12px; background: #fff; }
+  .q .qt { font-weight: 700; margin-bottom: 10px; }
+  .opts { display: grid; gap: 8px; }
+  .opt { font-family: inherit; font-size: 1rem; text-align: left; min-height: 48px; padding: 10px 14px; border-radius: 8px; border: 2px solid var(--grau); background: #fff; color: var(--text); cursor: pointer; }
+  .opt:disabled { cursor: default; color: var(--text); }
+  .opt.ok { border-color: var(--dgruen); background: var(--hellgruen); }
+  .opt.no { border-color: var(--rot); background: var(--hellrot); }
+  .why { margin-top: 8px; font-size: .95rem; color: var(--grau); }
+  .banner { border-radius: 8px; padding: 14px 16px; font-weight: 700; font-size: 1.15rem; margin: 6px 0 14px; }
+  .banner.ok { background: var(--hellgruen); color: var(--dgruen); border: 2px solid var(--dgruen); }
+  .banner.no { background: var(--hellrot); color: var(--rot); border: 2px solid var(--rot); }
+  .fehlt { margin: 6px 0 0; padding-left: 20px; }
+  .weiter { text-align: center; }
+  .weiter .btn { font-size: 1.15rem; min-height: 56px; padding: 12px 28px; }
+
+  /* Großer Bildschirm Expertengruppe */
+  .hero { background: var(--blau); color: #fff; border-radius: 10px; padding: clamp(22px, 5vw, 46px) 20px; text-align: center; margin: 0 0 16px; position: relative; overflow: hidden; }
+  .hero h1 { color: #fff; font-size: clamp(2rem, 5.4vw, 3.2rem); margin: 6px 0 10px; }
+  .hero .eyebrow { color: #F6B8B3; }
+  .hero .big { font-size: clamp(3.6rem, 13vw, 7.5rem); font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; margin: 10px 0; }
+  .hero .big.aus { color: #F6B8B3; animation: blink 1s steps(2) infinite; }
+  .hero ol { text-align: left; max-width: 640px; margin: 14px auto 0; font-size: 20px; line-height: 1.5; padding-left: 28px; }
+  .hero ol li { margin-bottom: 8px; }
+  .hero .disk { background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.5); border-radius: 8px; padding: 12px 14px; margin-top: 4px; font-weight: 700; }
+  .hero.finde { min-height: calc(100vh - 170px); min-height: calc(100dvh - 170px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .riesig { width: 100%; text-align: center; font-size: clamp(4rem, 13vw, 8.5rem); font-weight: 700; line-height: 1.05; color: #fff; margin: 6px 0 14px; word-break: break-word; }
+  .riesig.symbol { line-height: 0; margin: 10px 0 16px; }
+  .riesig.symbol svg { width: clamp(150px, 30vw, 260px); height: auto; color: #fff; }
+  .sym svg.symg { width: 46px; height: 46px; color: var(--blau); }
+  .hero img.rolle { width: clamp(100px, 16vw, 150px); height: auto; filter: brightness(0) invert(1); }
+  .fsatz { font-size: 22px; max-width: 660px; margin: 0 auto 8px; line-height: 1.45; }
+  .fsatz.klein { font-size: 18px; opacity: .85; }
+  .finde .big { font-size: clamp(2.6rem, 8vw, 4.2rem); margin: 8px 0 14px; }
+  .btn.hellbtn { background: #fff; color: var(--blau); border-color: #fff; font-size: 1.1rem; min-height: 56px; }
+  .hero img.deko { position: absolute; width: 120px; opacity: .12; filter: brightness(0) invert(1); }
+  .ov h4 { margin: 10px 0 4px; }
+  .ans { white-space: pre-wrap; background: var(--hellgrau); border: 1px solid var(--hellblau); border-radius: 6px; padding: 10px 12px; margin: 0 0 10px; }
+  .line { margin: 0 0 14px; }
+  .built { min-height: 50px; padding: 10px 12px; border: 2px dashed var(--grau); border-radius: 8px; margin: 8px 0; background: #fff; }
+  .built.full { border-style: solid; border-color: var(--dgruen); background: var(--hellgruen); }
+
+  /* Gruppenblatt */
+  .tbl { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+  .tbl th, .tbl td { border: 1.5px solid var(--hellblau); padding: 10px; vertical-align: top; font-size: .95rem; background: #fff; }
+  .tbl th { background: var(--hellgrau); color: var(--blau); text-align: left; }
+  .tbl th.rowh { width: 15%; }
+  .tbl td.own, .tbl th.own { background: var(--hellgruen); }
+  .tbl .chip { font-size: .85rem; padding: 6px 10px; }
+  .tags { display: flex; flex-direction: column; gap: 6px; margin: 4px 0; }
+  .tag { font-family: inherit; text-align: left; font-size: .9rem; min-height: 44px; padding: 6px 10px; border-radius: 8px; border: 2px solid var(--dgruen); background: var(--hellgruen); color: var(--text); cursor: pointer; }
+  .zuf { display: grid; gap: 6px; }
+  .zuf .chip { font-size: .85rem; padding: 6px 8px; text-align: center; }
+  .zuf .chip.sel { background: var(--blau); color: #fff; }
+  .ownt { white-space: pre-wrap; }
+  details.col { border: 2px solid var(--blau); border-radius: 8px; margin: 0 0 12px; background: #fff; overflow: hidden; }
+  details.col summary { cursor: pointer; padding: 14px 16px; min-height: 50px; font-weight: 700; color: var(--blau); display: flex; align-items: center; gap: 10px; }
+  details.col.own { border-color: var(--dgruen); } details.col.own summary { background: var(--hellgruen); }
+  details.col .body { padding: 0 16px 14px; }
+  details.col .cell { margin: 0 0 14px; }
+  details.col .cell h4 { margin: 0 0 6px; font-size: .95rem; color: var(--grau); }
+
+  /* Druck: genau eine A4-Seite */
+  #printArea { display: none; color: #000; font-size: 10.5pt; line-height: 1.35; }
+  #printArea.mess { display: block; position: absolute; left: -10000px; top: 0; width: 186mm; }
+  #printArea .pp { break-inside: avoid; }
+  #printArea .pp { font-size: 10.5pt; }            /* wird beim Drucken bei Bedarf verkleinert, alle Maße in em */
+  #printArea h2 { color: #000; font-size: 1.24em; margin: .3em 0 .6em; text-align: left; }
+  #printArea h3 { color: #000; font-size: 1.05em; margin: .8em 0 .25em; }
+  #printArea .ans { white-space: pre-wrap; border: 1px solid #000; padding: .4em .7em; margin: 0 0 .5em; border-radius: 0; background: none; font-size: 1em; }
+  #printArea table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  #printArea th, #printArea td { border: 1px solid #000; padding: .35em .45em; vertical-align: top; font-size: .86em; background: none !important; color: #000; }
+  #printArea th.rowh { width: 16%; }
+  #printArea .pn { display: flex; justify-content: space-between; gap: 10px; border-bottom: 2px solid #000; margin-bottom: .5em; padding-bottom: .3em; font-weight: bold; }
+  @media print {
+    @page { size: A4 portrait; margin: 12mm; }
+    html, body { background: #fff !important; }
+    #app, #bg, #lightbox { display: none !important; }
+    #printArea { display: block; }
+  }
+  @media (max-width: 900px) { .timer { min-width: 0; } .timer .lbl { display: none; } .timer .tbar { width: 80px; } }
+  @media (max-width: 700px) { .timer .tbar { display: none; } .steps .step .t { display: none; } }
+  /* Ergänzungen für dieses Puzzle */
+  .bilder figure img { width: auto; max-width: 100%; max-height: 380px; margin: 0 auto; }   /* Bild klein halten: 5 Min. Einzelarbeit */
+  .bilder figure { text-align: center; }
+  .kette .it { grid-template-columns: 135px 1fr; }
+  .bisher { background: var(--hellgruen); border: 2px solid var(--dgruen); border-radius: 8px; padding: 12px 16px; margin: 0 0 16px; }
+  .bisher b { color: var(--dgruen); display: block; margin-bottom: 4px; }
+  .bisher p { margin: 0; font-size: 19px; }
+  .woerter { display: grid; gap: 6px; margin-top: 10px; font-size: .95rem; }
+  .woerter div { background: var(--hellgrau); border-left: 4px solid var(--blau); padding: 6px 10px; border-radius: 4px; }
+  .figur { text-align: center; color: var(--grau); margin: 6px 0 0; }
+  .kern .chip { width: 100%; border-radius: 8px; }
+  .folge { border: 2px solid var(--hellblau); border-radius: 8px; padding: 12px; margin: 0 0 10px; background: #fff; }
+  .folge h4 { margin: 0 0 6px; }
+  .folge .bank { flex-direction: column; align-items: stretch; }
+  .folge .chip { border-radius: 8px; }
+  .wspeicher { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .wspeicher .chip { font-size: .9rem; padding: 6px 12px; }
+  #printArea .zs th:first-child { width: 18%; } #printArea .zs th:nth-child(2) { width: 34%; }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="app" class="wrap"></div>
+<div id="printArea"></div>
+<div id="lightbox" class="hidden"></div>
+<script>
+/* =====================================================================
+   INHALTE – hier kann die Lehrkraft alles ändern.
+   Stunde „Der Sturm bricht los – die Ereignisse des Jahres 1789“ (GPG 7aM, 50 Min.), Erarbeitung als Gruppenpuzzle.
+   Hilfen je Symbol (nur in Teil 1, Einzelarbeit):
+     "k" = Kreis ●   Antippen mit sofortiger Rückmeldung, Auswahl
+     "q" = Quadrat ■ Satzanfänge, Anzahl-Hinweise, Prüfen-Knopf
+     "t" = Dreieck ▲ leere Felder, keine Anzahl-Hinweise, Prüfen-Knopf
+   Expertengruppe, Stammgruppe und Übersicht sehen für alle gleich aus.
+   Aufgabentypen in Teil 1:
+     "mark"   Sätze im Text antippen. text: Nummer des Textes, correct: [Satznummern ab 0]
+     "felder" Stichworte (Wann? Wo? Wer? Was?): [{ label, hint, starter, options:[..], correct: Position }]
+   Bilder: gemeinfreie Gemälde/Stiche, Texte frei nacherzählt nach dem Schulbuch S. 54/55.
+   ===================================================================== */
+const CONTENT = {
+  thema: "Der Sturm bricht los – 1789",
+  frage: "Wie wurde aus dem Protest des Dritten Standes eine Revolution?",
+  minuten: { 1: 5, 3: 4, 5: 9 },                     // stiller Timer: geplante Arbeitszeit je Phase (Minuten), wird nicht angezeigt
+  freiAb: 0.4,                                       // nach 40 % dieser Zeit darf man weiter, auch wenn noch nicht alles fertig ist
+  // Ablauf: 1 Einzelarbeit · 2 Finde deine Expertengruppe · 3 Expertengruppe · 4 Finde deine Stammgruppe · 5 Stammgruppe · 6 Fertig
+  schritte: ["Einzelarbeit", "Expertengruppe finden", "Expertengruppe", "Stammgruppe finden", "Stammgruppe", "Fertig"],
+  navi: [1, 3, 5, 6],
+  reihenfolge: ["A", "B", "C", "D"],                 // Berichtsreihenfolge in der Stammgruppe (zeitlich)
+
+  // Stammgruppe: Zeitstrahl 1789 (für alle gleich)
+  zeitstrahl: {
+    daten: ["5. Mai 1789", "20. Juni 1789", "14. Juli 1789", "4. August 1789"],
+    ereignisse: ["Die Generalstände treffen sich in Versailles.", "Ballhausschwur der Nationalversammlung", "Sturm auf die Bastille in Paris", "Aufstände auf dem Land: Die Bauern werden frei."],
+    folgen: [
+      { frage: "Was folgte aus der Versammlung in Versailles?", options: ["Der Dritte Stand wurde überstimmt und erklärte sich zur Nationalversammlung.", "Der König senkte sofort die Steuern.", "Der Adel verzichtete freiwillig auf seine Vorrechte."], correct: 0 },
+      { frage: "Was folgte aus dem Ballhausschwur?", options: ["Der König musste die Nationalversammlung anerkennen, zog aber Soldaten um Paris zusammen.", "Die Nationalversammlung löste sich auf.", "Die Bauern bekamen sofort eigenes Land."], correct: 0 },
+      { frage: "Was folgte aus dem Sturm auf die Bastille?", options: ["Die Revolution breitete sich auf dem Land aus.", "Der König bekam wieder alle Macht.", "Die Bürger von Paris gaben ihre Waffen ab."], correct: 0 },
+      { frage: "Was folgte aus den Aufständen auf dem Land?", options: ["Die Vorrechte von Adel und Klerus endeten, alle Stände mussten Steuern zahlen.", "Die Bauern mussten noch mehr Abgaben zahlen.", "Der König wurde sofort abgesetzt."], correct: 0 }
+    ]
+  },
+  fazit: { vorne: "Aus Protest wurde Revolution, weil ", woerter: ["der Dritte Stand", "Nationalversammlung", "Verfassung", "Bastille", "Gewalt", "die Bauern", "frei", "Steuern"] },
+
+  rollen: {
+    A: { name: "Eine Versammlung in Versailles", gruppe: "Versailles", icon: "bilder/icon-schloss.png", figur: "Pierre, Vertreter des Dritten Standes",
+      bisher: "Frankreich ist pleite: Der Staat hat riesige Schulden. Nach einer schlechten Ernte ist das Brot sehr teuer, viele Menschen hungern.",
+      bilder: [{ src: "bilder/generalstaende.jpg", titel: "[1] Eröffnung der Generalstände in Versailles am 5. Mai 1789. Kupferstich nach Jean-Michel Moreau", alt: "Kupferstich: Ein riesiger Saal mit Säulen, hinten sitzt der König, davor sitzen hunderte Vertreter in Reihen." }],
+      woerter: [{ w: "Generalstände", e: "Versammlung von Vertretern aller drei Stände" }, { w: "Beschwerdeheft", e: "Heft, in dem die Menschen ihre Klagen aufschrieben" }],
+      texte: [{ titel: "[2] So könnte Pierre erzählt haben", zeilen: [
+        "Ich bin Pierre, Anwalt aus einer kleinen Stadt.",
+        "Im Frühjahr 1789 wählten mich die Bürger zum Vertreter des Dritten Standes.",
+        "Am 5. Mai 1789 rief König Ludwig XVI. Vertreter aller drei Stände nach Versailles. Diese Versammlung nennt man Generalstände.",
+        "Es kamen 300 Vertreter des Ersten Standes, 300 des Zweiten Standes und 600 des Dritten Standes.",
+        "Der König hatte kein Geld mehr. Wir sollten neuen Steuern zustimmen.",
+        "Wir hatten 40 000 Beschwerdehefte aus ganz Frankreich dabei.",
+        "Darin klagten die Menschen über hohe Steuern und Abgaben und über die ungerechte Verteilung des Landes.",
+        "Doch der Finanzminister des Königs wollte unsere Beschwerden nicht hören.",
+        "Dann gab es Streit: Jeder Stand sollte nur eine Stimme haben. So hätten Klerus und Adel uns immer zwei zu eins überstimmt.",
+        "Wir forderten: Jeder Vertreter bekommt eine Stimme. Abstimmung nach Köpfen!"] }],
+      tasks: [
+        { typ: "mark", kopf: "Markiere das Wichtigste.", auftrag: "Lies den Text. Tippe die Sätze an, in denen steht, was der König wollte oder was der Dritte Stand wollte.", text: 0, correct: [4, 6, 9] },
+        { typ: "felder", kopf: "Notiere Stichworte.", auftrag: "Beantworte die Fragen kurz.", felder: [
+          { label: "Wann?", hint: "Datum der Versammlung", starter: "Am ", options: ["am 5. Mai 1789", "am 14. Juli 1789"], correct: 0 },
+          { label: "Wo?", hint: "Ort der Versammlung", starter: "In ", options: ["in Versailles", "in Paris"], correct: 0 },
+          { label: "Wer?", hint: "Wer kam zusammen?", starter: "Es kamen ", options: ["Vertreter aller drei Stände", "nur Vertreter des Adels"], correct: 0 },
+          { label: "Worum ging der Streit?", hint: "Wie sollte abgestimmt werden?", starter: "Der Streit ging um ", options: ["um die Abstimmung: nach Ständen oder nach Köpfen", "um den Bau eines neuen Schlosses"], correct: 0 } ] }
+      ],
+      kern: { options: ["Am 5. Mai 1789 trafen sich die Generalstände in Versailles.", "Der König brauchte Geld und wollte neue Steuern.", "Der Dritte Stand forderte eine Abstimmung nach Köpfen.", "Der König wollte die Steuern senken.", "Die Generalstände trafen sich in Paris.", "Adel und Klerus unterstützten den Dritten Stand."], correct: [0, 1, 2] },
+      vermutung: "Der Dritte Stand wird immer überstimmt. Was wird er wohl als Nächstes tun?",
+      zusatz: { text: "Stell dir vor, du schreibst in ein Beschwerdeheft. Worüber beschwerst du dich?", starter: "Ich beschwere mich, weil " } },
+
+    B: { name: "Der Ballhausschwur", gruppe: "Ballhaus", icon: "bilder/icon-schriftrolle.png", figur: "Pierre, Vertreter des Dritten Standes",
+      bisher: "Am 5. Mai 1789 trafen sich in Versailles die Generalstände. Der König wollte neue Steuern. Der Dritte Stand forderte: Jede Stimme soll gleich viel zählen.",
+      bilder: [{ src: "bilder/ballhaus.jpg", titel: "[1] Der Schwur im Ballhaus am 20. Juni 1789. Gemälde nach Jacques-Louis David, um 1791", alt: "Gemälde: In einer großen Halle strecken viele Männer begeistert die Arme zum Schwur aus, in der Mitte steht ein Mann auf einem Tisch." }],
+      woerter: [{ w: "Eid", e: "Schwur, ein feierliches Versprechen" }, { w: "Verfassung", e: "die wichtigsten Regeln und Gesetze eines Staates" }, { w: "Nationalversammlung", e: "Versammlung, die das ganze Volk vertritt" }],
+      texte: [{ titel: "[2] So könnte Pierre erzählt haben", zeilen: [
+        "Wochenlang stritten wir in Versailles, wie abgestimmt werden soll.",
+        "Wir Vertreter des Dritten Standes wollten, dass jede Stimme gleich viel zählt.",
+        "Doch der Erste und der Zweite Stand blockten ab.",
+        "Am 17. Juni 1789 erklärten wir uns deshalb zur „Nationalversammlung“. Wir sagten: Wir vertreten das ganze Volk.",
+        "Nur einige Priester und Adlige unterstützten uns.",
+        "Drei Tage später ließ der König unseren Sitzungssaal sperren.",
+        "Wir gaben nicht auf und zogen in eine Turnhalle in Versailles, das „Ballhaus“.",
+        "Dort leisteten wir am 20. Juni 1789 alle einen Eid: „Wir schwören feierlich, nicht auseinanderzugehen, bis Frankreich eine Verfassung hat, die allen Franzosen die Bürgerrechte garantiert!“",
+        "Begeistert umarmten sich viele von uns.",
+        "Der König musste die Nationalversammlung schließlich anerkennen."] }],
+      tasks: [
+        { typ: "mark", kopf: "Markiere das Wichtigste.", auftrag: "Lies den Text. Tippe die Sätze an, in denen steht, wie sich der Dritte Stand gegen den König und die anderen Stände wehrte.", text: 0, correct: [3, 6, 7] },
+        { typ: "felder", kopf: "Notiere Stichworte.", auftrag: "Beantworte die Fragen kurz.", felder: [
+          { label: "Wann?", hint: "Datum des Schwurs", starter: "Am ", options: ["am 20. Juni 1789", "am 4. August 1789"], correct: 0 },
+          { label: "Wo?", hint: "Ort des Schwurs", starter: "Im ", options: ["im Ballhaus, einer Turnhalle in Versailles", "in einer Kirche in Paris"], correct: 0 },
+          { label: "Wer?", hint: "Wer schwor?", starter: "Die ", options: ["die Vertreter des Dritten Standes (Nationalversammlung)", "die Soldaten des Königs"], correct: 0 },
+          { label: "Was schworen sie?", hint: "Was versprachen sie?", starter: "Sie schworen, ", options: ["zusammenzubleiben, bis Frankreich eine Verfassung hat", "dem König immer zu gehorchen"], correct: 0 } ] }
+      ],
+      kern: { options: ["Der Dritte Stand erklärte sich zur Nationalversammlung.", "Im Ballhaus schworen sie, zusammenzubleiben, bis Frankreich eine Verfassung hat.", "Der König musste die Nationalversammlung anerkennen.", "Der König öffnete ihnen freiwillig den Sitzungssaal.", "Im Ballhaus wurde der König abgesetzt.", "Alle Adligen unterstützten den Dritten Stand."], correct: [0, 1, 2] },
+      vermutung: "Die Nachricht vom Ballhausschwur erreicht Paris. Der König zieht Soldaten zusammen. Was werden die Menschen in Paris tun?",
+      zusatz: { text: "Erkläre, warum der Ballhausschwur für den König gefährlich war.", starter: "Der Schwur war für den König gefährlich, weil " } },
+
+    C: { name: "Der Sturm auf die Bastille", gruppe: "Bastille", icon: "bilder/icon-burg.png", figur: "Anne, Tochter eines Handwerkers in Paris",
+      bisher: "Der Dritte Stand hat sich zur Nationalversammlung erklärt. Im Ballhaus hat er geschworen: Wir bleiben zusammen, bis Frankreich eine Verfassung hat.",
+      bilder: [{ src: "bilder/bastille.jpg", titel: "[1] Die Sieger der Bastille ziehen zum Rathaus von Paris. Gemälde von Paul Delaroche, um 1830", alt: "Gemälde: Eine jubelnde Menschenmenge trägt Gegenstände aus der Bastille, eine Figur mit Lorbeerkranz sitzt auf den Schultern der Menschen." }],
+      woerter: [{ w: "Bastille", e: "alte Festung und Gefängnis in Paris" }],
+      texte: [{ titel: "[2] So könnte Anne erzählt haben", zeilen: [
+        "Ich bin Anne und wohne mit meiner Familie in Paris.",
+        "Im Juli 1789 sprach sich die Nachricht von der neuen Nationalversammlung schnell herum.",
+        "Gleichzeitig ließ der König Soldaten rund um Paris aufmarschieren. Viele hatten Angst, dass er die Nationalversammlung mit Gewalt auflösen will.",
+        "Das Brot war so teuer wie nie, viele Familien hungerten.",
+        "Am 14. Juli 1789 griffen tausende Bürger zu den Waffen.",
+        "Sie zogen zur Bastille, einer alten Festung und einem Gefängnis mitten in Paris. Dort lagerten Waffen und Schießpulver.",
+        "Nach einem stundenlangen Kampf eroberten sie die Bastille.",
+        "Für viele war die Bastille ein Zeichen für die Macht des Königs. Jetzt hatte das Volk sie gestürmt.",
+        "Dieser Tag gilt als der eigentliche Beginn der Französischen Revolution."] }],
+      tasks: [
+        { typ: "mark", kopf: "Markiere das Wichtigste.", auftrag: "Lies den Text. Tippe die Sätze an, die erklären, warum die Menschen die Bastille stürmten.", text: 0, correct: [2, 3, 5, 7] },
+        { typ: "felder", kopf: "Notiere Stichworte.", auftrag: "Beantworte die Fragen kurz.", felder: [
+          { label: "Wann?", hint: "Datum des Sturms", starter: "Am ", options: ["am 14. Juli 1789", "am 5. Mai 1789"], correct: 0 },
+          { label: "Wo?", hint: "Ort", starter: "In ", options: ["in Paris, an der Bastille", "in Versailles, im Schloss"], correct: 0 },
+          { label: "Wer?", hint: "Wer stürmte?", starter: "Es stürmten ", options: ["Bürger von Paris", "die Soldaten des Königs"], correct: 0 },
+          { label: "Was geschah?", hint: "Was passierte an diesem Tag?", starter: "Die Bürger ", options: ["Sie eroberten die Bastille.", "Sie wählten einen neuen König."], correct: 0 } ] }
+      ],
+      kern: { options: ["Am 14. Juli 1789 stürmten Bürger von Paris die Bastille.", "Die Menschen hatten Hunger und Angst vor den Soldaten des Königs.", "Der Sturm auf die Bastille gilt als Beginn der Revolution.", "Die Bastille war das Schloss des Königs.", "Der König führte die Bürger zur Bastille.", "Nach dem Sturm gaben die Bürger ihre Waffen sofort ab."], correct: [0, 1, 2] },
+      vermutung: "Die Nachricht vom Sturm auf die Bastille erreicht die Dörfer. Was werden die Bauern tun?",
+      zusatz: { text: "Warum war die Bastille ein Zeichen für die Macht des Königs?", starter: "Die Bastille war ein Zeichen für die Macht des Königs, weil " } },
+
+    D: { name: "Die Revolution auf dem Land", gruppe: "Land", icon: "bilder/icon-brot.png", figur: "Jacques, Bauer in einem Dorf",
+      bisher: "Am 14. Juli 1789 haben die Bürger von Paris die Bastille gestürmt. Die Nachricht verbreitet sich schnell im ganzen Land.",
+      bilder: [{ src: "bilder/bauernaufstand.jpg", titel: "[1] Aufständische Bauern. Bild von Louis-Charles Bombled (1862–1927)", alt: "Bild: Bauern mit Fahne, Axt, Sense und Heugabel ziehen wütend los, vorne ein Mann mit roter Fahne." }],
+      woerter: [{ w: "Grundherr", e: "Adliger, dem das Land gehört und dem die Bauern Abgaben zahlen" }, { w: "Unfreiheit", e: "Die Bauern waren vom Grundherrn abhängig und durften vieles nicht selbst entscheiden." }],
+      texte: [{ titel: "[2] So könnte Jacques erzählt haben", zeilen: [
+        "Ich bin Jacques, ein Bauer aus einem Dorf weit weg von Paris.",
+        "Im Juli 1789 hörten wir, was in Paris passiert war. Wir freuten uns sehr.",
+        "Viele von uns hatten Beschwerdebriefe abgegeben, doch bisher war nichts passiert.",
+        "Jetzt weigerten wir uns, weiter Steuern und Abgaben zu zahlen.",
+        "Wir zogen mit Heugabeln und Stöcken zum Schloss unseres Grundherrn und stürmten es.",
+        "Wir verbrannten die Bücher, in denen unsere Unfreiheit und unsere Abgaben aufgeschrieben waren.",
+        "Viele Schlösser gingen in Flammen auf. Oft gab es blutige Kämpfe mit den Grundherren. Es gab Tote und Verletzte.",
+        "Unsere Aufstände setzten die Nationalversammlung unter Druck.",
+        "Am 4. August 1789 erklärte sie alle Bauern für frei.",
+        "Die Grundherren waren nicht mehr die Richter auf dem Land. Und ab jetzt mussten alle Stände Steuern zahlen."] }],
+      tasks: [
+        { typ: "mark", kopf: "Markiere das Wichtigste.", auftrag: "Lies den Text. Tippe die Sätze an, in denen steht, was die Bauern taten und was sie erreichten.", text: 0, correct: [3, 4, 5, 8, 9] },
+        { typ: "felder", kopf: "Notiere Stichworte.", auftrag: "Beantworte die Fragen kurz.", felder: [
+          { label: "Wann?", hint: "Zeitraum", starter: "Im ", options: ["im Juli und August 1789", "im Mai 1789"], correct: 0 },
+          { label: "Wo?", hint: "Ort", starter: "Auf ", options: ["auf dem Land, bei den Schlössern der Grundherren", "im Ballhaus in Versailles"], correct: 0 },
+          { label: "Wer?", hint: "Wer erhob sich?", starter: "Die ", options: ["die Bauern", "die Bürger von Paris"], correct: 0 },
+          { label: "Was erreichten sie?", hint: "Was beschloss die Nationalversammlung am 4. August?", starter: "Am 4. August 1789 ", options: ["Alle Bauern wurden frei, alle Stände mussten Steuern zahlen.", "Sie bekamen einen eigenen König."], correct: 0 } ] }
+      ],
+      kern: { options: ["Die Bauern weigerten sich, Steuern und Abgaben zu zahlen.", "Sie stürmten die Schlösser und verbrannten die Bücher mit ihren Abgaben.", "Am 4. August 1789 wurden alle Bauern frei.", "Die Bauern blieben ruhig und warteten ab.", "Nach dem 4. August mussten nur noch die Bauern Steuern zahlen.", "Die Grundherren wurden die Richter in Paris."], correct: [0, 1, 2] },
+      vermutung: "Die Bauern sind jetzt frei. Was muss die Nationalversammlung als Nächstes tun?",
+      zusatz: { text: "Wie findest du die Gewalt der Bauern: verständlich, unnötig oder grausam? Begründe.", starter: "Ich finde die Gewalt der Bauern\nweil " } }
+  }
+};
+const SYMBOLE = { k: { z: "●", name: "Kreis" }, q: { z: "■", name: "Quadrat" }, t: { z: "▲", name: "Dreieck" } };
+function symSvg(k, cls) {
+  const form = { k: '<circle cx="50" cy="50" r="44"/>', q: '<rect x="8" y="8" width="84" height="84"/>', t: '<polygon points="50,6 96,92 4,92"/>' }[k];
+  return '<svg class="' + (cls || "") + '" viewBox="0 0 100 100" aria-hidden="true" fill="currentColor">' + form + "</svg>";
+}
+
+/* =====================================================================
+   Programm
+   ===================================================================== */
+const KEY = "gp-1789-v1";
+const $app = document.getElementById("app"), $print = document.getElementById("printArea"), $lb = document.getElementById("lightbox");
+
+function fresh() { return { name: "", sym: "", role: "", started: false, step: 1, unlocked: 1, t: {}, exp: {}, kern: { sel: [], checked: false }, vermutung: null, zusatz: null,
+  zs: { seq: [], checked: false }, folgen: { ch: {}, checked: false }, fazit: null, eff: "", lv: {}, serieF: 0, serieR: 0 }; }
+let st = fresh();
+try { const s = localStorage.getItem(KEY); if (s) st = Object.assign(fresh(), JSON.parse(s)); } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+function done() { save(); render(); }
+
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  Object.keys(props || {}).forEach(k => {
+    const v = props[k];
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else if (k === "html") e.innerHTML = v;
+    else if (k.startsWith("on")) e[k] = v; else if (v !== undefined && v !== false && v !== null) e.setAttribute(k, v === true ? "" : v);
+  });
+  kids.flat(9).forEach(c => { if (c !== null && c !== undefined && c !== false) e.append(c.nodeType ? c : document.createTextNode(c)); });
+  return e;
+}
+function slot(o, k, init) { if (o[k] === undefined || o[k] === null) o[k] = init; return o[k]; }
+function hash(s) { let x = 7; for (let i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0; return x; }
+function mix(n, salt) { return Array.from({ length: n }, (_, i) => i).sort((a, b) => hash(salt + ":" + a) - hash(salt + ":" + b)); } // stabile Mischung
+function flash(el) { el.classList.add("bad"); setTimeout(() => el.classList.remove("bad"), 450); }
+const R = () => CONTENT.rollen[st.role];
+function geschrieben(v, starter) { return typeof v === "string" && !!v.trim() && v.trim() !== (starter || "").trim(); }
+function msg(ok, text) { return h("p", { class: "msg " + (ok ? "ok" : "no") }, text); }
+const zeileText = z => typeof z === "string" ? z : z.s + ": " + z.t;
+
+/* Hilfen (nur Teil 1): Startwert ist das Symbol. Die App passt sie still an, höchstens eine Stufe weg vom Symbol:
+   2 Fehler in Folge → mehr Hilfe, 3 sichere richtige Antworten in Folge → weniger Hilfe. Eine begonnene Aufgabe behält ihre Hilfe. */
+const HILFE = ["k", "q", "t"];
+let aktLv = null;
+const lv = () => aktLv || st.eff || st.sym;
+const K = () => lv() === "k", Q = () => lv() === "q", ZAHL = () => lv() !== "t";
+function mit(key, fn) { const alt = aktLv; aktLv = st.lv[key] || st.eff || st.sym; try { return fn(); } finally { aktLv = alt; } }
+function fix(key, l) { if (!st.lv[key]) st.lv[key] = l; }
+function signal(ok) {
+  if (ok) { st.serieF = 0; st.serieR = (st.serieR || 0) + 1; } else { st.serieR = 0; st.serieF = (st.serieF || 0) + 1; }
+  const i = HILFE.indexOf(st.eff || st.sym), basis = HILFE.indexOf(st.sym);
+  if (st.serieF >= 2 && i > Math.max(0, basis - 1)) { st.eff = HILFE[i - 1]; st.serieF = 0; }
+  if (st.serieR >= 3 && i < Math.min(2, basis + 1)) { st.eff = HILFE[i + 1]; st.serieR = 0; }
+}
+let tbN = 0;
+function textBox(value, onChange, short, key) {
+  const t = h("textarea", { class: short ? "short" : "", "aria-label": "Deine Antwort", "data-k": "tb" + (tbN++) }), l = lv();
+  t.value = value; t.oninput = () => { if (key) fix(key, l); onChange(t.value); }; return t;
+}
+
+/* ---------- Stiller Timer und Freischalten ---------- */
+const DAUER = s => (CONTENT.minuten[s] || 0) * 60;
+function zeitFrei(s) { return !!st.t[s] && (Date.now() - st.t[s]) / 1000 >= DAUER(s) * CONTENT.freiAb; }
+function tick() { if (st.started && freischalten()) done(); }
+setInterval(tick, 1000);
+
+function taskDone(i) { return mit("t" + i, () => {
+  const t = R().tasks[i], a = st.exp["t" + i];
+  if (t.typ === "mark") return !!a && (K() ? t.correct.every(c => a.sel.includes(c)) : a.checked);
+  return t.felder.every((f, j) => K() ? a && a.ch && j in a.ch : a && a.txt && geschrieben(a.txt[j], Q() ? f.starter : ""));
+}); }
+function teil1Fertig() { return R().tasks.every((t, i) => taskDone(i)); }
+function kernOk() { const c = R().kern.correct; return st.kern.checked && st.kern.sel.length === c.length && c.every(i => st.kern.sel.includes(i)); }
+function zsOk() { return st.zs.checked && st.zs.seq.length === 4 && st.zs.seq.every((v, i) => v === i); }
+function folgenOk() { return st.folgen.checked && CONTENT.zeitstrahl.folgen.every((f, i) => st.folgen.ch[i] === f.correct); }
+function stammFertig() { return zsOk() && folgenOk() && geschrieben(st.fazit, CONTENT.fazit.vorne); }
+function freischalten() {
+  const alt = st.unlocked;
+  if (st.unlocked === 1 && (teil1Fertig() || zeitFrei(1))) st.unlocked = 2;
+  if (st.unlocked === 3 && (kernOk() || zeitFrei(3))) st.unlocked = 4;
+  if (st.unlocked === 5 && (stammFertig() || zeitFrei(5))) st.unlocked = 6;
+  return st.unlocked !== alt;
+}
+function gehe(s) {
+  st.step = s;
+  if (CONTENT.minuten[s] && !st.t[s]) st.t[s] = Date.now();
+  if (s === 2 || s === 4) st.unlocked = Math.max(st.unlocked, s + 1);   // „Gruppe finden“ gibt die folgende Gruppenphase frei
+  save(); render(); window.scrollTo(0, 0);
+}
+
+/* ---------- Teil 1: Aufgaben-Bausteine (mit Hilfen je Symbol) ---------- */
+function markWidget(key, t) {
+  const a = slot(st.exp, key, { sel: [], checked: false }), tx = R().texte[t.text];
+  const L0 = lv(), fx = () => { fix(key, L0); done(); };
+  const list = h("div", { class: "mlist" }, tx.zeilen.map((z, i) => {
+    const on = a.sel.includes(i);
+    let cls = "mrow";
+    if (K()) cls += on ? " ok" : ""; else if (a.checked && on) cls += t.correct.includes(i) ? " ok" : " no"; else if (on) cls += " sel";
+    return h("button", { class: cls, type: "button", "aria-pressed": on ? "true" : "false", onclick: ev => {
+      if (K()) { if (on) return; if (t.correct.includes(i)) { a.sel.push(i); if (t.correct.every(c => a.sel.includes(c))) signal(true); fx(); } else { flash(ev.currentTarget); signal(false); save(); } return; }
+      a.sel = on ? a.sel.filter(x => x !== i) : a.sel.concat(i); a.checked = false; fx();
+    } }, typeof z === "string" ? z : [h("span", { class: "sp", text: z.s + ": " }), z.t]);
+  }));
+  const out = h("div", {}, h("div", { class: "qtitel" }, h("img", { src: "bilder/icon-schriftrolle.png", alt: "" }), h("h4", { text: tx.titel, style: "margin:0" })));
+  if (ZAHL()) out.append(h("p", { class: "hilfe", text: "Es sind " + t.correct.length + " Sätze." + (K() ? " Richtige Sätze werden grün." : "") }));
+  out.append(list, h("p", { class: "qhin", text: "Verfassertext, frei nacherzählt nach dem Schulbuch" }));
+  if (K()) { if (t.correct.every(c => a.sel.includes(c))) out.append(msg(true, "Super, du hast alle gefunden! ✔")); }
+  else {
+    out.append(h("button", { class: "btn small", type: "button", disabled: !a.sel.length, onclick: () => { a.checked = true; signal(a.sel.length === t.correct.length && t.correct.every(c => a.sel.includes(c))); fx(); } }, "Prüfen"));
+    if (a.checked) {
+      const falsch = a.sel.filter(i => !t.correct.includes(i)).length, fehlt = t.correct.filter(i => !a.sel.includes(i)).length;
+      out.append(!falsch && !fehlt ? msg(true, "Richtig! ✔") : msg(false, (falsch ? "Rote Sätze passen nicht. " : "") + (fehlt ? (ZAHL() ? "Es fehlen noch " + fehlt + " Sätze." : "Es fehlen noch Sätze.") : "")));
+    }
+  }
+  return out;
+}
+function felderWidget(key, t) {
+  const a = slot(st.exp, key, { ch: {}, txt: {} }), L0 = lv(), fx = () => { fix(key, L0); done(); };
+  return h("div", {}, t.felder.map((f, j) => {
+    const box = h("div", { class: "feld" + (j === t.felder.length - 1 ? " r" : "") }, h("div", { class: "k", text: j + 1 }));
+    const inner = h("div", {}, h("h4", { text: f.label }), h("div", { class: "fh", text: f.hint }));
+    if (K()) inner.append(h("div", { class: "bank" }, mix(f.options.length, key + j).map(k => h("button", { class: "chip" + (a.ch[j] === k ? " ok" : ""), type: "button", "aria-pressed": a.ch[j] === k ? "true" : "false",
+      onclick: ev => { if (k !== f.correct) { flash(ev.currentTarget); signal(false); save(); return; }
+        const neu = !(j in a.ch); a.ch[j] = k; if (neu && Object.keys(a.ch).length === t.felder.length) signal(true); fx(); } }, f.options[k]))));
+    else inner.append(textBox(a.txt[j] !== undefined ? a.txt[j] : (Q() ? f.starter : ""), v => { a.txt[j] = v; save(); freischalten() && done(); }, true, key));
+    box.append(inner); return box;
+  }));
+}
+function taskText(i) { return mit("t" + i, () => {
+  const t = R().tasks[i], a = st.exp["t" + i];
+  if (t.typ === "mark") return ((a && a.sel) || []).slice().sort((x, y) => x - y).map(n => "• " + zeileText(R().texte[t.text].zeilen[n])).join("\n");
+  return t.felder.map((f, j) => f.label + " " + (K() ? (a && a.ch && j in a.ch ? f.options[a.ch[j]] : "–") : ((a && a.txt && a.txt[j] && a.txt[j].trim()) || "–"))).join("\n");
+}); }
+
+/* ---------- Anmeldung ---------- */
+function loginView() {
+  const go = h("button", { class: "btn primary", type: "button", onclick: () => { st.started = true; gehe(1); } }, "Los geht’s");
+  const ready = () => { go.disabled = !(st.name.trim() && st.sym && st.role); };
+  const inp = h("input", { type: "text", autocomplete: "off", autocapitalize: "words", "aria-label": "Dein Vorname" });
+  inp.value = st.name; inp.oninput = () => { st.name = inp.value; save(); ready(); };
+  const v = h("div", { style: "padding-top:18px" },
+    h("div", { style: "text-align:center;margin-bottom:10px" }, h("span", { class: "thema", text: "Stundenthema: " + CONTENT.thema })),
+    h("h1", { text: "Gruppenpuzzle" }), h("p", { class: "info", style: "text-align:center", text: CONTENT.frage }),
+    h("div", { class: "card" }, h("h3", { text: "1  Dein Vorname" }), h("p", { class: "muted", text: "Er erscheint nur auf deinem Ausdruck." }), inp),
+    h("div", { class: "card" }, h("h3", { text: "2  Dein Symbol" }), h("p", { class: "muted", text: "Deine Lehrkraft sagt dir, welches du antippst." }),
+      h("div", { class: "choices" }, Object.keys(SYMBOLE).map(k => h("button", { class: "sym" + (st.sym === k ? " on" : ""), type: "button", "aria-label": SYMBOLE[k].name, "aria-pressed": st.sym === k ? "true" : "false", onclick: () => { st.sym = k; done(); }, html: symSvg(k, "symg") })))),
+    h("div", { class: "card rot" }, h("h3", { text: "3  Dein Thema" }),
+      h("div", { class: "choices" }, ["A", "B", "C", "D"].map(k => { const r = CONTENT.rollen[k];
+        return h("button", { class: "role" + (st.role === k ? " on" : ""), type: "button", "aria-pressed": st.role === k ? "true" : "false", onclick: () => { st.role = k; done(); } },
+          h("img", { class: "icon", src: r.icon, alt: "" }), h("span", {}, h("b", { text: k + "  " + r.name }))); }))),
+    h("div", { class: "row" }, go, h("span", { class: "muted", text: "Deine Antworten bleiben nur auf diesem iPad." })));
+  ready();
+  return v;
+}
+
+/* ---------- Teil 1: Einzelarbeit ---------- */
+function figure(b) {
+  return h("figure", {}, h("button", { type: "button", "aria-label": "Bild vergrößern: " + b.titel, onclick: () => { $lb.innerHTML = ""; $lb.append(h("img", { src: b.src, alt: b.alt })); $lb.classList.remove("hidden"); } },
+    h("img", { src: b.src, alt: b.alt, loading: "lazy" })),
+    h("figcaption", {}, b.titel, h("span", { class: "lupe", text: "  · antippen zum Vergrößern" })));
+}
+function teil1View() {
+  const r = R(), v = h("div", {});
+  v.append(h("div", { class: "card" }, h("div", { class: "head" }, h("img", { class: "icon", src: r.icon, alt: "" }),
+    h("div", {}, h("p", { class: "eyebrow", text: "Teil 1 · Einzelarbeit" }), h("h1", { text: r.name }))),
+    h("p", { class: "figur", text: "Erzählt von " + r.figur })));
+  v.append(h("div", { class: "bisher" }, h("b", { text: "Was bisher geschah" }), h("p", { text: r.bisher })));
+  v.append(h("div", { class: "card" }, h("div", { class: "bilder" }, r.bilder.map(figure)),
+    r.woerter.length ? h("div", { class: "woerter" }, r.woerter.map(w => h("div", {}, h("b", { text: w.w + ": " }), w.e))) : null));
+  r.tasks.forEach((t, i) => {
+    const key = "t" + i, body = mit(key, () => t.typ === "mark" ? markWidget(key, t) : felderWidget(key, t));
+    v.append(h("div", { class: "card task" + (i % 2 ? " rot" : "") }, h("h3", {}, h("span", { class: "nr", text: i + 1 }), h("span", { text: t.kopf }), taskDone(i) ? h("span", { class: "erledigt", text: "✔ erledigt" }) : null),
+      h("p", { class: "auftrag", text: t.auftrag }), body));
+  });
+  v.append(weiterCard(1));
+  return v;
+}
+function weiterCard(s) {
+  const naechster = s + 1, frei = st.unlocked >= naechster, fertig = s === 1 ? teil1Fertig() : s === 3 ? kernOk() : stammFertig();
+  const c = h("div", { class: "card weiter " + (frei ? "gruen" : "") });
+  if (frei) {
+    c.append(h("h2", { text: fertig ? "Geschafft!" : "Du kannst jetzt weitergehen." }));
+    if (!fertig && s === 1) c.append(h("p", { class: "muted", text: "Noch offen: " + R().tasks.map((t, i) => taskDone(i) ? null : "Aufgabe " + (i + 1)).filter(Boolean).join(", ") + ". Du kannst sie in der Expertengruppe ergänzen." }));
+    c.append(h("button", { class: "btn primary", type: "button", onclick: () => gehe(naechster) }, "Weiter: " + (naechster === 2 ? "Finde deine Expertengruppe" : naechster === 4 ? "Finde deine Stammgruppe" : CONTENT.schritte[naechster - 1])));
+  } else c.append(h("p", { class: "info", text: s === 1 ? "Es geht weiter, wenn du beide Aufgaben bearbeitet hast." : s === 3 ? "Es geht weiter, wenn eure drei Kernpunkte stimmen." : "Es geht weiter, wenn Zeitstrahl, Folgen und Fazit-Satz fertig sind." }));
+  return c;
+}
+
+/* ---------- Zwischenbildschirme: Finde deine Gruppe ---------- */
+function findeView(stamm) {
+  const r = R(), s = st.step;
+  return h("div", { class: "hero finde" },
+    h("p", { class: "eyebrow", text: stamm ? "Finde deine Stammgruppe" : "Finde deine Expertengruppe" }),
+    stamm ? h("div", { class: "riesig symbol", role: "img", "aria-label": "Symbol " + SYMBOLE[st.sym].name, html: symSvg(st.sym) })
+      : h("div", {}, h("img", { class: "rolle", src: r.icon, alt: "" }), h("div", { class: "riesig", text: r.gruppe })),
+    h("p", { class: "fsatz", text: stamm ? "Sucht euch zu viert: alle mit diesem Symbol. In jeder Stammgruppe ist zu jedem Thema eine Expertin oder ein Experte: Versailles, Ballhaus, Bastille, Land."
+      : "Sucht alle, auf deren iPad auch „" + r.gruppe + "“ steht, und setzt euch zusammen." }),
+    stamm ? h("p", { class: "fsatz klein", text: "Dein Thema: " + r.gruppe }) : null,
+    h("button", { class: "btn hellbtn", type: "button", style: "margin-top:16px", onclick: () => gehe(s + 1) }, "Wir haben uns gefunden → weiter"));
+}
+
+/* ---------- Teil 2: Expertengruppe (für alle gleich) ---------- */
+function kernWidget() {
+  const k = R().kern, a = st.kern, max = k.correct.length;
+  const bank = h("div", { class: "bank kern" }, mix(k.options.length, "kern" + st.role).map(i => {
+    const on = a.sel.includes(i);
+    let cls = "chip" + (on ? " sel" : "");
+    if (a.checked && on) cls += k.correct.includes(i) ? " ok" : " no";
+    return h("button", { class: cls, type: "button", "aria-pressed": on ? "true" : "false", onclick: () => {
+      if (on) a.sel = a.sel.filter(x => x !== i); else if (a.sel.length < max) a.sel = a.sel.concat(i); else return;
+      a.checked = false; done();
+    } }, k.options[i]);
+  }));
+  const out = h("div", {}, h("p", { class: "muted", text: "Wählt gemeinsam die 3 Aussagen aus, die stimmen und am wichtigsten sind." }), bank,
+    h("button", { class: "btn small", type: "button", disabled: a.sel.length !== max, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
+  if (a.checked) out.append(kernOk() ? msg(true, "Richtig! Das sind eure Kernpunkte. ✔") : msg(false, "Rote Aussagen stimmen nicht. Lest noch einmal im Text nach."));
+  return out;
+}
+function teil2View() {
+  const r = R(), v = h("div", {});
+  v.append(h("div", { class: "hero" },
+    h("img", { class: "deko", src: r.icon, alt: "", style: "left:4%;top:12%" }), h("img", { class: "deko", src: "bilder/icon-waage.png", alt: "", style: "right:4%;bottom:10%" }),
+    h("p", { class: "eyebrow", text: "Teil 2 · Expertengruppe · " + r.name }),
+    h("h1", { text: "Besprecht eure Ergebnisse!" }),
+    h("ol", {}, h("li", { text: "Vergleicht eure Markierungen und Stichworte (Übersicht unten)." }),
+      h("li", { text: "Klärt offene Fragen." }),
+      h("li", { text: "Legt drei Kernpunkte fest." }),
+      h("li", {}, "Vermutet: ", h("div", { class: "disk", text: r.vermutung })))));
+  const ov = h("div", { class: "card ov" }, h("h2", { text: "Deine Ergebnisse aus Teil 1" }));
+  r.tasks.forEach((t, i) => ov.append(h("h4", { text: (i + 1) + "  " + t.kopf }), h("div", { class: "ans", text: taskText(i) || "–" })));
+  v.append(ov);
+  v.append(h("div", { class: "card rot" }, h("p", { class: "eyebrow", text: "Kernpunkte" }), h("h2", { text: "Unsere drei Kernpunkte" }), kernWidget()));
+  v.append(h("div", { class: "card" }, h("h2", { text: "Unsere Vermutung" }), h("p", { class: "muted", text: r.vermutung }),
+    textBox(st.vermutung !== null ? st.vermutung : "Wir vermuten, dass ", val => { st.vermutung = val; save(); }, true)));
+  v.append(h("div", { class: "card" }, h("div", { class: "plus" }, h("div", { class: "dot", text: "+" }), h("div", { style: "flex:1" },
+    h("p", { class: "eyebrow", text: "Für Schnelle" }), h("h3", { text: r.zusatz.text }),
+    textBox(st.zusatz !== null ? st.zusatz : r.zusatz.starter, val => { st.zusatz = val; save(); })))));
+  v.append(weiterCard(3));
+  return v;
+}
+
+/* ---------- Teil 3: Stammgruppe (für alle gleich) ---------- */
+function zeitstrahlWidget() {
+  const z = CONTENT.zeitstrahl, a = st.zs, n = 4;
+  const list = h("div", { class: "kette" });
+  for (let pos = 0; pos < n; pos++) {
+    const has = pos < a.seq.length;
+    let cls = "it" + (has ? " full" : "");
+    if (has && a.checked) cls += a.seq[pos] === pos ? " ok" : " no";
+    list.append(h("button", { class: cls, type: "button", onclick: () => { if (has) { a.seq.splice(pos, 1); a.checked = false; done(); } } },
+      h("span", { class: "lab", text: z.daten[pos] }), h("span", { text: has ? z.ereignisse[a.seq[pos]] : "" })));
+  }
+  const bank = h("div", { class: "bank" }, mix(n, "zs").filter(i => !a.seq.includes(i)).map(i =>
+    h("button", { class: "chip", type: "button", onclick: () => { a.seq.push(i); a.checked = false; done(); } }, z.ereignisse[i])));
+  const out = h("div", {}, h("p", { class: "muted", text: "Tippt die Ereignisse in der richtigen Reihenfolge an. Antippen in der Liste entfernt ein Ereignis wieder." }), list, bank,
+    h("button", { class: "btn small", type: "button", disabled: a.seq.length !== n, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
+  if (a.checked) out.append(zsOk() ? msg(true, "Richtig! ✔") : msg(false, "Noch nicht ganz. Tippt auf ein rotes Ereignis, um es zu entfernen."));
+  return out;
+}
+function folgenWidget() {
+  const z = CONTENT.zeitstrahl, a = st.folgen;
+  const out = h("div", {}, z.folgen.map((f, i) => h("div", { class: "folge" }, h("h4", { text: z.daten[i] + ": " + f.frage }),
+    h("div", { class: "bank" }, mix(f.options.length, "f" + i).map(k => {
+      const on = a.ch[i] === k;
+      let cls = "chip" + (on ? " sel" : "");
+      if (a.checked && on) cls += k === f.correct ? " ok" : " no";
+      return h("button", { class: cls, type: "button", "aria-pressed": on ? "true" : "false", onclick: () => { a.ch[i] = k; a.checked = false; done(); } }, f.options[k]);
+    })))));
+  out.append(h("button", { class: "btn small", type: "button", disabled: Object.keys(a.ch).length !== z.folgen.length, onclick: () => { a.checked = true; done(); } }, "Prüfen"));
+  if (a.checked) out.append(folgenOk() ? msg(true, "Richtig! So hängen die Ereignisse zusammen. ✔") : msg(false, "Rote Antworten passen nicht. Fragt die Expertin oder den Experten für dieses Thema."));
+  return out;
+}
+function fazitWidget() {
+  const f = CONTENT.fazit, ta = textBox(st.fazit !== null ? st.fazit : f.vorne, val => { st.fazit = val; save(); freischalten() && done(); });
+  const ins = w => { const p = ta.selectionStart ?? ta.value.length, v = ta.value, vor = v.slice(0, p), lz = vor && !/\s$/.test(vor) ? " " : "";
+    ta.value = vor + lz + w + " " + v.slice(p); ta.focus(); const q = (vor + lz + w + " ").length; ta.setSelectionRange(q, q); st.fazit = ta.value; save(); freischalten() && done(); };
+  return h("div", {}, h("p", { class: "muted", text: "Wortspeicher: Tippe ein Wort an, um es einzufügen." }),
+    h("div", { class: "wspeicher" }, f.woerter.map(w => h("button", { class: "chip", type: "button", onclick: () => ins(w) }, w))), ta);
+}
+function teil3View() {
+  const r = R(), v = h("div", {});
+  v.append(h("div", { class: "card" }, h("p", { class: "eyebrow", text: "Teil 3 · Stammgruppe" }), h("h1", { text: "Zeitstrahl 1789" }),
+    h("p", { class: "info", html: "<b>Berichtet nacheinander: A → B → C → D.</b> So erzählt ihr die Ereignisse in der richtigen Reihenfolge. Prüft dabei eure Vermutungen: Hat die nächste Person bestätigt, was ihr vermutet habt?" })));
+  v.append(h("div", { class: "card gruen" }, h("h2", { text: "Deine Kernpunkte zum Berichten (" + st.role + " · " + r.gruppe + ")" }),
+    h("div", { class: "ans", text: kernText() || "–" }), st.vermutung && geschrieben(st.vermutung, "Wir vermuten, dass ") ? h("p", {}, h("b", { text: "Eure Vermutung: " }), st.vermutung.trim()) : null));
+  v.append(h("div", { class: "card" }, h("h2", { text: "1  Ordnet die Ereignisse" }), zeitstrahlWidget()));
+  v.append(h("div", { class: "card rot" }, h("h2", { text: "2  Was folgte daraus?" }), folgenWidget()));
+  v.append(h("div", { class: "card gruen" }, h("h2", { text: "3  Unser Fazit" }), fazitWidget()));
+  v.append(weiterCard(5));
+  return v;
+}
+function kernText() { const k = R().kern; return st.kern.sel.filter(i => k.correct.includes(i)).map(i => "• " + k.options[i]).join("\n"); }
+
+/* ---------- Teil 4: Fertig, Übersicht und Druck (eine Seite) ---------- */
+function zeitstrahlTabelle() {
+  const z = CONTENT.zeitstrahl, t = h("table", { class: "tbl zs" });
+  t.append(h("tr", {}, h("th", { text: "Datum" }), h("th", { text: "Ereignis" }), h("th", { text: "Was folgte daraus?" })));
+  z.daten.forEach((d, i) => {
+    const ev = st.zs.seq[i] !== undefined ? z.ereignisse[st.zs.seq[i]] : "–", f = z.folgen[i], ch = st.folgen.ch[i];
+    t.append(h("tr", {}, h("td", { text: d }), h("td", { text: ev }), h("td", { text: ch !== undefined ? f.options[ch] : "–" })));
+  });
+  return t;
+}
+function uebersicht(print) {
+  const r = R(), box = h("div", { class: print ? "pp" : "card" });
+  if (print) box.append(h("div", { class: "pn" }, h("span", { text: "Vorname: " + st.name }), h("span", { text: "Thema: " + st.role + " – " + r.name }), h("span", { text: new Date().toLocaleDateString("de-DE") })));
+  box.append(h("h2", { text: CONTENT.thema + ": " + CONTENT.frage }), zeitstrahlTabelle(),
+    h("h3", { text: "Meine Kernpunkte (" + r.name + ")" }), h("div", { class: "ans", text: kernText() || "–" }));
+  if (geschrieben(st.vermutung, "Wir vermuten, dass ")) box.append(h("h3", { text: "Unsere Vermutung" }), h("div", { class: "ans", text: st.vermutung.trim() }));
+  box.append(h("h3", { text: "Unser Fazit" }), h("div", { class: "ans", text: geschrieben(st.fazit, CONTENT.fazit.vorne) ? st.fazit.trim() : "–" }));
+  if (geschrieben(st.zusatz, r.zusatz.starter)) box.append(h("h3", { text: r.zusatz.text }), h("div", { class: "ans", text: st.zusatz.trim() }));
+  return box;
+}
+function drucken() {
+  $print.innerHTML = "";
+  const pg = uebersicht(true);
+  $print.append(pg);
+  $print.classList.add("mess");     // Schrift so lange verkleinern, bis alles auf eine A4-Seite passt (186 × 262 mm)
+  const passt = () => pg.getBoundingClientRect().height / (pg.getBoundingClientRect().width / 186) <= 262;
+  for (let pt = 10.5; pt >= 5; pt -= 0.25) { pg.style.fontSize = pt + "pt"; if (passt()) break; }
+  $print.classList.remove("mess");
+  setTimeout(() => window.print(), 50);
+}
+function teil4View() {
+  return h("div", {}, h("div", { class: "card gruen", style: "text-align:center" }, h("p", { class: "eyebrow", text: "Teil 4 · Fertig" }), h("h1", { text: "Gut gemacht, " + st.name + "!" }),
+    h("p", { class: "info", text: "Hier siehst du eure Ergebnisse. Der Ausdruck enthält eine Seite." }),
+    h("button", { class: "btn primary", type: "button", onclick: drucken }, "Drucken / als PDF sichern")), uebersicht(false));
+}
+
+/* ---------- Gerüst ---------- */
+function render() {
+  const y = window.scrollY, ae = document.activeElement;
+  const fokus = ae && ae.dataset && ae.dataset.k ? { k: ae.dataset.k, a: ae.selectionStart, b: ae.selectionEnd } : null;
+  tbN = 0;
+  $app.innerHTML = "";
+  if (!st.started || !st.name.trim() || !st.sym || !st.role) { $app.append(loginView()); return; }
+  freischalten();
+  if (st.step > st.unlocked) st.step = st.unlocked;
+  if (CONTENT.minuten[st.step] && !st.t[st.step]) { st.t[st.step] = Date.now(); save(); }
+  const s = st.step;
+  $app.append(h("div", { class: "top" }, h("span", { class: "thema", text: "Stundenthema: " + CONTENT.thema }),
+    h("button", { class: "btn small", type: "button", onclick: () => { if (confirm("Wirklich neu beginnen? Alle deine Antworten auf diesem iPad werden gelöscht.")) { st = fresh(); done(); } } }, "Neu beginnen")),
+    h("nav", { class: "steps", "aria-label": "Teile" }, CONTENT.navi.map((nr, i) => {
+      const n = CONTENT.schritte[nr - 1], frei = nr <= st.unlocked, on = st.step === nr || st.step === nr - 1 && (nr === 3 || nr === 5);
+      return h("button", { class: "step" + (on ? " on" : "") + (frei ? "" : " zu"), type: "button", disabled: !frei, "aria-current": on ? "step" : "false", "aria-label": frei ? "Teil " + (i + 1) + ": " + n : "Teil " + (i + 1) + " (noch gesperrt)", onclick: () => gehe(nr) },
+        h("span", { class: "n", text: frei ? i + 1 : "🔒" }), frei ? h("span", { class: "t", text: n }) : null);
+    })),
+    s === 1 ? teil1View() : s === 2 ? findeView(false) : s === 3 ? teil2View() : s === 4 ? findeView(true) : s === 5 ? teil3View() : teil4View());
+  window.scrollTo(0, y);
+  if (fokus) { const t = $app.querySelector('[data-k="' + fokus.k + '"]'); if (t) { t.focus({ preventScroll: true }); try { t.setSelectionRange(fokus.a, fokus.b); } catch (e) {} } }
+}
+$lb.onclick = () => $lb.classList.add("hidden");
+render();
+</script>
+</body>
+</html>
