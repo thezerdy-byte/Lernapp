@@ -256,6 +256,10 @@
   @keyframes atmen { 0%, 100% { transform: none; } 50% { transform: translateY(-3px) scale(1.01); } }
   @media (prefers-reduced-motion: reduce) { .szene .szene-figur, .szene .blase { animation: none !important; } }
   @media (max-width: 600px) { .szene { grid-template-columns: 110px 1fr; } .szene .blase { font-size: 1.05rem; } }
+  input.nummer { width: 140px; font-family: inherit; font-size: 1.6rem; text-align: center; padding: 10px; border-radius: 8px; border: 2px solid var(--grau); min-height: 56px; }
+  .zuteilung { display: flex; align-items: center; gap: 12px; margin-top: 12px; min-height: 30px; }
+  .zuteilung .minisym svg { width: 26px; height: 26px; color: var(--blau); vertical-align: middle; }
+  .zuteilung b { display: block; color: var(--blau); }
   .zu-aufgabe { border-style: dashed; border-color: var(--grau); background: var(--hellgrau); color: var(--grau); text-align: center; }
   .zu-aufgabe p { margin: 0; }
   .kern .chip { width: 100%; border-radius: 8px; }
@@ -341,6 +345,15 @@ const CONTENT = {
   schritte: ["Einzelarbeit", "Expertengruppe finden", "Expertengruppe", "Stammgruppe finden", "Stammgruppe", "Fertig"],
   navi: [1, 3, 5, 6],
   reihenfolge: ["A", "B", "C", "D"],                 // Berichtsreihenfolge in der Stammgruppe (zeitlich)
+
+  // Klassenliste: Nummer aus der Klassenliste, Thema (A–D), Symbol (● ■ ▲). Eine Zeile pro Kind, keine Namen!
+  // Ist die Liste leer, wählen die Kinder Symbol und Thema selbst.
+  // Beispiel:
+  //   1 A ●
+  //   2 B ■
+  //   3 C ▲
+  klassenliste: `
+  `,
 
   // Stammgruppe: Zeitstrahl 1789 (für alle gleich)
   zeitstrahl: {
@@ -685,7 +698,46 @@ function taskText(i) { return mit("t" + i, () => {
 }); }
 
 /* ---------- Anmeldung ---------- */
+const SYMZEICHEN = { "●": "k", "■": "q", "▲": "t", "kreis": "k", "quadrat": "q", "dreieck": "t", "k": "k", "q": "q", "d": "t" };
+const LISTE = (() => {                               // Klassenliste aus CONTENT lesen: Nummer → { role, sym }
+  const l = {};
+  (CONTENT.klassenliste || "").split("\n").forEach(z => {
+    const t = z.trim().split(/\s+/); if (t.length < 3) return;
+    const nr = parseInt(t[0], 10), role = t[1].toUpperCase(), sym = SYMZEICHEN[t[2].toLowerCase()];
+    if (nr && CONTENT.rollen[role] && sym) l[nr] = { role, sym };
+  });
+  return l;
+})();
+const MIT_LISTE = Object.keys(LISTE).length > 0;
 function loginView() {
+  if (MIT_LISTE && !st.ohneNummer) return loginNummer();
+  return loginWahl();
+}
+function loginNummer() {                             // Anmeldung über die Nummer aus der Klassenliste
+  const go = h("button", { class: "btn primary", type: "button", onclick: () => { st.started = true; st.eff = startStufe(); gehe(1); } }, "Los geht’s");
+  const info = h("div", { class: "zuteilung" });
+  const zeige = () => {
+    const z = LISTE[parseInt(st.nr, 10)];
+    info.innerHTML = "";
+    if (z) { st.role = z.role; st.sym = z.sym; const r = CONTENT.rollen[z.role];
+      info.append(h("img", { class: "icon", src: r.icon, alt: "" }), h("div", {}, h("b", { text: "Dein Thema: " + z.role + "  " + r.name }), h("span", { class: "muted", text: "Dein Symbol: " }), h("span", { class: "minisym", html: symSvg(z.sym) }))); }
+    else { st.role = ""; st.sym = ""; if (st.nr) info.append(h("p", { class: "msg no", text: "Diese Nummer kenne ich nicht. Frag deine Lehrkraft." })); }
+    go.disabled = !(st.name.trim() && z);
+  };
+  const name = h("input", { type: "text", autocomplete: "off", autocapitalize: "words", "aria-label": "Dein Vorname" });
+  name.value = st.name; name.oninput = () => { st.name = name.value; save(); zeige(); };
+  const nr = h("input", { type: "number", inputmode: "numeric", min: "1", max: "99", autocomplete: "off", "aria-label": "Deine Nummer", class: "nummer" });
+  nr.value = st.nr || ""; nr.oninput = () => { st.nr = nr.value; save(); zeige(); };
+  const v = h("div", { style: "padding-top:18px" },
+    h("div", { style: "text-align:center;margin-bottom:10px" }, h("span", { class: "thema", text: "Stundenthema: " + CONTENT.thema })),
+    h("h1", { text: "Gruppenpuzzle" }), h("p", { class: "info", style: "text-align:center", text: CONTENT.frage }),
+    h("div", { class: "card" }, h("h3", { text: "1  Dein Vorname" }), h("p", { class: "muted", text: "Er erscheint nur auf deinem Ausdruck." }), name),
+    h("div", { class: "card rot" }, h("h3", { text: "2  Deine Nummer" }), h("p", { class: "muted", text: "Deine Nummer aus der Klassenliste. Die App sucht dann dein Thema heraus." }), nr, info),
+    h("div", { class: "row" }, go, h("button", { class: "btn small", type: "button", onclick: () => { st.ohneNummer = true; st.role = ""; st.sym = ""; done(); } }, "Ich weiß meine Nummer nicht")));
+  zeige();
+  return v;
+}
+function loginWahl() {
   const go = h("button", { class: "btn primary", type: "button", onclick: () => { st.started = true; st.eff = startStufe(); gehe(1); } }, "Los geht’s");
   const ready = () => { go.disabled = !(st.name.trim() && st.sym && st.role); };
   const inp = h("input", { type: "text", autocomplete: "off", autocapitalize: "words", "aria-label": "Dein Vorname" });
@@ -700,7 +752,8 @@ function loginView() {
       h("div", { class: "choices" }, ["A", "B", "C", "D"].map(k => { const r = CONTENT.rollen[k];
         return h("button", { class: "role" + (st.role === k ? " on" : ""), type: "button", "aria-pressed": st.role === k ? "true" : "false", onclick: () => { st.role = k; done(); } },
           h("img", { class: "icon", src: r.icon, alt: "" }), h("span", {}, h("b", { text: k + "  " + r.name }))); }))),
-    h("div", { class: "row" }, go, h("span", { class: "muted", text: "Deine Antworten bleiben nur auf diesem iPad." })));
+    h("div", { class: "row" }, go, MIT_LISTE ? h("button", { class: "btn small", type: "button", onclick: () => { st.ohneNummer = false; done(); } }, "Doch mit Nummer anmelden") : null,
+      h("span", { class: "muted", text: "Deine Antworten bleiben nur auf diesem iPad." })));
   ready();
   return v;
 }
