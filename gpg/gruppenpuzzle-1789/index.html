@@ -247,6 +247,7 @@
   .wspeicher .chip { font-size: .9rem; padding: 6px 12px; }
   textarea.lang { min-height: 170px; }
   ol.fragen { margin: 8px 0 10px; padding-left: 24px; font-size: 1.05rem; } ol.fragen li { margin-bottom: 4px; }
+  .begriff { color: var(--blau); background: #FFF0B3; border-radius: 3px; padding: 0 2px; }
   .beispiel { background: var(--creme); border: 2px solid var(--braun); border-radius: 8px; padding: 10px 14px; font-size: 1.02rem; }
   .abstgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0 6px; }
   .abst { border: 2px solid var(--hellblau); border-radius: 8px; padding: 12px; background: #fff; display: flex; flex-direction: column; gap: 8px; }
@@ -339,6 +340,7 @@ const CONTENT = {
     A: { name: "Eine Versammlung in Versailles", gruppe: "Versailles", icon: "bilder/icon-schloss.png", figur: "Pierre, Vertreter des Dritten Standes",
       bisher: "Frankreich ist pleite: Der Staat hat riesige Schulden. Nach einer schlechten Ernte ist das Brot sehr teuer, viele Menschen hungern.",
       bilder: [{ src: "bilder/generalstaende.jpg", titel: "[1] Eröffnung der Generalstände in Versailles am 5. Mai 1789. Kupferstich nach Jean-Michel Moreau", alt: "Kupferstich: Ein riesiger Saal mit Säulen, hinten sitzt der König, davor sitzen hunderte Vertreter in Reihen." }],
+      begriffe: ["Generalstände", "Beschwerdehefte", "Abstimmung nach Ständen", "Abstimmung nach Köpfen", "nach Ständen", "nach Köpfen", "Nach Ständen", "Nach Köpfen"],   // im Text hervorgehoben
       woerter: [{ w: "Generalstände", e: "Versammlung von Vertretern aller drei Stände" }, { w: "Beschwerdeheft", e: "Heft, in dem die Menschen ihre Klagen aufschrieben" },
         { w: "Abstimmung nach Ständen", e: "Jeder Stand hat eine Stimme, zusammen 3 Stimmen." }, { w: "Abstimmung nach Köpfen", e: "Jeder Vertreter hat eine Stimme, zusammen 1200 Stimmen." }],
       texte: [{ titel: "[2] So könnte Pierre erzählt haben", zeilen: [
@@ -373,6 +375,7 @@ const CONTENT = {
     B: { name: "Der Ballhausschwur", gruppe: "Ballhaus", icon: "bilder/icon-schriftrolle.png", figur: "Pierre, Vertreter des Dritten Standes",
       bisher: "Am 5. Mai 1789 trafen sich in Versailles die Generalstände. Der König wollte neue Steuern. Der Dritte Stand forderte: Jede Stimme soll gleich viel zählen.",
       bilder: [{ src: "bilder/ballhaus.jpg", titel: "[1] Der Schwur im Ballhaus am 20. Juni 1789. Gemälde nach Jacques-Louis David, um 1791", alt: "Gemälde: In einer großen Halle strecken viele Männer begeistert die Arme zum Schwur aus, in der Mitte steht ein Mann auf einem Tisch." }],
+      begriffe: ["Nationalversammlung", "Ballhaus", "Eid", "Verfassung", "Bürgerrechte", "anerkennen"],
       woerter: [{ w: "Eid", e: "Schwur, ein feierliches Versprechen" }, { w: "Verfassung", e: "die wichtigsten Regeln und Gesetze eines Staates" }, { w: "Nationalversammlung", e: "Versammlung, die das ganze Volk vertritt" }],
       texte: [{ titel: "[2] So könnte Pierre erzählt haben", zeilen: [
         "Wochenlang stritten wir in Versailles, wie abgestimmt werden soll.",
@@ -400,6 +403,7 @@ const CONTENT = {
     C: { name: "Der Sturm auf die Bastille", gruppe: "Bastille", icon: "bilder/icon-burg.png", figur: "Anne, Tochter eines Handwerkers in Paris",
       bisher: "Der Dritte Stand hat sich zur Nationalversammlung erklärt. Im Ballhaus hat er geschworen: Wir bleiben zusammen, bis Frankreich eine Verfassung hat.",
       bilder: [{ src: "bilder/bastille.jpg", titel: "[1] Die Sieger der Bastille ziehen zum Rathaus von Paris. Gemälde von Paul Delaroche, um 1830", alt: "Gemälde: Eine jubelnde Menschenmenge trägt Gegenstände aus der Bastille, eine Figur mit Lorbeerkranz sitzt auf den Schultern der Menschen." }],
+      begriffe: ["Nationalversammlung", "Soldaten", "Brot", "14. Juli 1789", "Bastille", "Macht des Königs", "Beginn der Französischen Revolution"],
       woerter: [{ w: "Bastille", e: "alte Festung und Gefängnis in Paris" }],
       texte: [{ titel: "[2] So könnte Anne erzählt haben", zeilen: [
         "Ich bin Anne und wohne mit meiner Familie in Paris.",
@@ -426,6 +430,7 @@ const CONTENT = {
     D: { name: "Die Revolution auf dem Land", gruppe: "Land", icon: "bilder/icon-brot.png", figur: "Jacques, Bauer in einem Dorf",
       bisher: "Am 14. Juli 1789 haben die Bürger von Paris die Bastille gestürmt. Die Nachricht verbreitet sich schnell im ganzen Land.",
       bilder: [{ src: "bilder/bauernaufstand.jpg", titel: "[1] Aufständische Bauern. Bild von Louis-Charles Bombled (1862–1927)", alt: "Bild: Bauern mit Fahne, Axt, Sense und Heugabel ziehen wütend los, vorne ein Mann mit roter Fahne." }],
+      begriffe: ["Steuern und Abgaben", "Grundherrn", "Unfreiheit", "Nationalversammlung", "4. August 1789", "frei", "Richter", "alle Stände Steuern zahlen"],
       woerter: [{ w: "Grundherr", e: "Adliger, dem das Land gehört und dem die Bauern Abgaben zahlen" }, { w: "Unfreiheit", e: "Die Bauern waren vom Grundherrn abhängig und durften vieles nicht selbst entscheiden." }],
       texte: [{ titel: "[2] So könnte Jacques erzählt haben", zeilen: [
         "Ich bin Jacques, ein Bauer aus einem Dorf weit weg von Paris.",
@@ -561,7 +566,7 @@ function markWidget(key, t) {
     return h("button", { class: cls, type: "button", "aria-pressed": on ? "true" : "false", onclick: ev => {
       if (K()) { if (on) return; if (t.correct.includes(i)) { a.sel.push(i); if (t.correct.every(c => a.sel.includes(c))) signal(true); fx(); } else { flash(ev.currentTarget); signal(false); save(); } return; }
       a.sel = on ? a.sel.filter(x => x !== i) : a.sel.concat(i); a.checked = false; fx();
-    } }, typeof z === "string" ? z : [h("span", { class: "sp", text: z.s + ": " }), z.t]);
+    } }, t.aussagen ? z : typeof z === "string" ? hervor(z) : [h("span", { class: "sp", text: z.s + ": " }), hervor(z.t)]);
   }));
   const out = h("div", {}, tx ? h("div", { class: "qtitel" }, h("img", { src: "bilder/icon-schriftrolle.png", alt: "" }), h("h4", { text: tx.titel, style: "margin:0" })) : null);
   if (ZAHL()) out.append(h("p", { class: "hilfe", text: "Es sind " + t.correct.length + " " + wort + "." + (K() ? " Richtige " + wort + " werden grün." : "") }));
@@ -655,9 +660,15 @@ function figure(b) {
     h("img", { src: b.src, alt: b.alt, loading: "lazy" })),
     h("figcaption", {}, b.titel, h("span", { class: "lupe", text: "  · antippen zum Vergrößern" })));
 }
+function hervor(text) {                            // wichtige Begriffe der Rolle im Text fett und farbig markieren
+  const b = (R().begriffe || []).slice().sort((x, y) => y.length - x.length);
+  if (!b.length) return [text];
+  const re = new RegExp("(" + b.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "g");
+  return text.split(re).map((t, i) => i % 2 ? h("strong", { class: "begriff", text: t }) : t);
+}
 function textCard(tx) {
   return h("div", { class: "card quelle" }, h("div", { class: "qtitel" }, h("img", { src: "bilder/icon-schriftrolle.png", alt: "" }), h("h3", { text: tx.titel, style: "margin:0" })),
-    h("div", { class: "quelltext" }, tx.zeilen.map(z => h("p", { text: zeileText(z) }))), h("p", { class: "qhin", text: "Verfassertext, frei nacherzählt nach dem Schulbuch" }));
+    h("div", { class: "quelltext" }, tx.zeilen.map(z => h("p", {}, typeof z === "string" ? hervor(z) : [h("span", { class: "sp", text: z.s + ": " }), hervor(z.t)]))), h("p", { class: "qhin", text: "Verfassertext, frei nacherzählt nach dem Schulbuch" }));
 }
 function teil1View() {
   const r = R(), v = h("div", {});
