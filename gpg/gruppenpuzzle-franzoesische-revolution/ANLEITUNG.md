@@ -25,12 +25,13 @@ Liegt der Ordner im Repository `thezerdy-byte/Lernapp` auf dem Branch `main` und
 
 ## Einsatz in der Stunde
 - Die App wird nur in der **Arbeitsphase** genutzt. Die Teile **öffnen sich nacheinander**:
-  1. **Einzelarbeit (11 Min.):** Bildbetrachtung, Text markieren, Ordnen/Zuordnen, Erklären, Experten-Check. Es geht weiter, wenn alles erledigt ist oder die Zeit um ist.
-  2. **Finde deine Expertengruppe (1 Min.):** Groß steht „Bauer“, „Feine Dame“, „Gelehrte“ oder „Revolutionäre“. Nach einer Minute geht es automatisch weiter (oder per Knopf).
-  3. **Expertengruppe (6 Min.):** großer Bildschirm mit Timer, Diskussionsfrage (Transfer) und Übersicht der eigenen Ergebnisse. Hier entsteht der Spickzettel.
-  4. **Finde deine Stammgruppe (1 Min.):** Groß erscheint das Symbol ● ■ ▲. Alle mit demselben Symbol bilden Vierergruppen mit je einem Bauer, einer feinen Dame, einem Gelehrten und einem Revolutionär.
-  5. **Stammgruppe (18 Min.):** Gruppenblatt, Bericht in der Reihenfolge B → A → C → D, Fazit-Satz.
+  1. **Einzelarbeit:** Bildbetrachtung, Text markieren, Ordnen/Zuordnen, Erklären, Experten-Check.
+  2. **Finde deine Expertengruppe:** Groß steht „Bauer“, „Feine Dame“, „Gelehrte“ oder „Revolutionäre“. Weiter mit „Wir haben uns gefunden“.
+  3. **Expertengruppe:** großer Bildschirm mit Auftrag, Diskussionsfrage (Transfer) und Übersicht der eigenen Ergebnisse. Hier entsteht der Spickzettel.
+  4. **Finde deine Stammgruppe:** Groß erscheint das Symbol ● ■ ▲. Alle mit demselben Symbol bilden Vierergruppen mit je einem Bauer, einer feinen Dame, einem Gelehrten und einem Revolutionär. Weiter mit „Wir haben uns gefunden“.
+  5. **Stammgruppe:** Gruppenblatt, Bericht in der Reihenfolge B → A → C → D, Fazit-Satz.
   6. **Fertig:** Übersicht und Ausdruck.
+- **Stiller Timer:** Es gibt keine sichtbare Uhr. Die nächste Phase öffnet sich, wenn alles erledigt ist, oder nach 40 % der geplanten Arbeitszeit, dann auch, wenn noch nicht alles fertig ist. Geplant sind 11 Min. (Einzelarbeit), 6 Min. (Expertengruppe) und 18 Min. (Stammgruppe), also frei nach etwa 4½, 2½ und 7 Minuten. Zeiten und Anteil stehen in `CONTENT.minuten` und `CONTENT.freiAb`.
 - **Stammgruppen bilden:** Teile die Symbole so zu, dass es je Symbol von jeder Rolle gleich viele gibt (z. B. pro Symbol 2 Bauern, 2 Damen, 2 Gelehrte, 2 Revolutionäre bei 8 Schülern).
 - Der **Timer** startet auf jedem iPad, sobald ein Teil zum ersten Mal geöffnet wird. Nach Ablauf blinkt „Zeit ist um!“. Die Zeiten stehen in `CONTENT.minuten`.
 - **Anmeldung:** Vorname, Symbol, Rolle.

@@ -255,7 +255,8 @@
 const CONTENT = {
   titel: "Gruppenpuzzle – Vor der Französischen Revolution",
   thema: "Vor der Französischen Revolution",
-  minuten: { 1: 11, 2: 1, 3: 6, 4: 1, 5: 18 },       // Timer je Schritt (Minuten)
+  minuten: { 1: 11, 3: 6, 5: 18 },                    // stiller Timer: geplante Arbeitszeit je Phase (Minuten), wird nicht angezeigt
+  freiAb: 0.4,                                       // nach 40 % dieser Zeit darf man weiter, auch wenn noch nicht alles fertig ist
   // Ablauf: 1 Einzelarbeit · 2 Finde deine Expertengruppe · 3 Expertengruppe · 4 Finde deine Stammgruppe · 5 Stammgruppe · 6 Fertig
   schritte: ["Einzelarbeit", "Expertengruppe finden", "Expertengruppe", "Stammgruppe finden", "Stammgruppe", "Fertig"],
   navi: [1, 3, 5, 6],                                // Schritte in der Leiste oben (die „Finden“-Minuten sind Zwischenbildschirme)
@@ -269,7 +270,7 @@ const CONTENT = {
       sol: ["Adel", "Kirche", "Vorrechte", "Steuern", "Hunger", "ungerecht", "frei", "gleich"] }
   },
   stammPlus: "Wer von den vier Personen würde 1789 am ehesten mitkämpfen? Begründe.",
-  stammPlusStarter: "Am ehesten würde … mitkämpfen, weil …",
+  stammPlusStarter: "Am ehesten würde mitkämpfen:\nDenn ",
 
   rollen: {
     A: { name: "Ein Bauer", kurz: "Bauer", gruppe: "Bauer", icon: "bilder/icon-brot.png", zufrieden: "unzufrieden",
@@ -288,34 +289,34 @@ const CONTENT = {
         "Am liebsten würde ich das Schloss stürmen und die Papiere verbrennen, auf denen steht, dass wir unfrei sind."] }],
       tasks: [
         { typ: "bild", kopf: "Beschreibe Bild [1].", auftrag: "Sieh dir das Bild genau an.", felder: [
-          { label: "Ich sehe: Gesichter", hint: "Wie wirken die Gesichter?", starter: "Die Gesichter wirken …", options: ["niedergeschlagen", "hoffnungsvoll", "trotzig"], correct: null },
-          { label: "Ich sehe: Kleidung und Raum", hint: "Was tragen die Menschen? Wo sind sie?", starter: "Die Menschen tragen … Der Raum ist …", options: ["einfache, abgetragene Kleidung in einem dunklen Raum", "prächtige Kleider in einem Schloss"], correct: 0 },
-          { label: "Ich denke …", hint: "Wie geht es diesen Menschen?", starter: "Ich denke, die Menschen …", options: ["Sie haben wenig und arbeiten hart.", "Sie haben viel Freizeit und Geld."], correct: 0 },
-          { label: "Das bedeutet …", hint: "Was sagt das Bild über die Zeit aus?", starter: "Das bedeutet, dass die Bauern damals …", options: ["Die Bauern lebten in Armut.", "Die Bauern lebten im Luxus."], correct: 0 } ] },
+          { label: "Ich sehe: Gesichter", hint: "Wie wirken die Gesichter?", starter: "Die Gesichter wirken ", options: ["niedergeschlagen", "hoffnungsvoll", "trotzig"], correct: null },
+          { label: "Ich sehe: Kleidung und Raum", hint: "Was tragen die Menschen? Wo sind sie?", starter: "Die Menschen tragen\nDer Raum ist ", options: ["einfache, abgetragene Kleidung in einem dunklen Raum", "prächtige Kleider in einem Schloss"], correct: 0 },
+          { label: "Ich denke", hint: "Wie geht es diesen Menschen?", starter: "Ich denke, die Menschen ", options: ["Sie haben wenig und arbeiten hart.", "Sie haben viel Freizeit und Geld."], correct: 0 },
+          { label: "Das bedeutet", hint: "Was sagt das Bild über die Zeit aus?", starter: "Das bedeutet, dass die Bauern damals ", options: ["Die Bauern lebten in Armut.", "Die Bauern lebten im Luxus."], correct: 0 } ] },
         { typ: "mark", kopf: "Nenne die Lasten des Bauern.", auftrag: "Lies den Text. Tippe alle Sätze an, in denen eine Last des Bauern steht.", text: 0, correct: [1, 3, 4, 5, 6, 7, 9] },
         { typ: "order", kopf: "Ordne die Wirkungskette.", auftrag: "Tippe die Karten in der richtigen Reihenfolge an.", labels: ["Ursache", "Folge", "Folge", "Ergebnis"],
           items: ["Der Bauer muss Steuern, Abgaben und Frondienste leisten.", "Für seine Familie bleiben nur wenig Ernte und wenig Zeit.", "Die Familie hat Hunger und lebt in Armut.", "Der Bauer ist wütend auf Adel und König."] },
-        { typ: "schreiben", kopf: "Erkläre, warum der Bauer unzufrieden ist.", auftrag: "Nutze deine Ergebnisse aus Aufgabe 2 und 3.", starter: "Der Bauer ist unzufrieden, weil …",
+        { typ: "schreiben", kopf: "Erkläre, warum der Bauer unzufrieden ist.", auftrag: "Nutze deine Ergebnisse aus Aufgabe 2 und 3.", starter: "Der Bauer ist unzufrieden, weil ",
           kreis: { typ: "gap", text: "Der Bauer ist unzufrieden, weil er viele {0} zahlen muss. Einen Teil der {1} bekommt der {2}. Außerdem muss er ohne Lohn für ihn {3}. Er darf nicht {4}, obwohl Tiere seine Felder leer fressen. Er ist {5} und hat oft {6}.",
             words: ["Steuern", "Grundherr", "Ernte", "arbeiten", "jagen", "unfrei", "Hunger"], sol: ["Steuern", "Ernte", "Grundherr", "arbeiten", "jagen", "unfrei", "Hunger"] } }
       ],
-      plus: { text: "Das Bild ist von 1642, also fast 150 Jahre vor der Revolution. Erkläre, warum es trotzdem zur Zeit vor 1789 passt.", starter: "Das Bild passt zur Zeit vor 1789, weil …" },
+      plus: { text: "Das Bild ist von 1642, also fast 150 Jahre vor der Revolution. Erkläre, warum es trotzdem zur Zeit vor 1789 passt.", starter: "Das Bild passt zur Zeit vor 1789, weil " },
       diskussion: "Stellt euch vor, der König besucht das Dorf des Bauern. Was würde der Bauer ihm sagen? Was würde der König wohl antworten?",
       check: [
         { typ: "mc", q: "Wer durfte auf den Feldern jagen?", options: ["Der Bauer", "Der Grundherr", "Der Pfarrer"], correct: 1, why: "Nur der Grundherr durfte jagen. Der Bauer musste zusehen, wie Tiere seine Felder leer fraßen." },
         { typ: "mc", q: "Wie viele Tage im Jahr musste der Bauer an Straßen bauen?", options: ["30 Tage", "100 Tage", "200 Tage"], correct: 1, why: "Er musste an 100 Tagen im Jahr ohne Lohn Straßen bauen." },
-        { typ: "mc", q: "Der Bauer gehört zum … Stand.", options: ["Ersten", "Zweiten", "Dritten"], correct: 2, why: "Der Erste Stand ist die Geistlichkeit, der Zweite der Adel, der Dritte alle anderen, auch die Bauern." },
+        { typ: "mc", q: "Zu welchem Stand gehört der Bauer?", options: ["Zum Ersten Stand", "Zum Zweiten Stand", "Zum Dritten Stand"], correct: 2, why: "Der Erste Stand ist die Geistlichkeit, der Zweite der Adel, der Dritte alle anderen, auch die Bauern." },
         { typ: "tf", q: "Der Bauer durfte heiraten, wen er wollte.", correct: false, why: "Er brauchte die Erlaubnis des Grundherrn und musste dafür bezahlen." }
       ],
       spick: [
-        { label: "Wie lebt der Bauer?", starter: "Der Bauer lebt …", parts: ["Der Bauer lebt", "auf dem Land", "und muss hart", "für den Grundherrn arbeiten."], wrong: "in Versailles" },
-        { label: "Welche Lasten hat er?", starter: "Er muss …", parts: ["Er zahlt", "Steuern an den König,", "gibt einen Teil der Ernte ab", "und darf nicht jagen."], wrong: "und zahlt keine Steuern." },
-        { label: "Was denkt er über die Ordnung?", starter: "Er findet die Ordnung …", parts: ["Er findet die Ordnung", "ungerecht,", "weil er", "fast alle Lasten trägt."], wrong: "gerecht," }
+        { label: "Wie lebt der Bauer?", starter: "Der Bauer lebt ", parts: ["Der Bauer lebt", "auf dem Land", "und muss hart", "für den Grundherrn arbeiten."], wrong: "in Versailles" },
+        { label: "Welche Lasten hat er?", starter: "Er muss ", parts: ["Er zahlt", "Steuern an den König,", "gibt einen Teil der Ernte ab", "und darf nicht jagen."], wrong: "und zahlt keine Steuern." },
+        { label: "Was denkt er über die Ordnung?", starter: "Er findet die Ordnung ", parts: ["Er findet die Ordnung", "ungerecht,", "weil er", "fast alle Lasten trägt."], wrong: "gerecht," }
       ],
       cells: [
-        { right: ["Bauer auf dem Land", "arm, harte Arbeit", "arbeitet für den Grundherrn"], wrong: ["wohnt in Versailles"], starter: "Er lebt …" },
-        { right: ["zahlt Steuern an den König", "gibt Teil der Ernte ab", "Straßenbau und Arbeit auf dem Feld", "darf nicht jagen"], wrong: ["zahlt keine Steuern"], starter: "Er muss … Er darf nicht …" },
-        { right: ["findet die Lasten ungerecht", "ist unfrei"], wrong: ["findet die Ordnung richtig"], starter: "Er findet … weil …" }
+        { right: ["Bauer auf dem Land", "arm, harte Arbeit", "arbeitet für den Grundherrn"], wrong: ["wohnt in Versailles"], starter: "Er lebt " },
+        { right: ["zahlt Steuern an den König", "gibt Teil der Ernte ab", "Straßenbau und Arbeit auf dem Feld", "darf nicht jagen"], wrong: ["zahlt keine Steuern"], starter: "Er muss\nEr darf nicht " },
+        { right: ["findet die Lasten ungerecht", "ist unfrei"], wrong: ["findet die Ordnung richtig"], starter: "Er findet die Ordnung " }
       ] },
 
     B: { name: "Eine adlige Dame", kurz: "Adlige", gruppe: "Feine Dame", icon: "bilder/icon-krone.png", zufrieden: "zufrieden",
@@ -336,21 +337,21 @@ const CONTENT = {
         "Darum ist es auch richtig, dass wir keine Steuern bezahlen. Diese Vorrechte stehen uns zu."] }],
       tasks: [
         { typ: "bild", kopf: "Beschreibe die Bilder [2] und [3].", auftrag: "Sieh dir beide Bilder genau an.", felder: [
-          { label: "Ich sehe: Kleidung", hint: "Was trägt die Dame auf Bild [2]?", starter: "Die Dame trägt …", options: ["ein prächtiges Kleid mit Rüschen und Seide", "einfache, abgetragene Kleidung"], correct: 0 },
-          { label: "Ich sehe: Beschäftigung", hint: "Was tun die Menschen auf Bild [2] und [3]?", starter: "Die Menschen …", options: ["Sie spielen, tanzen und feiern.", "Sie arbeiten hart auf dem Feld."], correct: 0 },
-          { label: "Ich denke …", hint: "Wie fühlen sich die Menschen?", starter: "Ich denke, die Menschen …", options: ["Sie sind sorglos und vergnügt.", "Sie sind hungrig und erschöpft."], correct: 0 },
-          { label: "Das bedeutet …", hint: "Was sagen die Bilder über das Leben der Adligen aus?", starter: "Das bedeutet, dass die Adligen …", options: ["Die Adligen lebten in Reichtum und Vergnügen.", "Die Adligen lebten in Armut."], correct: 0 } ] },
+          { label: "Ich sehe: Kleidung", hint: "Was trägt die Dame auf Bild [2]?", starter: "Die Dame trägt ", options: ["ein prächtiges Kleid mit Rüschen und Seide", "einfache, abgetragene Kleidung"], correct: 0 },
+          { label: "Ich sehe: Beschäftigung", hint: "Was tun die Menschen auf Bild [2] und [3]?", starter: "Die Menschen ", options: ["Sie spielen, tanzen und feiern.", "Sie arbeiten hart auf dem Feld."], correct: 0 },
+          { label: "Ich denke", hint: "Wie fühlen sich die Menschen?", starter: "Ich denke, die Menschen ", options: ["Sie sind sorglos und vergnügt.", "Sie sind hungrig und erschöpft."], correct: 0 },
+          { label: "Das bedeutet", hint: "Was sagen die Bilder über das Leben der Adligen aus?", starter: "Das bedeutet, dass die Adligen ", options: ["Die Adligen lebten in Reichtum und Vergnügen.", "Die Adligen lebten in Armut."], correct: 0 } ] },
         { typ: "order", kopf: "Beschreibe den Tagesablauf der Adligen.", auftrag: "Lies den Text [1]. Tippe die Karten in der Reihenfolge des Tages an.",
           items: ["Die Dienerinnen frisieren die Perücke und reichen die Kleider.", "Sie hilft der Königin beim Anziehen.", "Sie geht mit der Königin in die Kirche.", "Sie frühstückt Austern und Champagner.", "Sie begleitet den König zur Jagd.", "Abends hört sie Konzerte oder sieht Theaterstücke."] },
         { typ: "sort", kopf: "Ordne zu: Vorrecht oder Begründung?", auftrag: "Was ist ein Vorrecht des Adels? Womit begründet die Adlige ihre Vorrechte?", cols: ["Vorrecht", "Begründung"], items: [
           { t: "Adlige müssen keine Steuern zahlen.", c: 0 }, { t: "Gott hat diese Ordnung so bestimmt.", c: 1 },
           { t: "Adlige müssen nicht arbeiten.", c: 0 }, { t: "Adlige sind zum Herrschen geboren.", c: 1 },
           { t: "Adlige dürfen am Hof in der Nähe des Königs leben.", c: 0 }, { t: "Jeder hat im Land seinen festen Platz.", c: 1 } ] },
-        { typ: "schreiben", kopf: "Erkläre, wie die Adlige ihre Vorrechte begründet.", auftrag: "Nutze den Text [1] und Aufgabe 3.", starter: "Die Adlige sagt, dass … Sie begründet das damit, dass …",
+        { typ: "schreiben", kopf: "Erkläre, wie die Adlige ihre Vorrechte begründet.", auftrag: "Nutze den Text [1] und Aufgabe 3.", starter: "Die Adlige sagt, dass\nSie begründet das damit, dass ",
           kreis: { typ: "gap", text: "Die Adlige findet ihre Vorrechte richtig, weil {0} die Ordnung so bestimmt hat. Deshalb muss sie keine {1} zahlen und nicht {2}. Sie ist zum {3} geboren.",
             words: ["Gott", "Steuern", "arbeiten", "Herrschen", "Bauern", "frei"], sol: ["Gott", "Steuern", "arbeiten", "Herrschen"] } }
       ],
-      plus: { text: "Bild [3] wurde 1862 gemalt. Ist es eine Quelle aus der Zeit vor 1789 oder eine spätere Darstellung? Begründe.", starter: "Bild [3] ist … Ich erkenne das daran, dass …" },
+      plus: { text: "Bild [3] wurde 1862 gemalt. Ist es eine Quelle aus der Zeit vor 1789 oder eine spätere Darstellung? Begründe.", starter: "Bild [3] ist\nIch erkenne das daran, dass " },
       diskussion: "Ist es gerecht, dass die Adlige keine Steuern zahlt, der Bauer aber schon? Begründet eure Meinung.",
       check: [
         { typ: "mc", q: "Wo lebt die Adlige?", options: ["Auf einem Bauernhof", "Am Hof von Versailles", "In einem Mietshaus in Paris"], correct: 1, why: "Sie lebt am Hof von Versailles und hilft der Königin beim Anziehen." },
@@ -359,14 +360,14 @@ const CONTENT = {
         { typ: "mc", q: "Womit begründet sie die Ordnung?", options: ["Das Volk hat sie gewählt.", "Gott hat sie so bestimmt.", "Die Vernunft sagt es."], correct: 1, why: "Sie sagt: Gott selbst hat die Ordnung so bestimmt." }
       ],
       spick: [
-        { label: "Wie lebt die Adlige?", starter: "Die Adlige lebt …", parts: ["Die Adlige lebt", "am Hof von Versailles", "und hat Dienerinnen,", "Feste und Vergnügen."], wrong: "auf dem Land" },
-        { label: "Welche Vorrechte hat sie?", starter: "Sie zahlt …", parts: ["Sie zahlt", "keine Steuern", "und muss", "nicht arbeiten."], wrong: "viele Steuern" },
-        { label: "Was denkt sie über die Ordnung?", starter: "Sie findet die Ordnung …", parts: ["Sie findet die Ordnung richtig,", "weil", "Gott sie", "so bestimmt hat."], wrong: "Sie findet die Ordnung falsch," }
+        { label: "Wie lebt die Adlige?", starter: "Die Adlige lebt ", parts: ["Die Adlige lebt", "am Hof von Versailles", "und hat Dienerinnen,", "Feste und Vergnügen."], wrong: "auf dem Land" },
+        { label: "Welche Vorrechte hat sie?", starter: "Sie zahlt ", parts: ["Sie zahlt", "keine Steuern", "und muss", "nicht arbeiten."], wrong: "viele Steuern" },
+        { label: "Was denkt sie über die Ordnung?", starter: "Sie findet die Ordnung ", parts: ["Sie findet die Ordnung richtig,", "weil", "Gott sie", "so bestimmt hat."], wrong: "Sie findet die Ordnung falsch," }
       ],
       cells: [
-        { right: ["am Hof von Versailles", "hat Dienerinnen", "Jagd, Konzert und Theater"], wrong: ["lebt auf dem Land und arbeitet hart"], starter: "Sie lebt …" },
-        { right: ["zahlt keine Steuern", "muss nicht arbeiten", "ist zum Herrschen geboren"], wrong: ["zahlt hohe Steuern"], starter: "Sie zahlt … Sie muss …" },
-        { right: ["Ordnung ist von Gott bestimmt", "findet die Ordnung richtig"], wrong: ["alle Menschen sind gleich"], starter: "Sie findet … weil …" }
+        { right: ["am Hof von Versailles", "hat Dienerinnen", "Jagd, Konzert und Theater"], wrong: ["lebt auf dem Land und arbeitet hart"], starter: "Sie lebt " },
+        { right: ["zahlt keine Steuern", "muss nicht arbeiten", "ist zum Herrschen geboren"], wrong: ["zahlt hohe Steuern"], starter: "Sie zahlt\nSie muss " },
+        { right: ["Ordnung ist von Gott bestimmt", "findet die Ordnung richtig"], wrong: ["alle Menschen sind gleich"], starter: "Sie findet die Ordnung " }
       ] },
 
     C: { name: "Gelehrte Bürger", kurz: "Gelehrte", gruppe: "Gelehrte", icon: "bilder/icon-feder.png", zufrieden: "unzufrieden",
@@ -387,20 +388,20 @@ const CONTENT = {
           { s: "Lefevre", t: "Stimmt! Hoffentlich ändert sich in unserem Staat bald etwas." }] }],
       tasks: [
         { typ: "bild", kopf: "Beschreibe Bild [1].", auftrag: "Sieh dir das Bild genau an.", felder: [
-          { label: "Ich sehe: Menschen", hint: "Wer ist im Raum?", starter: "Im Raum sind …", options: ["viele gut gekleidete Frauen und Männer", "Bauern bei der Arbeit"], correct: 0 },
-          { label: "Ich sehe: Was sie tun", hint: "Was machen die Menschen?", starter: "Die Menschen …", options: ["Sie sitzen zusammen und hören zu.", "Sie tanzen und essen."], correct: 0 },
-          { label: "Ich denke …", hint: "Was passiert hier wohl gerade?", starter: "Ich denke, hier …", options: ["Hier wird etwas vorgelesen und besprochen.", "Hier wird ein Fest gefeiert."], correct: 0 },
-          { label: "Das bedeutet …", hint: "Was sagt das Bild über die Zeit aus?", starter: "Das bedeutet, dass …", options: ["Gebildete Bürger tauschten neue Ideen aus.", "Die Menschen lebten in Armut."], correct: 0 } ] },
+          { label: "Ich sehe: Menschen", hint: "Wer ist im Raum?", starter: "Im Raum sind ", options: ["viele gut gekleidete Frauen und Männer", "Bauern bei der Arbeit"], correct: 0 },
+          { label: "Ich sehe: Was sie tun", hint: "Was machen die Menschen?", starter: "Die Menschen ", options: ["Sie sitzen zusammen und hören zu.", "Sie tanzen und essen."], correct: 0 },
+          { label: "Ich denke", hint: "Was passiert hier wohl gerade?", starter: "Ich denke, hier ", options: ["Hier wird etwas vorgelesen und besprochen.", "Hier wird ein Fest gefeiert."], correct: 0 },
+          { label: "Das bedeutet", hint: "Was sagt das Bild über die Zeit aus?", starter: "Das bedeutet, dass ", options: ["Gebildete Bürger tauschten neue Ideen aus.", "Die Menschen lebten in Armut."], correct: 0 } ] },
         { typ: "mark", kopf: "Nenne die Ideen von Lefevre und Lambert.", auftrag: "Lies das Gespräch. Tippe alle Aussagen an, in denen eine neue Idee steht.", text: 1, correct: [0, 1, 3, 4, 5, 6] },
         { typ: "sort", kopf: "Erkläre den Unterschied zur Sicht Ludwigs XIV.", auftrag: "König Ludwig XIV. sagte: „Der Staat bin ich.“ Ordne zu: Wer denkt was?", cols: ["Ludwig XIV.", "Die Gelehrten"], items: [
           { t: "Der König ist von Gott eingesetzt.", c: 0 }, { t: "Alle Menschen sind frei und gleich geboren.", c: 1 },
           { t: "Der König bestimmt alles allein.", c: 0 }, { t: "Einen schlechten Herrscher darf man absetzen.", c: 1 },
           { t: "Der König macht die Gesetze und ist zugleich Richter.", c: 0 }, { t: "Jeder darf seine Meinung frei sagen.", c: 1 } ] },
-        { typ: "schreiben", kopf: "Erkläre, warum die Ideen der Gelehrten für den König gefährlich waren.", auftrag: "Nutze deine Ergebnisse aus Aufgabe 2 und 3.", starter: "Die Ideen waren für den König gefährlich, weil …",
+        { typ: "schreiben", kopf: "Erkläre, warum die Ideen der Gelehrten für den König gefährlich waren.", auftrag: "Nutze deine Ergebnisse aus Aufgabe 2 und 3.", starter: "Die Ideen waren für den König gefährlich, weil ",
           kreis: { typ: "gap", text: "Die Gelehrten glaubten nicht, dass {0} den König eingesetzt hat. Ein schlechter Herrscher darf ihrer Meinung nach {1} werden. Weil alle Menschen {2} sind, soll niemand {3} haben. Damit stellten sie die {4} des Königs in Frage.",
             words: ["Gott", "abgesetzt", "gleich", "Sonderrechte", "Macht", "Feste", "gewählt"], sol: ["Gott", "abgesetzt", "gleich", "Sonderrechte", "Macht"] } }
       ],
-      plus: { text: "Entwirf eine Überschrift für ein Flugblatt mit einer Forderung der Gelehrten.", starter: "Überschrift: …" },
+      plus: { text: "Entwirf eine Überschrift für ein Flugblatt mit einer Forderung der Gelehrten.", starter: "Überschrift: " },
       diskussion: "Welche Ideen der Gelehrten gelten heute in Deutschland? Findet ein Beispiel aus eurem Alltag.",
       check: [
         { typ: "mc", q: "Worauf verlassen sich die Gelehrten beim Denken?", options: ["Auf die Tradition", "Auf die Vernunft", "Auf den König"], correct: 1, why: "Die Gelehrten verlassen sich auf ihren Verstand, die Vernunft." },
@@ -409,14 +410,14 @@ const CONTENT = {
         { typ: "mc", q: "Wer soll nicht zugleich Gesetze machen und Richter sein?", options: ["Der Bauer", "Der König", "Der Pfarrer"], correct: 1, why: "Der König soll nicht beides gleichzeitig sein." }
       ],
       spick: [
-        { label: "Was geschieht im Salon?", starter: "Die Gelehrten treffen sich …", parts: ["Die Gelehrten treffen sich", "in Salons", "und diskutieren", "über neue Ideen."], wrong: "auf den Feldern" },
-        { label: "Was fordern sie?", starter: "Sie fordern …", parts: ["Sie haben keine", "Vorrechte", "und fordern:", "Alle sollen frei und gleich sein."], wrong: "viele Vorrechte" },
-        { label: "Was denken sie über König und Ordnung?", starter: "Sie glauben, dass der König …", parts: ["Sie glauben,", "der König ist nicht von Gott eingesetzt", "und darf abgesetzt werden,", "wenn er schlecht herrscht."], wrong: "der König ist von Gott eingesetzt" }
+        { label: "Was geschieht im Salon?", starter: "Die Gelehrten treffen sich ", parts: ["Die Gelehrten treffen sich", "in Salons", "und diskutieren", "über neue Ideen."], wrong: "auf den Feldern" },
+        { label: "Was fordern sie?", starter: "Sie fordern ", parts: ["Sie haben keine", "Vorrechte", "und fordern:", "Alle sollen frei und gleich sein."], wrong: "viele Vorrechte" },
+        { label: "Was denken sie über König und Ordnung?", starter: "Sie glauben, dass der König ", parts: ["Sie glauben,", "der König ist nicht von Gott eingesetzt", "und darf abgesetzt werden,", "wenn er schlecht herrscht."], wrong: "der König ist von Gott eingesetzt" }
       ],
       cells: [
-        { right: ["gebildete Bürger", "treffen sich im Salon", "diskutieren über neue Ideen"], wrong: ["Bauern auf den Feldern"], starter: "Sie treffen sich …" },
-        { right: ["fordern: keine Sonderrechte", "Meinungsfreiheit ohne Strafe"], wrong: ["viele Vorrechte für den Adel"], starter: "Sie fordern …" },
-        { right: ["König ist nicht von Gott eingesetzt", "schlechter Herrscher darf abgesetzt werden", "König soll nicht Gesetze machen und Richter sein"], wrong: ["König ist von Gott eingesetzt"], starter: "Sie glauben, dass der König …" }
+        { right: ["gebildete Bürger", "treffen sich im Salon", "diskutieren über neue Ideen"], wrong: ["Bauern auf den Feldern"], starter: "Sie treffen sich " },
+        { right: ["fordern: keine Sonderrechte", "Meinungsfreiheit ohne Strafe"], wrong: ["viele Vorrechte für den Adel"], starter: "Sie fordern " },
+        { right: ["König ist nicht von Gott eingesetzt", "schlechter Herrscher darf abgesetzt werden", "König soll nicht Gesetze machen und Richter sein"], wrong: ["König ist von Gott eingesetzt"], starter: "Sie glauben, dass der König " }
       ] },
 
     D: { name: "Revolutionäre", kurz: "Revolutionär", gruppe: "Revolutionäre", icon: "bilder/icon-burg.png", zufrieden: "unzufrieden",
@@ -435,20 +436,20 @@ const CONTENT = {
         "Wenn das nicht geschieht, greifen wir wieder zur Gewalt."] }],
       tasks: [
         { typ: "bild", kopf: "Beschreibe Bild [1].", auftrag: "Sieh dir das Bild genau an. Tippe auf „Info zum Bild“, wenn du Hilfe brauchst.", felder: [
-          { label: "Ich sehe: Was tragen die Menschen?", hint: "Schau auf die Hände der Menschen.", starter: "Die Menschen tragen …", options: ["Gegenstände aus der Bastille", "Körbe mit Ernte vom Feld"], correct: 0 },
-          { label: "Ich sehe: Wer sitzt auf den Schultern?", hint: "Schau in die Mitte oben.", starter: "Auf den Schultern sitzt …", options: ["eine Figur mit Lorbeerkranz, Schlüssel und Brief", "der König mit Krone"], correct: 0 },
-          { label: "Ich denke …", hint: "Wie ist die Stimmung?", starter: "Ich denke, die Menschen …", options: ["Die Menschen jubeln und sind aufgeregt.", "Die Menschen sind ruhig und traurig."], correct: 0 },
-          { label: "Das bedeutet …", hint: "Was zeigt das Bild?", starter: "Das bedeutet, dass …", options: ["Das Volk feiert seinen Sieg über die Bastille.", "Der König feiert ein Fest."], correct: 0 } ] },
+          { label: "Ich sehe: Was tragen die Menschen?", hint: "Schau auf die Hände der Menschen.", starter: "Die Menschen tragen ", options: ["Gegenstände aus der Bastille", "Körbe mit Ernte vom Feld"], correct: 0 },
+          { label: "Ich sehe: Wer sitzt auf den Schultern?", hint: "Schau in die Mitte oben.", starter: "Auf den Schultern sitzt ", options: ["eine Figur mit Lorbeerkranz, Schlüssel und Brief", "der König mit Krone"], correct: 0 },
+          { label: "Ich denke", hint: "Wie ist die Stimmung?", starter: "Ich denke, die Menschen ", options: ["Die Menschen jubeln und sind aufgeregt.", "Die Menschen sind ruhig und traurig."], correct: 0 },
+          { label: "Das bedeutet", hint: "Was zeigt das Bild?", starter: "Das bedeutet, dass ", options: ["Das Volk feiert seinen Sieg über die Bastille.", "Der König feiert ein Fest."], correct: 0 } ] },
         { typ: "mark", kopf: "Nenne die Ansichten und Forderungen des Bürgers.", auftrag: "Lies den Text. Tippe alle Sätze an, in denen der Bürger sagt, was er denkt oder fordert.", text: 0, correct: [2, 3, 6, 8, 9] },
         { typ: "sort", kopf: "Ordne zu: Wie lebt er – was fordert er?", auftrag: "Ordne jede Karte einer Spalte zu.", cols: ["So lebt er", "Das fordert er"], items: [
           { t: "Er wohnt im 5. Stock eines Mietshauses.", c: 0 }, { t: "Alle Menschen sollen gleich sein.", c: 1 },
           { t: "Er ist Handwerker in Paris.", c: 0 }, { t: "Das Volk soll im Staat bestimmen.", c: 1 },
           { t: "Er arbeitet hart für wenig Geld.", c: 0 }, { t: "Die Vorrechte des Adels sollen weg.", c: 1 } ] },
-        { typ: "schreiben", kopf: "Erkläre, warum der Bürger beim Sturm auf die Bastille mitgemacht hat.", auftrag: "Nutze deine Ergebnisse aus Aufgabe 2 und 3.", starter: "Der Bürger hat mitgemacht, weil …",
+        { typ: "schreiben", kopf: "Erkläre, warum der Bürger beim Sturm auf die Bastille mitgemacht hat.", auftrag: "Nutze deine Ergebnisse aus Aufgabe 2 und 3.", starter: "Der Bürger hat mitgemacht, weil ",
           kreis: { typ: "gap", text: "Der Bürger arbeitet {0} und verdient nur {1} Geld. Er findet, alle Menschen sind von Geburt an {2}. Er will, dass das {3} im Staat bestimmt und die {4} des Adels abgeschafft werden. Deshalb hat er die {5} gestürmt.",
             words: ["hart", "wenig", "gleich", "Volk", "Vorrechte", "Bastille", "viel", "König"], sol: ["hart", "wenig", "gleich", "Volk", "Vorrechte", "Bastille"] } }
       ],
-      plus: { text: "Beurteile: Ist Gewalt ein richtiger Weg, um etwas zu ändern?", starter: "Ich finde …, weil …" },
+      plus: { text: "Beurteile: Ist Gewalt ein richtiger Weg, um etwas zu ändern?", starter: "Ich finde, dass Gewalt\nDenn " },
       diskussion: "Der Bürger droht mit Gewalt. Welche anderen Wege gibt es heute in Deutschland, um etwas zu verändern?",
       check: [
         { typ: "mc", q: "Wo lebt der Bürger?", options: ["In Versailles", "In Paris", "Auf dem Land"], correct: 1, why: "Er lebt als Handwerker in Paris, im fünften Stock eines Mietshauses." },
@@ -457,14 +458,14 @@ const CONTENT = {
         { typ: "mc", q: "Was hält die Figur auf den Schultern der Menschen in der Hand?", options: ["Ein Schwert", "Den Schlüssel der Bastille", "Die Krone"], correct: 1, why: "Sie hält den Schlüssel der Bastille und einen Brief des Kommandanten." }
       ],
       spick: [
-        { label: "Wie lebt der Revolutionär?", starter: "Der Revolutionär ist …", parts: ["Der Revolutionär ist", "Handwerker in Paris", "und wohnt im 5. Stock", "eines Mietshauses."], wrong: "Adliger in Versailles" },
-        { label: "Welche Lasten oder Vorrechte hat er?", starter: "Er arbeitet …", parts: ["Er arbeitet hart", "für wenig Geld", "und hat", "keine Vorrechte."], wrong: "für viel Geld" },
-        { label: "Was fordert er?", starter: "Er fordert …", parts: ["Er fordert:", "Alle Menschen sind gleich,", "das Volk soll bestimmen", "und der Adel soll seine Vorrechte verlieren."], wrong: "der Adel soll seine Vorrechte behalten" }
+        { label: "Wie lebt der Revolutionär?", starter: "Der Revolutionär ist ", parts: ["Der Revolutionär ist", "Handwerker in Paris", "und wohnt im 5. Stock", "eines Mietshauses."], wrong: "Adliger in Versailles" },
+        { label: "Welche Lasten oder Vorrechte hat er?", starter: "Er arbeitet ", parts: ["Er arbeitet hart", "für wenig Geld", "und hat", "keine Vorrechte."], wrong: "für viel Geld" },
+        { label: "Was fordert er?", starter: "Er fordert ", parts: ["Er fordert:", "Alle Menschen sind gleich,", "das Volk soll bestimmen", "und der Adel soll seine Vorrechte verlieren."], wrong: "der Adel soll seine Vorrechte behalten" }
       ],
       cells: [
-        { right: ["Handwerker in Paris", "5. Stock eines Mietshauses", "harte Arbeit, wenig Geld"], wrong: ["lebt am Hof von Versailles"], starter: "Er lebt …" },
-        { right: ["hat keine Vorrechte", "fordert Abschaffung der Vorrechte des Adels"], wrong: ["hat viele Vorrechte"], starter: "Er hat …" },
-        { right: ["alle Menschen von Geburt an gleich", "das Volk soll bestimmen", "sagt „Bürger“ statt „Herr“", "Gewalt, wenn der Adel seine Vorrechte behält"], wrong: ["der König soll allein bestimmen"], starter: "Er findet … Er fordert …" }
+        { right: ["Handwerker in Paris", "5. Stock eines Mietshauses", "harte Arbeit, wenig Geld"], wrong: ["lebt am Hof von Versailles"], starter: "Er lebt " },
+        { right: ["hat keine Vorrechte", "fordert Abschaffung der Vorrechte des Adels"], wrong: ["hat viele Vorrechte"], starter: "Er hat " },
+        { right: ["alle Menschen von Geburt an gleich", "das Volk soll bestimmen", "sagt „Bürger“ statt „Herr“", "Gewalt, wenn der Adel seine Vorrechte behält"], wrong: ["der König soll allein bestimmen"], starter: "Er findet\nEr fordert " }
       ] }
   }
 };
@@ -533,21 +534,9 @@ const zeileText = z => typeof z === "string" ? z : z.s + ": " + z.t;
 /* ---------- Timer ---------- */
 const DAUER = s => (CONTENT.minuten[s] || 0) * 60;
 function rest(s) { return st.t[s] ? DAUER(s) - Math.floor((Date.now() - st.t[s]) / 1000) : DAUER(s); }
-function zeitUm(s) { return !!st.t[s] && rest(s) <= 0; }
+function zeitFrei(s) { return !!st.t[s] && (Date.now() - st.t[s]) / 1000 >= DAUER(s) * CONTENT.freiAb; }
 const mmss = sec => { sec = Math.max(0, sec); return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0"); };
-function tick() {
-  const s = st.step, el = document.getElementById("timer");
-  if (el && CONTENT.minuten[s]) {
-    const r = rest(s);
-    el.querySelector("b").textContent = r > 0 ? mmss(r) : "Zeit ist um!";
-    el.querySelector(".tbar div").style.width = Math.max(0, r / DAUER(s) * 100) + "%";
-    el.classList.toggle("knapp", r > 0 && r <= 60); el.classList.toggle("aus", r <= 0);
-  }
-  const big = document.getElementById("bigT");
-  if (big) { const r = rest(s); big.textContent = r > 0 ? mmss(r) : "Zeit ist um!"; big.classList.toggle("aus", r <= 0); }
-  if (st.started && (s === 2 || s === 4) && zeitUm(s)) { gehe(s + 1); return; }   // nach der Minute „Gruppe finden“ automatisch weiter
-  if (st.started && freischalten()) done();
-}
+function tick() { if (st.started && freischalten()) done(); }   // prüft still, ob die nächste Phase frei wird
 setInterval(tick, 1000);
 
 /* ---------- Fortschritt und Freischalten ---------- */
@@ -565,19 +554,22 @@ function checkDone() { return R().check.every((q, i) => i in st.chk); }
 function teil1Fertig() { return R().tasks.every((t, i) => taskDone(i)) && checkDone(); }
 function spickFertig() { return R().spick.every((d, i) => mit("s" + i, K) ? ((st.spick[i] || {}).seq || []).length === d.parts.length : geschrieben((st.spick[i] || {}).text, Q() ? d.starter : "")); }
 function stammFertig() {
-  const f = mit("fazit", K) ? Object.keys((st.stamm.fazit || {}).fill || {}).length === CONTENT.fazit.kreis.sol.length : geschrieben(st.stamm.fazitText, CONTENT.fazit.vorne + " …");
+  const f = mit("fazit", K) ? Object.keys((st.stamm.fazit || {}).fill || {}).length === CONTENT.fazit.kreis.sol.length : geschrieben(st.stamm.fazitText, CONTENT.fazit.vorne);
   return f && CONTENT.reihenfolge.every(r => r === st.role || st.stamm.zuf[r]);
 }
 function freischalten() {                          // gibt true zurück, wenn sich etwas geändert hat
   const alt = st.unlocked;
-  if (st.unlocked === 1 && (teil1Fertig() || zeitUm(1))) st.unlocked = 2;
-  if (st.unlocked === 2 && st.t[2]) st.unlocked = 3;
-  if (st.unlocked === 3 && (spickFertig() || zeitUm(3))) st.unlocked = 4;
-  if (st.unlocked === 4 && st.t[4]) st.unlocked = 5;
-  if (st.unlocked === 5 && (stammFertig() || zeitUm(5))) st.unlocked = 6;
+  if (st.unlocked === 1 && (teil1Fertig() || zeitFrei(1))) st.unlocked = 2;
+  if (st.unlocked === 3 && (spickFertig() || zeitFrei(3))) st.unlocked = 4;
+  if (st.unlocked === 5 && (stammFertig() || zeitFrei(5))) st.unlocked = 6;
   return st.unlocked !== alt;
 }
-function gehe(s) { st.step = s; if (CONTENT.minuten[s] && !st.t[s]) st.t[s] = Date.now(); save(); render(); window.scrollTo(0, 0); }
+function gehe(s) {
+  st.step = s;
+  if (CONTENT.minuten[s] && !st.t[s]) st.t[s] = Date.now();
+  if (s === 2 || s === 4) st.unlocked = Math.max(st.unlocked, s + 1);   // „Gruppe finden“ gibt die folgende Gruppenphase frei
+  save(); render(); window.scrollTo(0, 0);
+}
 
 /* ---------- Aufgaben-Bausteine ---------- */
 function gapWidget(store, key, spec) {
@@ -652,7 +644,7 @@ function orderWidget(key, t) {
     let cls = "it" + (has ? " full" : "");
     if (has && (K() || a.checked)) cls += a.seq[pos] === pos ? " ok" : " no";
     list.append(h("button", { class: cls, type: "button", onclick: () => { if (has && !K()) { a.seq.splice(pos, 1); a.checked = false; fx(); } } },
-      h("span", { class: "lab", text: t.labels ? t.labels[pos] : (pos + 1) + "." }), h("span", { text: has ? t.items[a.seq[pos]] : "…" })));
+      h("span", { class: "lab", text: t.labels ? t.labels[pos] : (pos + 1) + "." }), h("span", { text: has ? t.items[a.seq[pos]] : "" })));
   }
   const bank = h("div", { class: "bank" }, mix(n, key).filter(i => !a.seq.includes(i)).map(i =>
     h("button", { class: "chip", type: "button", onclick: ev => {
@@ -722,7 +714,7 @@ function fazitText() { return mit("fazit", () => fazitText0()); }
 function fazitText0() {
   const f = CONTENT.fazit;
   if (K()) { const a = st.stamm.fazit || { fill: {} }; return f.kreis.text.replace(/\{(\d+)\}/g, (_, g) => g in a.fill ? f.kreis.words[a.fill[g]] : "____"); }
-  return st.stamm.fazitText !== undefined ? st.stamm.fazitText : (Q() ? f.vorne + " …" : "");
+  return st.stamm.fazitText !== undefined ? st.stamm.fazitText : (Q() ? f.vorne + " " : "");
 }
 function stammPlusText() { return mit("splus", () => stammPlusText0()); }
 function stammPlusText0() { return st.stamm.plus !== null ? st.stamm.plus : (lv() === "t" ? "" : CONTENT.stammPlusStarter); }
@@ -764,7 +756,7 @@ function textCard(tx) {
 function teil1View() {
   const r = R(), v = h("div", {});
   v.append(h("div", { class: "card" }, h("div", { class: "head" }, h("img", { class: "icon", src: r.icon, alt: "" }),
-    h("div", {}, h("p", { class: "eyebrow", text: "Teil 1 · Einzelarbeit · " + CONTENT.minuten[1] + " Minuten" }), h("h1", { text: r.name }))),
+    h("div", {}, h("p", { class: "eyebrow", text: "Teil 1 · Einzelarbeit" }), h("h1", { text: r.name }))),
     h("p", { class: "info", style: "text-align:center;margin-top:10px", text: "Du bist Expertin oder Experte für diese Person. Sieh dir das Material an und löse die Aufgaben." })));
   r.tasks.forEach((t, i) => {
     const key = "t" + i;
@@ -807,10 +799,12 @@ function fehltListe() {
   return f;
 }
 function weiterCard(s) {
-  const naechster = s + 1, frei = st.unlocked >= naechster, um = zeitUm(s);
+  const naechster = s + 1, frei = st.unlocked >= naechster, fertig = s === 1 ? teil1Fertig() : s === 3 ? spickFertig() : stammFertig();
   const c = h("div", { class: "card weiter " + (frei ? "gruen" : "") });
   if (frei) {
-    c.append(h("h2", { text: um && !(s === 1 ? teil1Fertig() : s === 3 ? spickFertig() : stammFertig()) ? "Die Zeit ist um!" : "Geschafft!" }),
+    c.append(h("h2", { text: fertig ? "Geschafft!" : "Du kannst jetzt weitergehen." }));
+    if (!fertig && s === 1) c.append(h("p", { class: "muted", text: "Noch offen: " + fehltListe().join(", ") + ". Du kannst sie in der Expertengruppe ergänzen." }));
+    c.append(
       h("button", { class: "btn primary", type: "button", onclick: () => gehe(naechster) }, "Weiter: " + (naechster === 2 ? "Finde deine Expertengruppe" : naechster === 4 ? "Finde deine Stammgruppe" : CONTENT.schritte[naechster - 1])));
   } else if (s === 1) {
     c.append(h("p", { class: "info", text: "Es geht weiter, wenn du fertig bist." }), h("p", { class: "muted", text: "Das fehlt noch:" }), h("ul", { class: "fehlt", style: "display:inline-block;text-align:left" }, fehltListe().map(x => h("li", { text: x }))));
@@ -822,7 +816,7 @@ function weiterCard(s) {
   return c;
 }
 
-/* ---------- Zwischenbildschirme: Finde deine Gruppe (je 1 Minute) ---------- */
+/* ---------- Zwischenbildschirme: Finde deine Gruppe (ohne Timer, weiter per Knopf) ---------- */
 function findeView(stamm) {
   const r = R(), s = st.step;
   const v = h("div", { class: "hero finde" },
@@ -832,8 +826,7 @@ function findeView(stamm) {
     h("p", { class: "fsatz", text: stamm ? "Sucht euch zu viert: alle mit diesem Symbol. In jeder Stammgruppe sind ein Bauer, eine feine Dame, ein Gelehrter und ein Revolutionär."
       : "Sucht alle, auf deren iPad auch „" + r.gruppe + "“ steht, und setzt euch zusammen." }),
     stamm ? h("p", { class: "fsatz klein", text: "Du bist: " + r.gruppe }) : null,
-    h("div", { class: "big", id: "bigT", text: mmss(rest(s)) }),
-    h("button", { class: "btn hellbtn", type: "button", onclick: () => gehe(s + 1) }, "Wir sitzen zusammen – weiter"));
+    h("button", { class: "btn hellbtn", type: "button", style: "margin-top:16px", onclick: () => gehe(s + 1) }, "Wir haben uns gefunden → weiter"));
   return v;
 }
 
@@ -863,9 +856,8 @@ function teil2View() {
   const r = R(), v = h("div", {});
   v.append(h("div", { class: "hero" },
     h("img", { class: "deko", src: r.icon, alt: "", style: "left:4%;top:12%" }), h("img", { class: "deko", src: "bilder/icon-waage.png", alt: "", style: "right:4%;bottom:10%" }),
-    h("p", { class: "eyebrow", text: "Teil 2 · Expertengruppe · " + CONTENT.minuten[3] + " Minuten" }),
+    h("p", { class: "eyebrow", text: "Teil 2 · Expertengruppe" }),
     h("h1", { text: "Besprecht eure Ergebnisse!" }),
-    h("div", { class: "big", id: "bigT", text: mmss(rest(3)) }),
     h("ol", {}, h("li", { text: "Setzt euch mit den anderen Experten für „" + r.name + "“ zusammen." }),
       h("li", { text: "Vergleicht eure Antworten aus Teil 1 (Übersicht unten). Ergänzt, was fehlt, und klärt Fehler." }),
       h("li", {}, "Diskutiert: ", h("div", { class: "disk", text: r.diskussion })),
@@ -913,7 +905,7 @@ function zufView(role) {
 }
 function teil3View() {
   const v = h("div", {}), ord = CONTENT.reihenfolge, wide = window.innerWidth > 900, head = r => r + " · " + CONTENT.rollen[r].kurz;
-  v.append(h("div", { class: "card" }, h("p", { class: "eyebrow", text: "Teil 3 · Stammgruppe · " + CONTENT.minuten[5] + " Minuten" }), h("h1", { text: "Gruppenblatt" }),
+  v.append(h("div", { class: "card" }, h("p", { class: "eyebrow", text: "Teil 3 · Stammgruppe" }), h("h1", { text: "Gruppenblatt" }),
     h("p", { class: "info", html: "<b>Berichtet nacheinander: B → A → C → D.</b> Jede Person hat 3 Minuten. Hört gut zu und füllt die anderen Spalten aus. Deine eigene Spalte (grün) ist schon fertig." })));
   if (wide) {
     const t = h("table", { class: "tbl" });
@@ -930,7 +922,7 @@ function teil3View() {
   });
   const f = CONTENT.fazit;
   v.append(h("div", { class: "card gruen" }, h("h2", { text: "Gemeinsamer Fazit-Satz" }),
-    mit("fazit", () => K() ? gapWidget(st.stamm, "fazit", f.kreis) : h("div", {}, h("p", { class: "info", text: f.vorne + " …" }),
+    mit("fazit", () => K() ? gapWidget(st.stamm, "fazit", f.kreis) : h("div", {}, h("p", { class: "info", text: f.vorne }),
       textBox(fazitText(), val => { st.stamm.fazitText = val; save(); freischalten() && done(); }, false, "fazit")))));
   v.append(h("div", { class: "card" }, h("div", { class: "plus" }, h("div", { class: "dot", text: "+" }), h("div", { style: "flex:1" },
     h("p", { class: "eyebrow", text: "Für Schnelle" }), h("h3", { text: CONTENT.stammPlus }), mit("splus", () => textBox(stammPlusText(), val => { st.stamm.plus = val; save(); }, false, "splus"))))));
@@ -980,7 +972,6 @@ function render() {
   if (CONTENT.minuten[st.step] && !st.t[st.step]) { st.t[st.step] = Date.now(); save(); }
   const s = st.step;
   $app.append(h("div", { class: "top" }, h("span", { class: "thema", text: "Stundenthema: " + CONTENT.thema }),
-    CONTENT.minuten[s] ? h("div", { class: "timer", id: "timer", role: "timer", "aria-label": "Restzeit" }, h("span", { class: "lbl", text: CONTENT.schritte[s - 1] }), h("b", { text: mmss(rest(s)) }), h("div", { class: "tbar" }, h("div", {}))) : h("span", {}),
     h("button", { class: "btn small", type: "button", onclick: () => { if (confirm("Wirklich neu beginnen? Alle deine Antworten auf diesem iPad werden gelöscht.")) { st = fresh(); done(); } } }, "Neu beginnen")),
     h("nav", { class: "steps", "aria-label": "Teile" }, CONTENT.navi.map((nr, i) => {
       const n = CONTENT.schritte[nr - 1], frei = nr <= st.unlocked, on = st.step === nr || st.step === nr - 1 && (nr === 3 || nr === 5);
