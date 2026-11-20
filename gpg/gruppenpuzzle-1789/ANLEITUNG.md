@@ -13,16 +13,18 @@ Gleiche Technik und Optik wie das Gruppenpuzzle „Vor der Französischen Revolu
 Die Artikulation sieht drei Expertengruppen (A–C) vor. Wenn du D nicht nutzt, teile einfach keine D-Rolle zu.
 
 ## Klassenliste mit Nummern (automatische Zuteilung)
-Im `CONTENT`-Block von `index.html` gibt es das Feld `klassenliste`. Pro Kind eine Zeile: **Nummer aus deiner Klassenliste, Thema, Symbol**, zum Beispiel:
+Im `CONTENT`-Block von `index.html` gibt es das Feld `klassenliste`. Pro Kind eine Zeile: **Nummer aus deiner Klassenliste, Thema, Symbol, Startstufe** (die Startstufe darf fehlen, dann gilt 2), zum Beispiel:
 
 ```
 klassenliste: `
-  1 A ●
-  2 B ■
+  1 A ● 1
+  2 B ■ 3
   3 C ▲
-  4 D ●
+  4 D ● 2
 `,
 ```
+
+- **Startstufe:** 1 = viel Hilfe (Antippen, Wortspeicher), 2 = Satzanfänge, 3 = ohne Hilfen. Danach passt sich die Hilfe wie gewohnt still an: Wer gut und schnell arbeitet, bekommt schwerere Aufgaben, bei Fehlern oder langer Zeit mehr Hilfe.
 
 - Statt ● ■ ▲ gehen auch die Wörter Kreis, Quadrat, Dreieck.
 - Steht etwas in der Liste, geben die Kinder ihren Vornamen und ihre **Nummer** ein. Die App zeigt dann ihr Thema und Symbol an. Unbekannte Nummern werden abgelehnt („Frag deine Lehrkraft“). Mit „Ich weiß meine Nummer nicht“ geht es auch von Hand.
