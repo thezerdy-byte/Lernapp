@@ -2,7 +2,7 @@
 
 ## Gruppenpuzzle „Der Sturm bricht los – 1789“ (`gruppenpuzzle-1789/`)
 
-- [ ] **Klassenliste eintragen:** Die Lehrkraft schickt die Liste im Format „Nummer Thema Symbol Stufe“ (ohne Namen), z. B. `7 C ▲ 1`. Eintragen in `CONTENT.klassenliste` in `index.html`. Die Technik dafür ist fertig.
+- [x] **Klassenliste eingetragen** (7aM, 19 Nummern, alle starten mit Stufe 2). Zuordnung aus der Namensliste übernommen, ohne Namen.
 - [x] **Sitzplan als Karte in den Gruppenfindungsphasen:** eingebaut (`CONTENT.sitzplan`). Expertengruppen: Versailles vorne links in Reihe 3, Ballhaus Mitte Reihe 3 (die 2 mittleren Tische), Bastille vorne Mitte, Land hinten rechts. Stammgruppen: ▲ vorne Mitte, ■ links Reihe 3, ● hinten rechts. Bei geänderter Sitzordnung dort die Nummern der Tischgruppen anpassen.
 
 ## Gruppenpuzzle „Vor der Französischen Revolution“ (`gruppenpuzzle-franzoesische-revolution/`)

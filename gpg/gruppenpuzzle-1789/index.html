@@ -395,7 +395,27 @@ const CONTENT = {
   //   1 A ● 1
   //   2 B ■ 3
   //   3 C ▲
+  // 7aM (19 Kinder): alle starten mit Stufe 2
   klassenliste: `
+    1 A ●
+    2 B ▲
+    3 C ■
+    4 D ●
+    5 A ▲
+    6 B ■
+    7 C ●
+    8 D ▲
+    9 A ■
+    10 B ●
+    11 C ▲
+    12 D ■
+    13 A ●
+    14 B ▲
+    15 C ■
+    16 D ●
+    17 A ▲
+    18 B ■
+    19 C ●
   `,
 
   // Sitzplan (Karte in „Finde deine Expertengruppe“ und „Finde deine Stammgruppe“). Keine Namen!
@@ -958,7 +978,7 @@ function findeView(stamm) {
     h("p", { class: "eyebrow", text: stamm ? "Finde deine Stammgruppe" : "Finde deine Expertengruppe" }),
     stamm ? h("div", { class: "riesig symbol", role: "img", "aria-label": "Symbol " + SYMBOLE[st.sym].name, html: symSvg(st.sym) })
       : h("div", {}, h("img", { class: "rolle", src: r.icon, alt: "" }), h("div", { class: "riesig", text: r.gruppe })),
-    h("p", { class: "fsatz", text: stamm ? "Sucht euch zu viert: alle mit diesem Symbol. In jeder Stammgruppe ist zu jedem Thema eine Expertin oder ein Experte: Versailles, Ballhaus, Bastille, Land."
+    h("p", { class: "fsatz", text: stamm ? "Sucht alle mit diesem Symbol und setzt euch zusammen. In jeder Stammgruppe sind Expertinnen und Experten zu jedem Thema: Versailles, Ballhaus, Bastille, Land."
       : "Sucht alle, auf deren iPad auch „" + r.gruppe + "“ steht, und setzt euch zusammen." }),
     stamm ? h("p", { class: "fsatz klein", text: "Dein Thema: " + r.gruppe }) : null,
     sitzplanKarte(stamm),
