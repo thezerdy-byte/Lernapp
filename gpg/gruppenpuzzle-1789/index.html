@@ -473,10 +473,9 @@ const CONTENT = {
           { label: "Nach Ständen: Wie geht die Abstimmung aus?", hint: "Wer gewinnt?", starter: "Es steht ", options: ["2 zu 1 gegen den Dritten Stand", "1 zu 2 für den Dritten Stand"], correct: 0 },
           { label: "Nach Köpfen: Wie viele Stimmen hat der Dritte Stand?", hint: "Schau in den rechten Kasten.", starter: "Der Dritte Stand hat ", options: ["600 von 1200 Stimmen", "1 von 3 Stimmen"], correct: 0 },
           { label: "Warum fordert der Dritte Stand die Abstimmung nach Köpfen?", hint: "Was ändert sich für ihn?", starter: "Weil ", options: ["Weil er dann so viele Stimmen hat wie Klerus und Adel zusammen und mit etwas Hilfe gewinnen kann.", "Weil er dann keine Steuern mehr zahlen muss."], correct: 0 } ] },
-        { typ: "mark", kopf: "Wähle die richtigen Aussagen.", auftrag: "Tippe alle Aussagen an, die stimmen.", correct: [0, 2, 3, 5, 6],
+        { typ: "mark", kopf: "Wähle die richtigen Aussagen.", auftrag: "Tippe alle Aussagen an, die stimmen.", correct: [0, 2, 3],
           aussagen: ["Am 5. Mai 1789 rief der König die Generalstände nach Versailles.", "Der König wollte die Steuern senken.", "Der König brauchte Geld und wollte neue Steuern.",
-            "Bei der Abstimmung nach Ständen hat jeder Stand nur eine Stimme.", "Bei der Abstimmung nach Köpfen hat jeder Stand nur eine Stimme.",
-            "Klerus und Adel konnten den Dritten Stand nach Ständen immer 2 zu 1 überstimmen.", "Der Dritte Stand forderte eine Abstimmung nach Köpfen.", "Der Dritte Stand hatte weniger Vertreter als der Adel."] },
+            "Klerus und Adel konnten den Dritten Stand nach Ständen immer 2 zu 1 überstimmen.", "Der Dritte Stand hatte weniger Vertreter als der Adel."] },
         { typ: "schreiben", kopf: "Übertrage auf heute und beurteile.", auftrag: "Lies das Beispiel und schreibe deine Antwort.",
           fall: "Deine Schule stimmt über ein Handyverbot in den Pausen ab. Es gibt drei Gruppen: 20 Lehrkräfte, 20 Elternvertreter und 300 Schülerinnen und Schüler. Lehrkräfte und Eltern sind für das Verbot, die Schüler dagegen.",
           fragen: ["Wie geht die Abstimmung nach Gruppen aus (jede Gruppe 1 Stimme)?", "Wie geht sie nach Köpfen aus (jede Person 1 Stimme)?", "Welche Abstimmung findest du gerechter? Begründe."],
@@ -519,8 +518,6 @@ const CONTENT = {
           { label: "Wie ist die Stimmung im Bild? Begründe mit dem Bild.", hint: "Schau auf die Gesichter und Arme.", starter: "Die Stimmung ist ", options: ["Begeistert: Alle jubeln, strecken die Arme aus und umarmen sich.", "Traurig: Alle sitzen still und schauen zu Boden."], correct: 0 } ] },
         { typ: "felder", kopf: "Beantworte die Fragen.", auftrag: "Antworte kurz mit Hilfe des Textes.", felder: [
           { label: "Wann leisteten die Vertreter den Schwur?", hint: "", starter: "Am ", options: ["am 20. Juni 1789", "am 4. August 1789"], correct: 0 },
-          { label: "Wo schworen sie?", hint: "", starter: "Im ", options: ["im Ballhaus, einer Turnhalle in Versailles", "in einer Kirche in Paris"], correct: 0 },
-          { label: "Wer leistete den Schwur?", hint: "", starter: "Die ", options: ["die Vertreter des Dritten Standes (Nationalversammlung)", "die Soldaten des Königs"], correct: 0 },
           { label: "Was versprachen sie mit ihrem Schwur?", hint: "", starter: "Sie schworen, ", options: ["zusammenzubleiben, bis Frankreich eine Verfassung hat", "dem König immer zu gehorchen"], correct: 0 } ] },
         { typ: "schreiben", kopf: "Übertrage auf heute.", auftrag: "Lies das Beispiel und schreibe deine Antwort.",
           fall: "Eure Klasse möchte, dass die Aula bei Regen in der Pause offen bleibt. Die Schulleitung sagt Nein und schließt ab.",
@@ -560,9 +557,7 @@ const CONTENT = {
           { label: "Warum waren die Menschen in Paris im Juli 1789 so wütend?", hint: "Denk an das Brot und an die Soldaten.", starter: "Sie waren wütend, weil ", options: ["Sie hungerten, und der König half nicht, sondern ließ Soldaten aufmarschieren.", "Der König hatte das Brot billiger gemacht."], correct: 0 } ] },
         { typ: "felder", kopf: "Beantworte die Fragen.", auftrag: "Antworte kurz mit Hilfe des Textes.", felder: [
           { label: "Wann wurde die Bastille gestürmt?", hint: "", starter: "Am ", options: ["am 14. Juli 1789", "am 5. Mai 1789"], correct: 0 },
-          { label: "Wo stand die Bastille?", hint: "", starter: "In ", options: ["in Paris, an der Bastille", "in Versailles, im Schloss"], correct: 0 },
-          { label: "Wer stürmte die Bastille?", hint: "", starter: "Es stürmten ", options: ["Bürger von Paris", "die Soldaten des Königs"], correct: 0 },
-          { label: "Was geschah an diesem Tag?", hint: "", starter: "Die Bürger ", options: ["Sie eroberten die Bastille.", "Sie wählten einen neuen König."], correct: 0 } ] },
+          { label: "Was geschah an diesem Tag?", hint: "", starter: "Die Bürger von Paris ", options: ["Bürger von Paris eroberten die Bastille.", "Sie wählten einen neuen König."], correct: 0 } ] },
         { typ: "schreiben", kopf: "Übertrage auf heute und beurteile.", auftrag: "Lies das Beispiel und schreibe deine Antwort.",
           fall: "Die Bastille war für viele ein Zeichen für die Macht des Königs. Heute zeigen Menschen ihren Protest zum Beispiel auf Demonstrationen.",
           fragen: ["Welcher Weg ist besser: Gewalt wie 1789 oder friedlicher Protest heute? Begründe."],
@@ -602,8 +597,6 @@ const CONTENT = {
           { label: "Warum stürmten die Bauern die Schlösser der Grundherren?", hint: "Denk an die Abgaben.", starter: "Die Bauern stürmten die Schlösser, weil ", options: ["Sie wollten die hohen Abgaben und ihre Unfreiheit nicht mehr ertragen.", "Sie wollten dort wohnen."], correct: 0 } ] },
         { typ: "felder", kopf: "Beantworte die Fragen.", auftrag: "Antworte kurz mit Hilfe des Textes.", felder: [
           { label: "Wann kam es zu den Aufständen auf dem Land?", hint: "", starter: "Im ", options: ["im Juli und August 1789", "im Mai 1789"], correct: 0 },
-          { label: "Wo kämpften die Bauern?", hint: "", starter: "Auf ", options: ["auf dem Land, bei den Schlössern der Grundherren", "im Ballhaus in Versailles"], correct: 0 },
-          { label: "Wer erhob sich gegen die Grundherren?", hint: "", starter: "Die ", options: ["die Bauern", "die Bürger von Paris"], correct: 0 },
           { label: "Was erreichten die Bauern?", hint: "Was beschloss die Nationalversammlung am 4. August?", starter: "Am 4. August 1789 ", options: ["Alle Bauern wurden frei, alle Stände mussten Steuern zahlen.", "Sie bekamen einen eigenen König."], correct: 0 } ] },
         { typ: "schreiben", kopf: "Vergleiche mit heute.", auftrag: "Lies das Beispiel und schreibe deine Antwort.",
           fall: "Heute zahlen in Deutschland alle Steuern, je nachdem, wie viel sie verdienen. Niemand muss für einen Grundherrn arbeiten.",
@@ -624,7 +617,7 @@ function symSvg(k, cls) {
 /* =====================================================================
    Programm
    ===================================================================== */
-const KEY = "gp-1789-v4";   // bei geänderten Aufgaben hochzählen, damit alte Speicherstände nicht stören
+const KEY = "gp-1789-v5";   // bei geänderten Aufgaben hochzählen, damit alte Speicherstände nicht stören
 const $app = document.getElementById("app"), $print = document.getElementById("printArea"), $lb = document.getElementById("lightbox");
 
 function fresh() { return { name: "", sym: "", role: "", started: false, step: 1, unlocked: 1, t: {}, exp: {}, kern: { sel: [], checked: false }, vermutung: null, zusatz: null,
