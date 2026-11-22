@@ -289,6 +289,38 @@
   .ergebnis.ja { background: var(--hellgruen); color: var(--dgruen); } .ergebnis.nein { background: var(--hellrot); color: var(--rot); }
   .legende { font-size: .9rem; color: var(--grau); }
   @media (max-width: 760px) { .abstgrid { grid-template-columns: 1fr; } }
+  .grafik { display: grid; gap: 10px; margin: 10px 0 14px; }
+  .lupe-bild { position: relative; border-radius: 8px; overflow: hidden; border: 2px solid var(--braun); line-height: 0; }
+  .lupe-bild img { width: 100%; height: auto; display: block; }
+  .lupe-pkt { position: absolute; transform: translate(-50%, -50%); width: 44px; height: 44px; border-radius: 50%; border: 3px solid #fff; background: var(--rot); color: #fff;
+    font-family: inherit; font-weight: 700; font-size: 1.15rem; line-height: 1; padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,.45); cursor: pointer; animation: puls 2s ease-in-out infinite; }
+  .lupe-pkt.gesehen { background: var(--blau); animation: none; }
+  .lupe-pkt.akt { background: var(--dgruen); transform: translate(-50%, -50%) scale(1.15); animation: none; }
+  @keyframes puls { 0%, 100% { box-shadow: 0 0 0 0 rgba(200,49,43,.7), 0 2px 8px rgba(0,0,0,.45); } 50% { box-shadow: 0 0 0 10px rgba(200,49,43,0), 0 2px 8px rgba(0,0,0,.45); } }
+  .lupe-info { display: flex; gap: 12px; align-items: flex-start; background: var(--hellblau); border: 2px solid var(--blau); border-radius: 8px; padding: 10px 14px; margin: 0; }
+  .lupe-info.leer { display: block; color: var(--grau); background: var(--hellgrau); border-color: var(--hellblau); }
+  .lupe-info p { margin: 2px 0 0; }
+  .lupe-nr { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--dgruen); color: #fff; display: grid; place-items: center; font-weight: 700; }
+  .lupe-liste summary { cursor: pointer; color: var(--blau); font-weight: 700; min-height: 44px; display: flex; align-items: center; }
+  .lupe-liste ol { margin: 0; padding-left: 22px; } .lupe-liste li { margin-bottom: 4px; }
+  .lohnkasten { border: 2px solid var(--hellblau); border-radius: 8px; padding: 12px; background: #fff; display: grid; gap: 8px; }
+  .muenzen { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; max-width: 460px; }
+  .muenze { display: inline-block; width: 100%; max-width: 38px; aspect-ratio: 1; border-radius: 50%; background: #E9D9A6; border: 2px solid #B89B4A; box-sizing: border-box; }
+  .legende .muenze { width: 18px; vertical-align: middle; }
+  .muenze.brot { background: #A0662B; border-color: #6B3F14; }
+  .muenze.rest { background: #9CCB8A; border-color: var(--dgruen); }
+  .muenzen.anim .muenze { animation: pop .35s ease-out both; }
+  .saecke { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; max-width: 520px; }
+  .sack { display: inline-block; color: #D9C08A; line-height: 0; } .sack svg { width: 100%; height: auto; max-width: 46px; }
+  .sack.klein { width: 26px; flex: none; }
+  .saecke.anim .sack { animation: pop .4s ease-out both; }
+  .e-kirche { color: #7A5CA8; } .e-herr { color: var(--rot); } .e-koenig { color: var(--blau); } .e-saat { color: var(--braun); } .e-familie { color: #5FA64A; }
+  .empf { display: grid; gap: 4px; }
+  .empf-z { display: grid; grid-template-columns: 30px 1fr auto; gap: 8px; align-items: center; font-size: .95rem; }
+  .empf-z.weg { color: var(--grau); text-decoration: line-through; } .empf-z.weg .sack { opacity: .35; }
+  @keyframes pop { 0% { transform: scale(.3) translateY(-10px); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } 100% { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .lupe-pkt, .muenzen.anim .muenze, .saecke.anim .sack { animation: none !important; } }
+  @media (max-width: 600px) { .lupe-pkt { width: 36px; height: 36px; font-size: 1rem; } }
   .zeitleiste { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0 18px; padding-top: 6px; }
   .zeitleiste::before { content: ""; position: absolute; left: 0; right: 0; top: 13px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--blau), var(--rot)); }
   .zeitleiste::after { content: ""; position: absolute; right: 0; top: 6px; border: 10px solid transparent; border-left: 14px solid var(--rot); border-right: 0; }
@@ -329,6 +361,9 @@
      "mark"   Sätze im Text antippen. text: Nummer des Textes, correct: [Satznummern ab 0]
               oder mit aussagen: [..] statt text: richtige Aussagen antippen
      "abstimmung" Grafik „nach Ständen / nach Köpfen“ zum Antippen, darunter Fragen wie bei "felder"
+     "bildlupe"   Bild mit Nummern zum Antippen (punkte: x/y in Prozent, titel, text), darunter Fragen wie bei "felder"
+     "brotlohn"   Münzen-Grafik Tageslohn und Brotpreis (lohn, zeiten: [{ name, brot }]), darunter Fragen wie bei "felder"
+     "ernte"      Säcke-Grafik: wohin geht die Ernte? (saecke, empfaenger, zeiten: [{ name, teile }]), darunter Fragen wie bei "felder"
      "schreiben" freier Text: ● Satzanfänge und Wortspeicher, ■ Satzanfänge, ▲ leeres Feld
      "felder" Stichworte (Wann? Wo? Wer? Was?): [{ label, hint, starter, options:[..], correct: Position }]
    Bilder: gemeinfreie Gemälde/Stiche, Texte frei nacherzählt nach dem Schulbuch S. 54/55.
@@ -428,7 +463,19 @@ const CONTENT = {
         "Begeistert umarmten sich viele von uns.",
         "Der König musste die Nationalversammlung schließlich anerkennen."] }],
       tasks: [
-        { typ: "mark", kopf: "Markiere das Wichtigste.", auftrag: "Lies den Text. Tippe die Sätze an, in denen steht, wie sich der Dritte Stand gegen den König und die anderen Stände wehrte.", text: 0, correct: [3, 6, 7] },
+        { typ: "bildlupe", kopf: "Untersuche das Gemälde.", auftrag: "Tippe nacheinander auf die Nummern im Bild und lies, was du dort siehst. Beantworte dann die Fragen.",
+          bild: "bilder/ballhaus.jpg", alt: "Gemälde vom Ballhausschwur mit Nummern zum Antippen",
+          punkte: [   // x, y: Lage im Bild in Prozent (von links, von oben)
+            { x: 53, y: 66, titel: "Der Mann auf dem Tisch", text: "Auf dem Tisch steht Jean-Sylvain Bailly, der Vorsitzende der Nationalversammlung. Er liest den Eid laut vor." },
+            { x: 86, y: 56, titel: "Die erhobenen Arme", text: "Hunderte Vertreter strecken den rechten Arm aus. So schwören sie alle gemeinsam den Eid." },
+            { x: 46, y: 90, titel: "Die Umarmung vorne", text: "Ein Mönch, ein Priester und ein Vertreter des Dritten Standes umarmen sich. Der Maler zeigt: Die Stände halten zusammen." },
+            { x: 9, y: 14, titel: "Die Zuschauer oben", text: "An den Fenstern schauen Menschen aus dem Volk zu. Sie jubeln und stehen hinter der Nationalversammlung." },
+            { x: 30, y: 19, titel: "Der Vorhang im Wind", text: "Der Wind bläst den Vorhang ins Ballhaus. Der Maler zeigt: Ein neuer Wind weht durch Frankreich, ein Sturm zieht auf." } ],
+          felder: [
+          { label: "Wer steht auf dem Tisch und was tut er?", hint: "Tippe auf die 1.", starter: "Auf dem Tisch steht ", options: ["Bailly, der Vorsitzende der Nationalversammlung. Er liest den Eid vor.", "Der König. Er löst die Versammlung auf."], correct: 0 },
+          { label: "Warum strecken so viele Männer den Arm aus?", hint: "Tippe auf die 2.", starter: "Sie strecken den Arm aus, weil ", options: ["Sie schwören gemeinsam den Eid.", "Sie melden sich zu Wort."], correct: 0 },
+          { label: "Vorne umarmen sich ein Mönch, ein Priester und ein Vertreter des Dritten Standes. Was will der Maler damit zeigen?", hint: "Tippe auf die 3.", starter: "Der Maler zeigt, dass ", options: ["Die Stände halten zusammen.", "Die Stände streiten miteinander."], correct: 0 },
+          { label: "Wie ist die Stimmung im Bild? Begründe mit dem Bild.", hint: "Schau auf die Gesichter und Arme.", starter: "Die Stimmung ist ", options: ["Begeistert: Alle jubeln, strecken die Arme aus und umarmen sich.", "Traurig: Alle sitzen still und schauen zu Boden."], correct: 0 } ] },
         { typ: "felder", kopf: "Beantworte die Fragen.", auftrag: "Antworte kurz mit Hilfe des Textes.", felder: [
           { label: "Wann leisteten die Vertreter den Schwur?", hint: "", starter: "Am ", options: ["am 20. Juni 1789", "am 4. August 1789"], correct: 0 },
           { label: "Wo schworen sie?", hint: "", starter: "Im ", options: ["im Ballhaus, einer Turnhalle in Versailles", "in einer Kirche in Paris"], correct: 0 },
@@ -462,7 +509,15 @@ const CONTENT = {
         "Für viele war die Bastille ein Zeichen für die Macht des Königs. Jetzt hatte das Volk sie gestürmt.",
         "Dieser Tag gilt als der eigentliche Beginn der Französischen Revolution."] }],
       tasks: [
-        { typ: "mark", kopf: "Markiere das Wichtigste.", auftrag: "Lies den Text. Tippe die Sätze an, die erklären, warum die Menschen die Bastille stürmten.", text: 0, correct: [2, 3, 5, 7] },
+        { typ: "brotlohn", kopf: "Untersuche: Lohn und Brot.", auftrag: "Tippe auf beide Knöpfe und vergleiche. Beantworte dann die Fragen.",
+          beispiel: "Beispiel mit gerundeten Zahlen: Ein Arbeiter in Paris verdient etwa 20 Sous am Tag (Sou = eine Münze). Seine Familie braucht jeden Tag ein großes Brot (4 Pfund).",
+          lohn: 20,
+          zeiten: [ { name: "Ein normales Jahr (1787)", brot: 8 }, { name: "Juli 1789", brot: 15, notiz: "Am 14. Juli 1789 kostete das Brot so viel wie nie: genau 14 ½ Sous." } ],
+          felder: [
+          { label: "In einem normalen Jahr: Wie viele Sous bleiben nach dem Brotkauf übrig?", hint: "Tippe auf den ersten Knopf.", starter: "Es bleiben ", options: ["12 Sous", "2 Sous"], correct: 0 },
+          { label: "Im Juli 1789: Wie viele Sous bleiben übrig?", hint: "Tippe auf den zweiten Knopf.", starter: "Es bleiben ", options: ["5 Sous", "12 Sous"], correct: 0 },
+          { label: "Was bedeutet das für eine Familie in Paris?", hint: "Wofür braucht man sonst noch Geld?", starter: "Die Familie ", options: ["Sie hat kaum noch Geld für Miete, Holz und Kleidung. Viele hungern.", "Sie kann mehr Geld sparen als früher."], correct: 0 },
+          { label: "Warum waren die Menschen in Paris im Juli 1789 so wütend?", hint: "Denk an das Brot und an die Soldaten.", starter: "Sie waren wütend, weil ", options: ["Sie hungerten, und der König half nicht, sondern ließ Soldaten aufmarschieren.", "Der König hatte das Brot billiger gemacht."], correct: 0 } ] },
         { typ: "felder", kopf: "Beantworte die Fragen.", auftrag: "Antworte kurz mit Hilfe des Textes.", felder: [
           { label: "Wann wurde die Bastille gestürmt?", hint: "", starter: "Am ", options: ["am 14. Juli 1789", "am 5. Mai 1789"], correct: 0 },
           { label: "Wo stand die Bastille?", hint: "", starter: "In ", options: ["in Paris, an der Bastille", "in Versailles, im Schloss"], correct: 0 },
@@ -495,7 +550,17 @@ const CONTENT = {
         "Am 4. August 1789 erklärte sie alle Bauern für frei.",
         "Die Grundherren waren nicht mehr die Richter auf dem Land. Und ab jetzt mussten alle Stände Steuern zahlen."] }],
       tasks: [
-        { typ: "mark", kopf: "Markiere das Wichtigste.", auftrag: "Lies den Text. Tippe die Sätze an, in denen steht, was die Bauern taten und was sie erreichten.", text: 0, correct: [3, 4, 5, 8, 9] },
+        { typ: "ernte", kopf: "Untersuche Jacques’ Ernte.", auftrag: "Tippe auf beide Knöpfe und schau, wohin die Säcke gehen. Beantworte dann die Fragen.",
+          beispiel: "Beispiel: Jacques erntet in einem Jahr 10 Säcke Getreide. Davon muss er viel abgeben. Die Zahlen sind ausgedacht, zeigen aber, wie es ungefähr war.",
+          saecke: 10,
+          empfaenger: { kirche: "an die Kirche (Zehnt)", herr: "an den Grundherrn (Abgaben)", koenig: "an den König (Steuern)", saat: "Saatgut für das nächste Jahr", familie: "bleibt für die Familie zum Essen" },
+          zeiten: [ { name: "Vor 1789", teile: { kirche: 1, herr: 3, koenig: 2, saat: 2, familie: 2 } },
+                    { name: "Nach dem 4. August 1789", teile: { kirche: 0, herr: 0, koenig: 2, saat: 2, familie: 6 }, notiz: "Die Bauern sind frei: Der Grundherr und die Kirche bekommen keine Abgaben mehr. Steuern zahlen jetzt alle Stände." } ],
+          felder: [
+          { label: "Vor 1789: Wie viele Säcke bleiben der Familie zum Essen?", hint: "Tippe auf „Vor 1789“.", starter: "Es bleiben ", options: ["2 von 10 Säcken", "6 von 10 Säcken"], correct: 0 },
+          { label: "Wer bekommt vor 1789 die meisten Säcke?", hint: "Zähle die Farben.", starter: "Die meisten Säcke bekommt ", options: ["der Grundherr", "die Kirche"], correct: 0 },
+          { label: "Nach dem 4. August 1789: Wie viele Säcke bleiben jetzt der Familie?", hint: "Tippe auf den zweiten Knopf.", starter: "Es bleiben ", options: ["6 von 10 Säcken", "2 von 10 Säcken"], correct: 0 },
+          { label: "Warum stürmten die Bauern die Schlösser der Grundherren?", hint: "Denk an die Abgaben.", starter: "Die Bauern stürmten die Schlösser, weil ", options: ["Sie wollten die hohen Abgaben und ihre Unfreiheit nicht mehr ertragen.", "Sie wollten dort wohnen."], correct: 0 } ] },
         { typ: "felder", kopf: "Beantworte die Fragen.", auftrag: "Antworte kurz mit Hilfe des Textes.", felder: [
           { label: "Wann kam es zu den Aufständen auf dem Land?", hint: "", starter: "Im ", options: ["im Juli und August 1789", "im Mai 1789"], correct: 0 },
           { label: "Wo kämpften die Bauern?", hint: "", starter: "Auf ", options: ["auf dem Land, bei den Schlössern der Grundherren", "im Ballhaus in Versailles"], correct: 0 },
@@ -521,7 +586,7 @@ function symSvg(k, cls) {
 /* =====================================================================
    Programm
    ===================================================================== */
-const KEY = "gp-1789-v3";   // bei geänderten Aufgaben hochzählen, damit alte Speicherstände nicht stören
+const KEY = "gp-1789-v4";   // bei geänderten Aufgaben hochzählen, damit alte Speicherstände nicht stören
 const $app = document.getElementById("app"), $print = document.getElementById("printArea"), $lb = document.getElementById("lightbox");
 
 function fresh() { return { name: "", sym: "", role: "", started: false, step: 1, unlocked: 1, t: {}, exp: {}, kern: { sel: [], checked: false }, vermutung: null, zusatz: null,
@@ -691,6 +756,54 @@ function abstimmungGrafik(t) {
   return h("div", {}, h("p", { class: "beispiel", text: t.beispiel }), h("div", { class: "abstgrid" }, links, rechts),
     h("p", { class: "legende" }, h("span", { class: "pk ja" }), " Ja   ", h("span", { class: "pk nein" }), " Nein"));
 }
+/* Bildlupe: Nummern im Bild antippen (für alle gleich) */
+function bildlupe(t) {
+  const g = slot(st, "lupe", { offen: [], akt: -1 });
+  const bild = h("div", { class: "lupe-bild" }, h("img", { src: t.bild, alt: t.alt || "" }),
+    t.punkte.map((p, i) => h("button", { class: "lupe-pkt" + (g.offen.includes(i) ? " gesehen" : "") + (g.akt === i ? " akt" : ""), type: "button", style: "left:" + p.x + "%;top:" + p.y + "%",
+      "aria-label": "Stelle " + (i + 1) + ": " + p.titel, onclick: () => { g.akt = i; if (!g.offen.includes(i)) g.offen.push(i); done(); } }, String(i + 1))));
+  const p = t.punkte[g.akt];
+  const info = p ? h("div", { class: "lupe-info" }, h("span", { class: "lupe-nr", text: g.akt + 1 }), h("div", {}, h("b", { text: p.titel }), h("p", { text: p.text })))
+    : h("p", { class: "lupe-info leer", text: "Tippe auf eine Nummer im Bild." });
+  const liste = g.offen.length > 1 ? h("details", { class: "lupe-liste" }, h("summary", { text: "Alles, was du schon entdeckt hast (" + g.offen.length + " von " + t.punkte.length + ")" }),
+    h("ol", {}, t.punkte.map((q, i) => g.offen.includes(i) ? h("li", { value: i + 1 }, h("b", { text: q.titel + ": " }), q.text) : null))) : null;
+  return h("div", { class: "grafik" }, bild, info, liste);
+}
+/* Lohn und Brot: Münzen (für alle gleich) */
+function brotlohn(t) {
+  const g = slot(st, "brot", { gesehen: [], akt: -1 }), z = t.zeiten[g.akt];
+  const knoepfe = h("div", { class: "row" }, t.zeiten.map((x, i) => h("button", { class: "btn small" + (g.akt === i ? " primary" : ""), type: "button", "aria-pressed": g.akt === i ? "true" : "false",
+    onclick: () => { g.akt = i; if (!g.gesehen.includes(i)) g.gesehen.push(i); animNeu = "brot"; done(); } }, x.name)));
+  const anim = animNeu === "brot"; animNeu = "";
+  const ganz = z ? Math.floor(z.brot) : 0;
+  const muenzen = h("div", { class: "muenzen" + (anim ? " anim" : "") }, Array.from({ length: t.lohn }, (_, i) =>
+    h("span", { class: "muenze" + (z ? (i < ganz ? " brot" : " rest") : ""), style: "animation-delay:" + (i * 45) + "ms" })));
+  const out = h("div", { class: "grafik" }, h("p", { class: "beispiel", text: t.beispiel }), knoepfe,
+    h("div", { class: "lohnkasten" }, h("b", { text: "Tageslohn: " + t.lohn + " Sous" }), muenzen,
+      h("p", { class: "legende" }, h("span", { class: "muenze brot" }), " für das Brot   ", h("span", { class: "muenze rest" }), " bleibt übrig für Miete, Holz, Kleidung …")));
+  if (z) out.append(h("div", { class: "ergebnis " + (t.lohn - z.brot < 8 ? "nein" : "ja"), text: z.name + ": Das Brot kostet " + z.brot + " Sous. Es bleiben " + (t.lohn - z.brot) + " von " + t.lohn + " Sous übrig." }),
+    z.notiz ? h("p", { class: "muted", text: z.notiz }) : "");
+  return out;
+}
+/* Jacques' Ernte: Säcke (für alle gleich) */
+const SACK = '<svg viewBox="0 0 40 48" aria-hidden="true"><path d="M14 4h12l-3 7c9 4 14 13 14 22 0 9-7 13-17 13S3 42 3 33c0-9 5-18 14-22z" fill="currentColor" stroke="rgba(0,0,0,.35)" stroke-width="2"/><path d="M14 11h12" stroke="rgba(0,0,0,.45)" stroke-width="3"/></svg>';
+function ernte(t) {
+  const g = slot(st, "ernte", { gesehen: [], akt: -1 }), z = t.zeiten[g.akt];
+  const knoepfe = h("div", { class: "row" }, t.zeiten.map((x, i) => h("button", { class: "btn small" + (g.akt === i ? " primary" : ""), type: "button", "aria-pressed": g.akt === i ? "true" : "false",
+    onclick: () => { g.akt = i; if (!g.gesehen.includes(i)) g.gesehen.push(i); animNeu = "ernte"; done(); } }, x.name)));
+  const anim = animNeu === "ernte"; animNeu = "";
+  const reihe = []; if (z) Object.keys(t.empfaenger).forEach(k => { for (let n = 0; n < (z.teile[k] || 0); n++) reihe.push(k); });
+  const saecke = h("div", { class: "saecke" + (anim ? " anim" : "") }, Array.from({ length: t.saecke }, (_, i) =>
+    h("span", { class: "sack " + (reihe[i] ? "e-" + reihe[i] : ""), style: "animation-delay:" + (i * 90) + "ms", html: SACK })));
+  const tabelle = z ? h("div", { class: "empf" }, Object.keys(t.empfaenger).map(k => h("div", { class: "empf-z" + (z.teile[k] ? "" : " weg") },
+    h("span", { class: "sack klein e-" + k, html: SACK }), h("span", { text: t.empfaenger[k] }), h("b", { text: (z.teile[k] || 0) + (z.teile[k] === 1 ? " Sack" : " Säcke") })))) : h("p", { class: "muted", text: "Tippe auf einen Knopf." });
+  const out = h("div", { class: "grafik" }, h("p", { class: "beispiel", text: t.beispiel }), knoepfe,
+    h("div", { class: "lohnkasten" }, h("b", { text: "Jacques’ Ernte: " + t.saecke + " Säcke" + (z ? " · " + z.name : "") }), saecke, tabelle));
+  if (z && z.notiz) out.append(h("div", { class: "ergebnis ja", text: z.notiz }));
+  return out;
+}
+let animNeu = "";
+const GRAFIK = { abstimmung: abstimmungGrafik, bildlupe, brotlohn, ernte };
 function taskText(i) { return mit("t" + i, () => {
   const t = R().tasks[i], a = st.exp["t" + i];
   if (t.typ === "schreiben") return typeof a === "string" && a.trim() ? a.trim() : "–";
@@ -794,7 +907,7 @@ function teil1View() {
   r.texte.forEach(tx => { if (!r.tasks.some(t => t.typ === "mark" && !t.aussagen && r.texte[t.text] === tx)) v.append(textCard(tx)); });   // Text ohne Markier-Aufgabe als Lesekarte
   r.tasks.forEach((t, i) => {
     if (i >= st.offen) { if (i === st.offen) v.append(h("div", { class: "card zu-aufgabe" }, h("p", { text: "🔒 Aufgabe " + (i + 1) + " erscheint, wenn du Aufgabe " + i + " geschafft hast." }))); return; }
-    const key = "t" + i, body = mit(key, () => t.typ === "mark" ? markWidget(key, t) : t.typ === "abstimmung" ? h("div", {}, abstimmungGrafik(t), felderWidget(key, t)) : t.typ === "schreiben" ? schreibWidget(key, t) : felderWidget(key, t));
+    const key = "t" + i, body = mit(key, () => t.typ === "mark" ? markWidget(key, t) : GRAFIK[t.typ] ? h("div", {}, GRAFIK[t.typ](t), felderWidget(key, t)) : t.typ === "schreiben" ? schreibWidget(key, t) : felderWidget(key, t));
     const szeneHier = r.szene && r.szene.nach === i && taskDone(i);
     const naechsteKnopf = i === st.offen - 1 && i < r.tasks.length - 1 && taskDone(i)
       ? h("div", { class: "weiter", style: "margin-top:14px" }, h("button", { class: "btn primary", type: "button", onclick: () => aufdecken(i) }, "Weiter zu Aufgabe " + (i + 2))) : null;

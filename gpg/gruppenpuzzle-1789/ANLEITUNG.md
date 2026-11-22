@@ -6,9 +6,9 @@ Gleiche Technik und Optik wie das Gruppenpuzzle „Vor der Französischen Revolu
 
 ## Themen (Expertengruppen)
 - **A Eine Versammlung in Versailles** (5. Mai 1789), erzählt von Pierre. Statt Markieren: Grafik „Abstimmung nach Ständen / nach Köpfen“ mit Beispiel und Fragen, danach richtige Aussagen auswählen
-- **B Der Ballhausschwur** (17./20. Juni 1789), erzählt von Pierre
-- **C Der Sturm auf die Bastille** (14. Juli 1789), erzählt von Anne
-- **D Die Revolution auf dem Land** (Juli/August 1789), erzählt von Jacques
+- **B Der Ballhausschwur** (17./20. Juni 1789), erzählt von Pierre. Aufgabe 1: Bildlupe zum Ballhaus-Gemälde (5 Nummern zum Antippen) mit Fragen
+- **C Der Sturm auf die Bastille** (14. Juli 1789), erzählt von Anne. Aufgabe 1: Grafik „Lohn und Brot“ (Tageslohn 20 Sous, Brot 8 Sous im normalen Jahr, rund 15 Sous im Juli 1789, gerundete Beispielzahlen) mit Fragen
+- **D Die Revolution auf dem Land** (Juli/August 1789), erzählt von Jacques. Aufgabe 1: Grafik „Jacques’ Ernte“ (10 Säcke, wohin sie vor 1789 und nach dem 4. August gehen, ausgedachte Beispielzahlen) mit Fragen
 
 Die Artikulation sieht drei Expertengruppen (A–C) vor. Wenn du D nicht nutzt, teile einfach keine D-Rolle zu.
 
@@ -37,7 +37,7 @@ klassenliste: `
 - In der Stammgruppe wird **A → B → C → D** berichtet. Gemeinsam ordnen die Kinder die Ereignisse auf einem Zeitstrahl, wählen zu jedem Ereignis die Folge aus und schreiben ein freies Fazit (zwei bis drei Sätze) mit Wortspeicher. Auf der Übersicht erscheint ein Zeitstrahl mit kleinen Bildern.
 
 ## Ablauf in der App
-1. **Einzelarbeit:** Text lesen und Wichtiges markieren, Stichworte notieren (Wann? Wo? Wer? Was?).
+1. **Einzelarbeit:** Grafik oder Bild untersuchen, Text lesen, Stichworte notieren (Wann? Wo? Wer? Was?).
 2. **Finde deine Expertengruppe:** Groß steht „Versailles“, „Ballhaus“, „Bastille“ oder „Land“. Weiter mit „Wir haben uns gefunden“.
 3. **Expertengruppe:** Ergebnisse vergleichen, drei Kernpunkte festlegen, Vermutung, Zusatzfrage für Schnelle.
 4. **Finde deine Stammgruppe:** Groß erscheint das Symbol ● ■ ▲.
