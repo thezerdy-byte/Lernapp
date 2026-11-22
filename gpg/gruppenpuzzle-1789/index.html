@@ -484,8 +484,7 @@ const CONTENT = {
           woerter: ["2 zu 1", "300 zu 40", "nach Gruppen", "nach Köpfen", "gewinnen", "verlieren", "gerecht", "ungerecht", "Jede Stimme zählt gleich.", "die meisten Menschen"] }
       ],
       kern: { options: ["Am 5. Mai 1789 trafen sich die Generalstände in Versailles.", "Der König brauchte Geld und wollte neue Steuern.", "Der Dritte Stand forderte eine Abstimmung nach Köpfen.", "Der König wollte die Steuern senken.", "Die Generalstände trafen sich in Paris.", "Adel und Klerus unterstützten den Dritten Stand."], correct: [0, 1, 2] },
-      vermutung: "Der Dritte Stand wird immer überstimmt. Was wird er wohl als Nächstes tun?",
-      zusatz: { text: "Stell dir vor, du schreibst in ein Beschwerdeheft. Worüber beschwerst du dich?", starter: "Ich beschwere mich, weil " } },
+      vermutung: "Der Dritte Stand wird immer überstimmt. Was wird er wohl als Nächstes tun?" },
 
     B: { name: "Der Ballhausschwur", gruppe: "Ballhaus", icon: "bilder/icon-schriftrolle.png", figur: "Pierre, Vertreter des Dritten Standes", figurBild: "bilder/figur-pierre.jpg",
       bisher: "Am 5. Mai 1789 trafen sich in Versailles die Generalstände. Der König wollte neue Steuern. Der Dritte Stand forderte: Jede Stimme soll gleich viel zählen.",
@@ -530,8 +529,7 @@ const CONTENT = {
           woerter: ["zusammenhalten", "gemeinsam", "versprechen", "nicht aufgeben", "mehr Menschen", "nicht überhören", "Klassensprecher", "Schülermitverwaltung (SMV)"] }
       ],
       kern: { options: ["Der Dritte Stand erklärte sich zur Nationalversammlung.", "Im Ballhaus schworen sie, zusammenzubleiben, bis Frankreich eine Verfassung hat.", "Der König musste die Nationalversammlung anerkennen.", "Der König öffnete ihnen freiwillig den Sitzungssaal.", "Im Ballhaus wurde der König abgesetzt.", "Alle Adligen unterstützten den Dritten Stand."], correct: [0, 1, 2] },
-      vermutung: "Die Nachricht vom Ballhausschwur erreicht Paris. Der König zieht Soldaten zusammen. Was werden die Menschen in Paris tun?",
-      zusatz: { text: "Erkläre, warum der Ballhausschwur für den König gefährlich war.", starter: "Der Schwur war für den König gefährlich, weil " } },
+      vermutung: "Die Nachricht vom Ballhausschwur erreicht Paris. Der König zieht Soldaten zusammen. Was werden die Menschen in Paris tun?" },
 
     C: { name: "Der Sturm auf die Bastille", gruppe: "Bastille", icon: "bilder/icon-burg.png", figur: "Anne, Tochter eines Handwerkers in Paris", figurBild: "bilder/figur-anne.jpg",
       bisher: "Der Dritte Stand hat sich zur Nationalversammlung erklärt. Im Ballhaus hat er geschworen: Wir bleiben zusammen, bis Frankreich eine Verfassung hat.",
@@ -572,8 +570,7 @@ const CONTENT = {
           woerter: ["Gewalt", "friedlicher Protest", "Demonstration", "Unterschriften sammeln", "wählen", "Meinung sagen", "Verletzte", "Tote", "gerecht", "ungerecht"] }
       ],
       kern: { options: ["Am 14. Juli 1789 stürmten Bürger von Paris die Bastille.", "Die Menschen hatten Hunger und Angst vor den Soldaten des Königs.", "Der Sturm auf die Bastille gilt als Beginn der Revolution.", "Die Bastille war das Schloss des Königs.", "Der König führte die Bürger zur Bastille.", "Nach dem Sturm gaben die Bürger ihre Waffen sofort ab."], correct: [0, 1, 2] },
-      vermutung: "Die Nachricht vom Sturm auf die Bastille erreicht die Dörfer. Was werden die Bauern tun?",
-      zusatz: { text: "Warum war die Bastille ein Zeichen für die Macht des Königs?", starter: "Die Bastille war ein Zeichen für die Macht des Königs, weil " } },
+      vermutung: "Die Nachricht vom Sturm auf die Bastille erreicht die Dörfer. Was werden die Bauern tun?" },
 
     D: { name: "Die Revolution auf dem Land", gruppe: "Land", icon: "bilder/icon-brot.png", figur: "Jacques, Bauer in einem Dorf", figurBild: "bilder/figur-jacques.jpg",
       bisher: "Am 14. Juli 1789 haben die Bürger von Paris die Bastille gestürmt. Die Nachricht verbreitet sich schnell im ganzen Land.",
@@ -615,8 +612,7 @@ const CONTENT = {
           woerter: ["Steuern und Abgaben", "Grundherr", "unfrei", "arbeiten", "Ernte abgeben", "nur die Bauern", "Adel und Klerus", "keine Steuern", "Richter"] }
       ],
       kern: { options: ["Die Bauern weigerten sich, Steuern und Abgaben zu zahlen.", "Sie stürmten die Schlösser und verbrannten die Bücher mit ihren Abgaben.", "Am 4. August 1789 wurden alle Bauern frei.", "Die Bauern blieben ruhig und warteten ab.", "Nach dem 4. August mussten nur noch die Bauern Steuern zahlen.", "Die Grundherren wurden die Richter in Paris."], correct: [0, 1, 2] },
-      vermutung: "Die Bauern sind jetzt frei. Was muss die Nationalversammlung als Nächstes tun?",
-      zusatz: { text: "Wie findest du die Gewalt der Bauern: verständlich, unnötig oder grausam? Begründe.", starter: "Ich finde die Gewalt der Bauern\nweil " } }
+      vermutung: "Die Bauern sind jetzt frei. Was muss die Nationalversammlung als Nächstes tun?" }
   }
 };
 const SYMBOLE = { k: { z: "●", name: "Kreis" }, q: { z: "■", name: "Quadrat" }, t: { z: "▲", name: "Dreieck" } };
@@ -1050,9 +1046,6 @@ function teil2View() {
   v.append(h("div", { class: "card rot" }, h("p", { class: "eyebrow", text: "Kernpunkte" }), h("h2", { text: "Unsere drei Kernpunkte" }), kernWidget()));
   v.append(h("div", { class: "card" }, h("h2", { text: "Unsere Vermutung" }), h("p", { class: "muted", text: r.vermutung }),
     textBox(st.vermutung !== null ? st.vermutung : "Wir vermuten, dass ", val => { st.vermutung = val; save(); }, true)));
-  v.append(h("div", { class: "card" }, h("div", { class: "plus" }, h("div", { class: "dot", text: "+" }), h("div", { style: "flex:1" },
-    h("p", { class: "eyebrow", text: "Für Schnelle" }), h("h3", { text: r.zusatz.text }),
-    textBox(st.zusatz !== null ? st.zusatz : r.zusatz.starter, val => { st.zusatz = val; save(); })))));
   v.append(weiterCard(3));
   return v;
 }
@@ -1135,7 +1128,6 @@ function uebersicht(print) {
     h("h3", { text: "Meine Kernpunkte (" + r.name + ")" }), h("div", { class: "ans", text: kernText() || "–" }));
   if (geschrieben(st.vermutung, "Wir vermuten, dass ")) box.append(h("h3", { text: "Unsere Vermutung" }), h("div", { class: "ans", text: st.vermutung.trim() }));
   box.append(h("h3", { text: "Unser Fazit: Wie wurde aus Protest eine Revolution?" }), h("div", { class: "ans", text: geschrieben(st.fazit, "") ? st.fazit.trim() : "–" }));
-  if (geschrieben(st.zusatz, r.zusatz.starter)) box.append(h("h3", { text: r.zusatz.text }), h("div", { class: "ans", text: st.zusatz.trim() }));
   return box;
 }
 function drucken() {

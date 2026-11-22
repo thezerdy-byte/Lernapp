@@ -39,7 +39,7 @@ klassenliste: `
 ## Ablauf in der App
 1. **Einzelarbeit:** Grafik oder Bild untersuchen, Text lesen, Stichworte notieren (Wann? Wo? Wer? Was?).
 2. **Finde deine Expertengruppe:** Groß steht „Versailles“, „Ballhaus“, „Bastille“ oder „Land“. Weiter mit „Wir haben uns gefunden“.
-3. **Expertengruppe:** Ergebnisse vergleichen, drei Kernpunkte festlegen, Vermutung, Zusatzfrage für Schnelle.
+3. **Expertengruppe:** Ergebnisse vergleichen, drei Kernpunkte festlegen, Vermutung.
 4. **Finde deine Stammgruppe:** Groß erscheint das Symbol ● ■ ▲.
 5. **Stammgruppe:** Zeitstrahl, Folgen, Fazit.
 6. **Fertig:** Übersicht und Ausdruck auf einer Seite.
