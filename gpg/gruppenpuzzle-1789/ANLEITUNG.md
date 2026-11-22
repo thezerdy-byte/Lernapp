@@ -62,3 +62,7 @@ klassenliste: `
 - Aufständische Bauern, Louis-Charles Bombled (gemeinfrei)
 
 QR-Code: mit `../gruppenpuzzle-franzoesische-revolution/qr.html` erzeugen.
+
+## Sitzplan
+
+In „Finde deine Expertengruppe“ und „Finde deine Stammgruppe“ zeigt eine Karte der Klasse, wo die Gruppe sitzt. Der eigene Platz ist farbig und blinkt gelb, die anderen Gruppen stehen mit großen Schildern daneben (Stammgruppen mit Symbol). Ändern in `CONTENT.sitzplan`: `tische` sind die Tischgruppen, `experten` und `stamm` sagen, welche Tischgruppe zu welchem Thema bzw. Symbol gehört. Keine Namen eintragen.
